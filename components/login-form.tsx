@@ -23,11 +23,8 @@ import { cn } from "cn"
 export type LoginFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
   /** Prefills the email field, e.g. when returning from the code step. */
   defaultEmail?: string
-  /** Called with the credentials; resolves when the code has been emailed. */
-  onSubmit?: (credentials: {
-    email: string
-    password: string
-  }) => void | Promise<void>
+  /** Called with the email; resolves when the code has been emailed. */
+  onSubmit?: (email: string) => void | Promise<void>
 }
 
 export function LoginForm({
@@ -37,7 +34,6 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const [email, setEmail] = React.useState(defaultEmail)
-  const [password, setPassword] = React.useState("")
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -47,7 +43,7 @@ export function LoginForm({
     setIsSubmitting(true)
 
     try {
-      await onSubmit?.({ email: email.trim(), password })
+      await onSubmit?.(email.trim())
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -65,8 +61,8 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
           <CardDescription>
-            Enter your email and password. We&apos;ll send a one-time code to
-            confirm it&apos;s you.
+            Enter your email. We&apos;ll send a one-time code to confirm
+            it&apos;s you.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,26 +77,6 @@ export function LoginForm({
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
                   disabled={isSubmitting}
                   required
                 />

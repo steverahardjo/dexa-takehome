@@ -31,15 +31,15 @@ export default function LoginPage() {
   const demoEmail = employees[0]?.email ?? ""
 
   // TODO: replace these mocks with real requests to your auth backend.
-  async function handleLogin(credentials: { email: string; password: string }) {
+  async function handleLogin(email: string) {
     await delay(600)
 
-    if (!credentials.email) {
+    if (!email) {
       throw new Error("Enter your email address to continue.")
     }
 
-    console.info(`[mock] code for ${credentials.email}: ${DEMO_OTP_CODE}`)
-    setEmail(credentials.email)
+    console.info(`[mock] code for ${email}: ${DEMO_OTP_CODE}`)
+    setEmail(email)
     setStep("otp")
   }
 

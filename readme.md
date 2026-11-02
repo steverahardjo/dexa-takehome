@@ -13,7 +13,7 @@ change employee data, and view their absences.
 
 ## Feature
 ### Employee
-- Employee/admin login through password and email OTP.
+- Employee/admin login through email OTP only.
 - Input form of current time and date.
 - Ability to scan a qr code and upload photo from employee phone.
 
