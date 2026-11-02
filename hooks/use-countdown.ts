@@ -20,12 +20,6 @@ export function useCountdown(defaultSeconds: number) {
     [defaultSeconds]
   )
 
-  const stop = React.useCallback(() => {
-    deadlineRef.current = null
-    setIsActive(false)
-    setSecondsLeft(0)
-  }, [])
-
   React.useEffect(() => {
     if (!isActive) return
 
@@ -54,9 +48,7 @@ export function useCountdown(defaultSeconds: number) {
   return {
     secondsLeft,
     isActive,
-    isExpired: !isActive && secondsLeft === 0,
     start,
-    stop,
   }
 }
 

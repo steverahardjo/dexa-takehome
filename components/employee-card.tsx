@@ -25,14 +25,8 @@ import {
 import { attendanceTone, getAttendance } from "@/lib/attendance";
 import { useNowSeconds } from "@/lib/clock";
 import { clockIn, getInitials, type Employee } from "@/lib/employees";
+import { formatCoordinates, googleMapsUrl } from "@/lib/maps";
 import { formatClockTime } from "@/lib/time";
-
-/** Google Maps search page for a free-text address. */
-function googleMapsUrl(address: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    address
-  )}`;
-}
 
 /**
  * Employee info card. The header band is green when the employee checked in on
@@ -152,7 +146,11 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
             <LocationLink employee={employee} />
 
             <p className="text-xs text-muted-foreground">
-              {employee.address ? "WFH · Google Maps" : "WFH"}
+              {employee.checkInPosition
+                ? "WFH · from the phone"
+                : employee.address
+                  ? "WFH · Google Maps"
+                  : "WFH"}
             </p>
           </div>
 
@@ -165,7 +163,13 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
 
 /** Check-in location: a plain link that opens Google Maps in a new page. */
 function LocationLink({ employee }: { employee: Employee }) {
-  if (!employee.address) {
+  // A check-in sent from the phone carries its own position; fall back to the
+  // address on file for check-ins made on the desktop.
+  const target = employee.checkInPosition
+    ? formatCoordinates(employee.checkInPosition)
+    : employee.address;
+
+  if (!target) {
     return (
       <p className="flex items-center gap-1.5 text-muted-foreground">
         <MapPin className="size-4" />
@@ -176,14 +180,14 @@ function LocationLink({ employee }: { employee: Employee }) {
 
   return (
     <a
-      href={googleMapsUrl(employee.address)}
+      href={googleMapsUrl(target)}
       target="_blank"
       rel="noreferrer"
-      title={`Open ${employee.address} in Google Maps`}
+      title={`Open ${target} in Google Maps`}
       className="group inline-flex max-w-full items-center gap-1.5 font-medium underline-offset-4 hover:text-foreground hover:underline"
     >
       <MapPin className="size-4 shrink-0 text-muted-foreground" />
-      <span className="truncate">{employee.address}</span>
+      <span className="truncate">{target}</span>
       <ExternalLink className="size-3.5 shrink-0 text-muted-foreground transition group-hover:text-foreground" />
     </a>
   );

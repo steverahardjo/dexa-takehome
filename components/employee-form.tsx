@@ -27,6 +27,7 @@ import {
 import {
   ROLES,
   addEmployee,
+  getInitials,
   updateEmployee,
   type Employee,
   type NewEmployee,
@@ -48,15 +49,6 @@ const emptyForm: NewEmployee = {
   avatar: "",
   evidence: "",
 };
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
 
 function toFormValues(employee?: Employee): NewEmployee {
   if (!employee) return emptyForm;
@@ -108,15 +100,6 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
 
     if (!form.contractExpiry) {
       nextErrors.contractExpiry = "Contract expiry date is required.";
-    }
-
-    const start = timeToMinutes(form.workStart);
-    const end = timeToMinutes(form.workEnd);
-
-    if (start === null) nextErrors.workStart = "Set a valid work start time.";
-    if (end === null) nextErrors.workEnd = "Set a valid work end time.";
-    if (start !== null && end !== null && end <= start) {
-      nextErrors.workEnd = "Work end must be after work start.";
     }
 
     if (!Number.isFinite(form.leaveBalance)) {
@@ -299,17 +282,6 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
               {errors.workStart && <FieldError>{errors.workStart}</FieldError>}
             </Field>
 
-            <Field data-invalid={Boolean(errors.workEnd)}>
-              <FieldLabel htmlFor="workEnd">Work end</FieldLabel>
-              <Input
-                id="workEnd"
-                type="time"
-                value={form.workEnd}
-                onChange={(event) => update("workEnd", event.target.value)}
-              />
-              {errors.workEnd && <FieldError>{errors.workEnd}</FieldError>}
-            </Field>
-
             <Field data-invalid={Boolean(errors.leaveBalance)}>
               <FieldLabel htmlFor="leaveBalance">Leave balance (days)</FieldLabel>
               <Input
@@ -328,20 +300,6 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
               {errors.leaveBalance && (
                 <FieldError>{errors.leaveBalance}</FieldError>
               )}
-            </Field>
-
-            <Field className="sm:col-span-2">
-              <FieldLabel htmlFor="evidence">Evidence photo URL</FieldLabel>
-              <Input
-                id="evidence"
-                type="url"
-                placeholder="https://example.com/check-in-photo.jpg"
-                value={form.evidence ?? ""}
-                onChange={(event) => update("evidence", event.target.value)}
-              />
-              <FieldDescription>
-                Optional. Shown on the dashboard card and opens as an overlay.
-              </FieldDescription>
             </Field>
 
             <Field className="sm:col-span-2">

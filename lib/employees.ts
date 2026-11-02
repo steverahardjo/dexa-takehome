@@ -2,11 +2,10 @@
 
 import { useSyncExternalStore } from "react";
 
+import type { CapturePosition } from "@/lib/attendance-capture";
+
 export const ROLES = ["Employee", "Manager", "HR Admin"] as const;
 export type Role = (typeof ROLES)[number];
-
-/** Everyone on this platform works from home. */
-export const WORK_LOCATION = "WFH";
 
 export type Employee = {
   id: string;
@@ -27,6 +26,8 @@ export type Employee = {
   avatar?: string;
   /** Photo evidence uploaded with the check-in (image URL). */
   evidence?: string;
+  /** Where the phone was when the check-in photo was sent. */
+  checkInPosition?: CapturePosition | null;
 };
 
 export type NewEmployee = Omit<Employee, "id" | "clockInAt">;
@@ -213,24 +214,46 @@ export function addEmployee(input: NewEmployee): Employee {
 export function updateEmployee(employeeId: string, input: NewEmployee) {
   persist(
     getSnapshot().map((employee) =>
-      employee.id === employeeId ? { ...input, id: employee.id, clockInAt: employee.clockInAt } : employee
-    )
-  );
-}
-
-/** Records the current local time as the employee's check-in for today. */
-export function clockIn(employeeId: string, now: Date = new Date()) {
-  const clockInAt = nowAsTime(now);
-
-  persist(
-    getSnapshot().map((employee) =>
-      employee.id === employeeId && employee.clockInAt === null
-        ? { ...employee, clockInAt }
+      employee.id === employeeId
+        ? {
+            ...input,
+            id: employee.id,
+            clockInAt: employee.clockInAt,
+            checkInPosition: employee.checkInPosition,
+          }
         : employee
     )
   );
 }
 
-export function getEmployees(): Employee[] {
-  return getSnapshot();
+type CheckInDetails = {
+  /** Local time of the check-in, defaults to now. */
+  at?: Date;
+  /** Photo evidence taken on the phone (image data URL). */
+  evidence?: string;
+  /** Where the phone was when the photo was sent. */
+  position?: CapturePosition | null;
+  /** Overwrite an existing check-in instead of leaving it alone. */
+  replace?: boolean;
+};
+
+/** Records a check-in for today together with the photo and position it came with. */
+export function clockIn(
+  employeeId: string,
+  { at = new Date(), evidence, position = null, replace = false }: CheckInDetails = {}
+) {
+  const clockInAt = nowAsTime(at);
+
+  persist(
+    getSnapshot().map((employee) =>
+      employee.id === employeeId && (replace || employee.clockInAt === null)
+        ? {
+            ...employee,
+            clockInAt,
+            evidence: evidence ?? employee.evidence,
+            checkInPosition: position,
+          }
+        : employee
+    )
+  );
 }

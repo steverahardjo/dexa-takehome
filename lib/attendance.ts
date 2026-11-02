@@ -1,24 +1,22 @@
 import { formatClockTime, formatDurationShort, timeToMinutes } from "@/lib/time";
 
-export type AttendanceStatus = "on-time" | "late" | "not-started";
+type AttendanceStatus = "on-time" | "late" | "not-started";
 
-export type Attendance = {
+type Attendance = {
   status: AttendanceStatus;
   /** Badge text, e.g. `Late`. */
   label: string;
   /** Short explanation, e.g. `Checked in 10:14 · 14 min late`. */
   detail: string;
-  /** Minutes late, or `null` when not late. */
-  minutesLate: number | null;
 };
 
-export const attendanceLabels: Record<AttendanceStatus, string> = {
+const attendanceLabels: Record<AttendanceStatus, string> = {
   "on-time": "On time",
   late: "Late",
   "not-started": "Not started",
 };
 
-export type AttendanceTone = {
+type AttendanceTone = {
   badge: string;
   card: string;
   icon: string;
@@ -89,7 +87,6 @@ export function getAttendance(
       status: "not-started",
       label: attendanceLabels["not-started"],
       detail: "Work start not set",
-      minutesLate: null,
     };
   }
 
@@ -101,7 +98,6 @@ export function getAttendance(
         status: "late",
         label: attendanceLabels.late,
         detail: `${minutesLate} min late`,
-        minutesLate,
       };
     }
 
@@ -112,7 +108,6 @@ export function getAttendance(
         minutesLate === 0
           ? "Right on time"
           : `${Math.abs(minutesLate)} min early`,
-      minutesLate: null,
     };
   }
 
@@ -127,11 +122,10 @@ export function getAttendance(
             (startMinutes - nowMinutes) * 60
           )} · ${formatClockTime(employee.workStart)}`
         : `No check-in yet · was due ${formatClockTime(employee.workStart)}`,
-    minutesLate: null,
   };
 }
 
-export type AttendanceSummary = Record<AttendanceStatus, number>;
+type AttendanceSummary = Record<AttendanceStatus, number>;
 
 export function summarizeAttendance(
   employees: AttendanceInput[],
