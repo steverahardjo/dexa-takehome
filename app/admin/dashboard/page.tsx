@@ -9,6 +9,7 @@ import {
   Filter,
   Hourglass,
   Plus,
+  QrCode,
   Search,
 } from "lucide-react";
 
@@ -83,6 +84,18 @@ export default function EmployeeDashboard() {
             <CalendarDays className="h-4 w-4" />
             <span suppressHydrationWarning>{today ?? "\u00a0"}</span>
           </div>
+
+          <Link
+            href="/employee"
+            className={buttonVariants({
+              variant: "outline",
+              size: "lg",
+              className: "gap-1.5",
+            })}
+          >
+            <QrCode className="size-4" />
+            Employee check-in
+          </Link>
 
           <Link
             href="/admin/dashboard/employees/new"

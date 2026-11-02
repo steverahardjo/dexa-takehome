@@ -1,18 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { CheckCircle2Icon } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { LoginForm } from "@/components/login-form"
 import { OtpForm } from "@/components/otp-form"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { useEmployees } from "@/lib/employees"
+import { signIn } from "@/lib/session"
 
 const OTP_LENGTH = 6
 const OTP_TTL_SECONDS = 60
@@ -20,15 +14,21 @@ const OTP_TTL_SECONDS = 60
 /** Demo only: the code the mock backend accepts. */
 const DEMO_OTP_CODE = "123456"
 
-type Step = "login" | "otp" | "done"
+type Step = "login" | "otp"
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export default function LoginPage() {
+  const router = useRouter()
+  const employees = useEmployees()
   const [step, setStep] = React.useState<Step>("login")
   const [email, setEmail] = React.useState("")
+
+  // Demo: the first employee is prefilled so the mocked flow has an account
+  // that actually has an employee page behind it.
+  const demoEmail = employees[0]?.email ?? ""
 
   // TODO: replace these mocks with real requests to your auth backend.
   async function handleLogin(credentials: { email: string; password: string }) {
@@ -50,38 +50,13 @@ export default function LoginPage() {
       throw new Error("That code is incorrect. Check your email and try again.")
     }
 
-    setStep("done")
+    signIn(email)
+    router.push("/employee")
   }
 
   async function handleResend() {
     await delay(600)
     console.info(`[mock] resent code for ${email}: ${DEMO_OTP_CODE}`)
-  }
-
-  if (step === "done") {
-    return (
-      <Card>
-        <CardHeader>
-          <CheckCircle2Icon className="size-8 text-primary" />
-          <CardTitle>You&apos;re signed in</CardTitle>
-          <CardDescription>
-            {email} was verified successfully on this device.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setStep("login")
-              setEmail("")
-            }}
-          >
-            Use a different account
-          </Button>
-        </CardContent>
-      </Card>
-    )
   }
 
   if (step === "otp") {
@@ -97,5 +72,5 @@ export default function LoginPage() {
     )
   }
 
-  return <LoginForm defaultEmail={email} onSubmit={handleLogin} />
+  return <LoginForm defaultEmail={email || demoEmail} onSubmit={handleLogin} />
 }
