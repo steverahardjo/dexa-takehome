@@ -1,0 +1,16 @@
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER : attendance_auth
+      MYSQL_PASSWORD: attend1234
+  ports:
+    - "3306:3306"
+  healthcheck:
+    test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecure_root_password"]
+    timeout: 5s
+    retries: 5
+
+
