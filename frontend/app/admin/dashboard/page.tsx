@@ -3,11 +3,11 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  AlertTriangle,
   CalendarDays,
   CheckCircle2,
   Filter,
   Hourglass,
+  LogOut,
   Plus,
   QrCode,
   Search,
@@ -29,20 +29,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { EmployeeCard } from "@/components/employee-card";
-import { useNowSeconds, useTodayLabel } from "@/lib/clock";
-import { ROLES, useEmployees, type Employee } from "@/lib/employees";
+import { useTodayLabel } from "@/lib/clock";
+import { ROLES, useEmployeesState, type Employee } from "@/lib/employees";
 import { attendanceTone, summarizeAttendance } from "@/lib/attendance";
+import { signOut, useSession } from "@/lib/session";
 
 export default function EmployeeDashboard() {
-  const employees = useEmployees();
+  const session = useSession();
+  const { employees, status, error } = useEmployeesState();
   const today = useTodayLabel();
 
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
   const [date, setDate] = useState("");
-  const [outOfBalance, setOutOfBalance] = useState(false);
 
   const filteredEmployees = useMemo(() => {
     return employees.filter((employee) => {
@@ -54,16 +54,47 @@ export default function EmployeeDashboard() {
 
       const matchesDate = !date || employee.contractExpiry === date;
 
-      const matchesBalance =
-        !outOfBalance || employee.leaveBalance < 0;
-
-      return matchesName && matchesRole && matchesDate && matchesBalance;
+      return matchesName && matchesRole && matchesDate;
     });
-  }, [employees, search, role, date, outOfBalance]);
+  }, [employees, search, role, date]);
 
-  const negativeBalanceCount = employees.filter(
-    (employee) => employee.leaveBalance < 0
-  ).length;
+  if (!session) {
+    return (
+      <main className="flex min-h-svh items-center justify-center p-6">
+        <div className="space-y-2 text-center">
+          <p className="font-medium">Sign in to open the dashboard</p>
+          <p className="text-sm text-muted-foreground">
+            The dashboard reads employee data from the admin service.
+          </p>
+          <Link href="/" className="text-sm underline underline-offset-4">
+            Go to sign in
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (session.role !== "HR Admin") {
+    return (
+      <main className="flex min-h-svh items-center justify-center p-6">
+        <div className="space-y-3 text-center">
+          <p className="font-medium">This dashboard needs an HR Admin account</p>
+          <p className="text-sm text-muted-foreground">
+            You are signed in as {session.email} ({session.role}).
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <Link href="/employee" className="text-sm underline underline-offset-4">
+              Go to my check-in
+            </Link>
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              <LogOut />
+              Sign out
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -74,8 +105,7 @@ export default function EmployeeDashboard() {
             Absences &amp; WFH
           </h1>
           <p className="text-sm text-muted-foreground">
-            Everyone is working from home — track check-ins against work start
-            times.
+            Everyone is working from home — track who checked in today.
           </p>
         </div>
 
@@ -86,18 +116,6 @@ export default function EmployeeDashboard() {
           </div>
 
           <Link
-            href="/employee"
-            className={buttonVariants({
-              variant: "outline",
-              size: "lg",
-              className: "gap-1.5",
-            })}
-          >
-            <QrCode className="size-4" />
-            Employee check-in
-          </Link>
-
-          <Link
             href="/admin/dashboard/employees/new"
             aria-label="Add employee"
             className={buttonVariants({ size: "lg", className: "gap-1.5" })}
@@ -105,8 +123,27 @@ export default function EmployeeDashboard() {
             <Plus className="size-4" />
             Add employee
           </Link>
+
+          <Button
+            variant="ghost"
+            size="lg"
+            className="gap-1.5"
+            onClick={signOut}
+          >
+            <LogOut className="size-4" />
+            Sign out
+          </Button>
         </div>
       </header>
+
+      {status === "error" && error && (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+        >
+          {error}
+        </div>
+      )}
 
       {/* Statistics */}
       <AttendanceStats employees={employees} />
@@ -161,17 +198,7 @@ export default function EmployeeDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <Checkbox
-                checked={outOfBalance}
-                onCheckedChange={(checked) =>
-                  setOutOfBalance(checked === true)
-                }
-              />
-              Show employees out of leave balance
-            </label>
-
+          <div className="flex flex-wrap items-center justify-end gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -179,7 +206,6 @@ export default function EmployeeDashboard() {
                 setSearch("");
                 setRole("all");
                 setDate("");
-                setOutOfBalance(false);
               }}
             >
               Clear filters
@@ -194,11 +220,6 @@ export default function EmployeeDashboard() {
         <Badge variant="secondary">
           {filteredEmployees.length} results
         </Badge>
-        {negativeBalanceCount > 0 && (
-          <Badge className={attendanceTone.late.badge}>
-            {negativeBalanceCount} out of leave balance
-          </Badge>
-        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -206,7 +227,13 @@ export default function EmployeeDashboard() {
           <EmployeeCard key={employee.id} employee={employee} />
         ))}
 
-        {filteredEmployees.length === 0 && (
+        {(status === "idle" || status === "loading") && (
+          <div className="col-span-full rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+            Loading employees…
+          </div>
+        )}
+
+        {status === "ready" && filteredEmployees.length === 0 && (
           <div className="col-span-full rounded-lg border border-dashed p-10 text-center">
             <p className="font-medium">No employees found</p>
             <p className="text-sm text-muted-foreground">
@@ -220,36 +247,27 @@ export default function EmployeeDashboard() {
 }
 
 function AttendanceStats({ employees }: { employees: Employee[] }) {
-  const nowSeconds = useNowSeconds();
-  const now = nowSeconds === null ? null : new Date(nowSeconds * 1000);
-  const summary = now ? summarizeAttendance(employees, now) : null;
+  const summary = summarizeAttendance(employees);
 
   const stats = [
     {
-      status: "on-time" as const,
-      label: "On time",
-      hint: "Checked in at or before work start",
-      value: summary?.["on-time"] ?? null,
+      status: "checked-in" as const,
+      label: "Checked in",
+      hint: "Submitted a check-in today",
+      value: summary["checked-in"],
       Icon: CheckCircle2,
     },
     {
-      status: "late" as const,
-      label: "Late",
-      hint: "Checked in after work start",
-      value: summary?.late ?? null,
-      Icon: AlertTriangle,
-    },
-    {
-      status: "not-started" as const,
-      label: "Not started",
+      status: "not-checked-in" as const,
+      label: "Not yet",
       hint: "No check-in yet today",
-      value: summary?.["not-started"] ?? null,
+      value: summary["not-checked-in"],
       Icon: Hourglass,
     },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2">
       {stats.map(({ status, label, hint, value, Icon }) => {
         const tone = attendanceTone[status];
 
@@ -260,7 +278,7 @@ function AttendanceStats({ employees }: { employees: Employee[] }) {
               <div>
                 <p className="text-sm text-muted-foreground">{label}</p>
                 <p className={`text-2xl font-bold tabular-nums ${tone.value}`}>
-                  {value ?? "—"}
+                  {value}
                 </p>
                 <p className="text-xs text-muted-foreground">{hint}</p>
               </div>

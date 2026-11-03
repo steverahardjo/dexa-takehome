@@ -33,7 +33,6 @@ import {
   type NewEmployee,
   type Role,
 } from "@/lib/employees";
-import { timeToMinutes } from "@/lib/time";
 
 const emptyForm: NewEmployee = {
   name: "",
@@ -43,11 +42,7 @@ const emptyForm: NewEmployee = {
   division: "",
   address: "",
   contractExpiry: "",
-  leaveBalance: 12,
-  workStart: "09:00",
-  workEnd: "17:00",
   avatar: "",
-  evidence: "",
 };
 
 function toFormValues(employee?: Employee): NewEmployee {
@@ -61,11 +56,7 @@ function toFormValues(employee?: Employee): NewEmployee {
     division: employee.division,
     address: employee.address,
     contractExpiry: employee.contractExpiry,
-    leaveBalance: employee.leaveBalance,
-    workStart: employee.workStart,
-    workEnd: employee.workEnd,
     avatar: employee.avatar ?? "",
-    evidence: employee.evidence ?? "",
   };
 }
 
@@ -79,6 +70,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
     Partial<Record<keyof NewEmployee, string>>
   >({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   function update<K extends keyof NewEmployee>(key: K, value: NewEmployee[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -102,21 +94,18 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       nextErrors.contractExpiry = "Contract expiry date is required.";
     }
 
-    if (!Number.isFinite(form.leaveBalance)) {
-      nextErrors.leaveBalance = "Enter a number of days.";
-    }
-
     setErrors(nextErrors);
 
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!validate()) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
 
     const values: NewEmployee = {
       ...form,
@@ -126,16 +115,22 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       division: form.division.trim(),
       address: form.address.trim(),
       avatar: form.avatar?.trim() ? form.avatar.trim() : undefined,
-      evidence: form.evidence?.trim() ? form.evidence.trim() : undefined,
     };
 
-    if (employee) {
-      updateEmployee(employee.id, values);
-    } else {
-      addEmployee(values);
-    }
+    try {
+      if (employee) {
+        await updateEmployee(employee.id, values);
+      } else {
+        await addEmployee(values);
+      }
 
-    router.push("/admin/dashboard");
+      router.push("/admin/dashboard");
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Could not save the employee."
+      );
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -146,7 +141,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
           <CardDescription>
             {isEditing
               ? "The card on the dashboard updates as soon as you save."
-              : "New employees appear on the dashboard right away with their work start time and attendance."}
+              : "New employees appear on the dashboard right away with their attendance."}
           </CardDescription>
         </CardHeader>
 
@@ -268,40 +263,6 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
               )}
             </Field>
 
-            <Field data-invalid={Boolean(errors.workStart)}>
-              <FieldLabel htmlFor="workStart">Work start</FieldLabel>
-              <Input
-                id="workStart"
-                type="time"
-                value={form.workStart}
-                onChange={(event) => update("workStart", event.target.value)}
-              />
-              <FieldDescription>
-                Countdown on the dashboard targets this time.
-              </FieldDescription>
-              {errors.workStart && <FieldError>{errors.workStart}</FieldError>}
-            </Field>
-
-            <Field data-invalid={Boolean(errors.leaveBalance)}>
-              <FieldLabel htmlFor="leaveBalance">Leave balance (days)</FieldLabel>
-              <Input
-                id="leaveBalance"
-                type="number"
-                step="1"
-                inputMode="numeric"
-                value={form.leaveBalance}
-                onChange={(event) =>
-                  update("leaveBalance", event.target.valueAsNumber)
-                }
-              />
-              <FieldDescription>
-                Negative values mark the employee as out of leave balance.
-              </FieldDescription>
-              {errors.leaveBalance && (
-                <FieldError>{errors.leaveBalance}</FieldError>
-              )}
-            </Field>
-
             <Field className="sm:col-span-2">
               <FieldLabel htmlFor="avatar">Avatar image URL</FieldLabel>
               <Input
@@ -320,6 +281,12 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       </Card>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
+        {submitError && (
+          <p role="alert" className="mr-auto text-sm font-medium text-destructive">
+            {submitError}
+          </p>
+        )}
+
         <Button
           variant="ghost"
           size="lg"

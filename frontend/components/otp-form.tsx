@@ -39,6 +39,10 @@ export type OtpFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
   codeLength?: number
   /** Lifetime of a code in seconds, drives the resend timer. */
   expiresInSeconds?: number
+  /** Seconds before another code may be requested. */
+  resendInSeconds?: number
+  /** Dev-only code, shown and prefilled when the API returns one. */
+  devCode?: string | null
   /** Lets the user go back and edit the address. */
   onChangeEmail?: () => void
   /** Request a new code. The timer restarts when it resolves. */
@@ -52,27 +56,31 @@ export function OtpForm({
   email,
   codeLength = 6,
   expiresInSeconds = 60,
+  resendInSeconds = 60,
+  devCode = null,
   onChangeEmail,
   onResend,
   onVerify,
   ...props
 }: OtpFormProps) {
-  const [code, setCode] = React.useState("")
+  const [code, setCode] = React.useState(() => devCode ?? "")
   const [isVerifying, setIsVerifying] = React.useState(false)
   const [isResending, setIsResending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [notice, setNotice] = React.useState<string | null>(null)
 
   const { secondsLeft, isActive, start } = useCountdown(expiresInSeconds)
+  const resend = useCountdown(resendInSeconds)
 
   // The first code is sent by the login step, so start the timer on mount.
   React.useEffect(() => {
     start(expiresInSeconds)
+    resend.start(resendInSeconds)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const isComplete = code.length === codeLength
-  const canResend = !isActive && !isVerifying && !isResending
+  const canResend = !resend.isActive && !isVerifying && !isResending
   const errorId = "otp-code-error"
   const hintId = "otp-code-hint"
 
@@ -110,6 +118,7 @@ export function OtpForm({
       await onResend?.(email)
       setCode("")
       start(expiresInSeconds)
+      resend.start(resendInSeconds)
       setNotice(`A new ${codeLength}-digit code was sent to ${email}.`)
     } catch (resendError) {
       setError(
@@ -191,6 +200,14 @@ export function OtpForm({
                     ? `The code expires in ${formatCountdown(secondsLeft)}.`
                     : "This code has expired. Request a new one to continue."}
                 </FieldDescription>
+                {devCode && (
+                  <FieldDescription>
+                    Dev code:{" "}
+                    <span className="font-mono font-semibold tracking-widest text-foreground">
+                      {devCode}
+                    </span>
+                  </FieldDescription>
+                )}
                 <FieldError id={errorId}>{error}</FieldError>
               </Field>
 
@@ -203,8 +220,8 @@ export function OtpForm({
                 </Button>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm text-muted-foreground tabular-nums">
-                    {isActive
-                      ? `Resend available in ${formatCountdown(secondsLeft)}`
+                    {resend.isActive
+                      ? `Resend available in ${formatCountdown(resend.secondsLeft)}`
                       : "Didn't get the code?"}
                   </p>
                   <Button

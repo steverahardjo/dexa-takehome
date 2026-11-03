@@ -13,7 +13,8 @@ import QRCode from "react-qr-code";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { CaptureSession } from "@/lib/attendance-capture";
-import { clockIn, getInitials, type Employee } from "@/lib/employees";
+import { confirmCaptureSession, getInitials, type Employee } from "@/lib/employees";
+import { getSession } from "@/lib/session";
 import { formatCoordinates, googleMapsUrl } from "@/lib/maps";
 import { formatClockTime } from "@/lib/time";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,9 +28,14 @@ async function requestSession(input: {
   employeeId: string;
   employeeName: string;
 }) {
+  const token = getSession()?.token;
+
   const response = await fetch("/api/attendance/sessions", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      ...(token && { authorization: `Bearer ${token}` }),
+    },
     body: JSON.stringify(input),
   });
   const data = (await response.json().catch(() => ({}))) as {
@@ -82,6 +88,7 @@ export function CheckInCard({
   const [captureUrl, setCaptureUrl] = React.useState("");
   const [useLan, setUseLan] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [isSaving, setIsSaving] = React.useState(false);
   const [attempt, setAttempt] = React.useState(0);
   const sessionRef = React.useRef<string | null>(null);
 
@@ -170,25 +177,33 @@ export function CheckInCard({
     };
   }, [phase, session]);
 
-  function handleSave() {
+  async function handleSave() {
     if (!session?.submission) return;
 
-    clockIn(employee.id, {
-      at: new Date(session.submission.capturedAt),
-      evidence: session.submission.image,
-      position: session.submission.position,
-      // The photo was reviewed on screen, so it wins over an older check-in.
-      replace: true,
-    });
+    setError(null);
+    setIsSaving(true);
 
-    void dropSession(session.id);
-    sessionRef.current = null;
-    setPhase("saved");
+    try {
+      // The desktop confirms the photo: this writes today's check-in.
+      await confirmCaptureSession(session.id);
+      await dropSession(session.id);
+      sessionRef.current = null;
+      setPhase("saved");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The check-in could not be saved."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function handleRetry() {
     setPhase("creating");
     setError(null);
+    setIsSaving(false);
     setSession(null);
     setAttempt((current) => current + 1);
   }
@@ -293,14 +308,29 @@ export function CheckInCard({
               )}
             </div>
 
+            {error && (
+              <p role="alert" className="text-sm font-medium text-destructive">
+                {error}
+              </p>
+            )}
+
             <div className="grid grid-cols-2 gap-2">
-              <Button type="button" variant="outline" onClick={handleRetry}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleRetry}
+                disabled={isSaving}
+              >
                 <RefreshCw />
                 Scan again
               </Button>
-              <Button type="button" onClick={handleSave}>
-                <CheckCircle2 />
-                Save check-in
+              <Button type="button" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <CheckCircle2 />
+                )}
+                {isSaving ? "Saving…" : "Save check-in"}
               </Button>
             </div>
           </>

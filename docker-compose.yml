@@ -1,16 +1,77 @@
+name: absences
+
 services:
   db:
-    image: mysql
-    restart: always
+    image: mysql:8.4
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER : attendance_auth
+      MYSQL_ROOT_PASSWORD: secure_root_password
+      MYSQL_DATABASE: absences
+      MYSQL_USER: attendance
       MYSQL_PASSWORD: attend1234
-  ports:
-    - "3306:3306"
-  healthcheck:
-    test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecure_root_password"]
-    timeout: 5s
-    retries: 5
+      TZ: Asia/Jakarta
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent", "-uroot", "-psecure_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
+  auth:
+    build: ./backend
+    command: node dist/services/auth/main.js
+    restart: unless-stopped
+    environment: &backend-env
+      NODE_ENV: production
+      PORT: 3001
+      SERVICE_NAME: auth
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: absences
+      DB_USERNAME: attendance
+      DB_PASSWORD: attend1234
+      DB_SYNCHRONIZE: true
+      JWT_SECRET: dev-only-change-me
+      OTP_DEV_RETURN: true
+      SEED_DEMO: true
+      FRONTEND_ORIGIN: http://localhost:3000
+      TZ: Asia/Jakarta
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
 
+  employee:
+    build: ./backend
+    command: node dist/services/employee/main.js
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      PORT: 3002
+      SERVICE_NAME: employee
+    ports:
+      - "3002:3002"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  admin:
+    build: ./backend
+    command: node dist/services/admin/main.js
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      PORT: 3003
+      SERVICE_NAME: admin
+    ports:
+      - "3003:3003"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

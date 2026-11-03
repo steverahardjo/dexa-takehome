@@ -2,11 +2,14 @@
 
 import { useSyncExternalStore } from "react";
 
+import { api } from "@/lib/api";
 import type { CapturePosition } from "@/lib/attendance-capture";
+import { getSession, subscribeSession } from "@/lib/session";
 
 export const ROLES = ["Employee", "Manager", "HR Admin"] as const;
 export type Role = (typeof ROLES)[number];
 
+/** The employee shape the API returns and every screen renders. */
 export type Employee = {
   id: string;
   name: string;
@@ -16,170 +19,184 @@ export type Employee = {
   division: string;
   address: string;
   contractExpiry: string;
-  leaveBalance: number;
-  /** `HH:mm`, local time. */
-  workStart: string;
-  /** `HH:mm`, local time. */
-  workEnd: string;
   /** `HH:mm` local time today when the employee checked in, or `null`. */
   clockInAt: string | null;
   avatar?: string;
-  /** Photo evidence uploaded with the check-in (image URL). */
+  /** Photo evidence uploaded with the check-in (image URL or data URL). */
   evidence?: string;
   /** Where the phone was when the check-in photo was sent. */
   checkInPosition?: CapturePosition | null;
 };
 
-export type NewEmployee = Omit<Employee, "id" | "clockInAt">;
+/** What the admin form posts. */
+export type NewEmployee = {
+  name: string;
+  email: string;
+  phone: string;
+  role: Role;
+  division: string;
+  address: string;
+  contractExpiry: string;
+  avatar?: string;
+};
 
-const STORAGE_KEY = "absences:employees:v2";
+type Status = "idle" | "loading" | "ready" | "error";
 
-const seedEmployees: Employee[] = [
-  {
-    id: "seed-1",
-    name: "John Doe",
-    email: "john@company.com",
-    phone: "+62 812 3456 7890",
-    role: "HR Admin",
-    division: "People Operations",
-    address: "Jl. Sudirman 12, Jakarta",
-    contractExpiry: "2026-12-31",
-    leaveBalance: 12,
-    workStart: "08:00",
-    workEnd: "17:00",
-    clockInAt: "07:52",
-    avatar: "https://i.pravatar.cc/160?img=12",
-    evidence: "https://picsum.photos/seed/wfh-evidence-1/900/1200",
-  },
-  {
-    id: "seed-2",
-    name: "Jane Smith",
-    email: "jane@company.com",
-    phone: "+62 812 4567 8901",
-    role: "Employee",
-    division: "Engineering",
-    address: "Jl. Kemang 4, Jakarta",
-    contractExpiry: "2026-11-15",
-    leaveBalance: -2,
-    workStart: "09:00",
-    workEnd: "18:00",
-    clockInAt: "08:55",
-    avatar: "https://i.pravatar.cc/160?img=45",
-    evidence: "https://picsum.photos/seed/wfh-evidence-2/900/1200",
-  },
-  {
-    id: "seed-3",
-    name: "Michael Tan",
-    email: "michael@company.com",
-    phone: "+62 812 5678 9012",
-    role: "Manager",
-    division: "Engineering",
-    address: "Jl. Senopati 8, Jakarta",
-    contractExpiry: "2027-03-20",
-    leaveBalance: 5,
-    workStart: "10:00",
-    workEnd: "19:00",
-    clockInAt: "10:14",
-    avatar: "https://i.pravatar.cc/160?img=33",
-    evidence: "https://picsum.photos/seed/wfh-evidence-3/900/1200",
-  },
-];
+export type EmployeesState = {
+  employees: Employee[];
+  status: Status;
+  error: string | null;
+};
 
-let snapshot: Employee[] | null = null;
-let storageBound = false;
-const listeners = new Set<() => void>();
+export type SignedInEmployeeState = {
+  employee: Employee | null;
+  status: Status;
+  error: string | null;
+};
 
-function isEmployee(value: unknown): value is Employee {
-  if (typeof value !== "object" || value === null) return false;
+const EMPTY_EMPLOYEES: EmployeesState = {
+  employees: [],
+  status: "idle",
+  error: null,
+};
 
-  const candidate = value as Record<string, unknown>;
+const EMPTY_SIGNED_IN: SignedInEmployeeState = {
+  employee: null,
+  status: "idle",
+  error: null,
+};
 
-  return (
-    typeof candidate.id === "string" &&
-    typeof candidate.name === "string" &&
-    typeof candidate.email === "string" &&
-    typeof candidate.workStart === "string" &&
-    typeof candidate.workEnd === "string"
-  );
+let employeesState: EmployeesState = EMPTY_EMPLOYEES;
+let signedInState: SignedInEmployeeState = EMPTY_SIGNED_IN;
+let sessionBound = false;
+
+const employeeListeners = new Set<() => void>();
+const signedInListeners = new Set<() => void>();
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : "The request failed.";
 }
 
-function readFromStorage(): Employee[] {
-  if (typeof window === "undefined") return seedEmployees;
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return seedEmployees;
-
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return seedEmployees;
-
-    const employees = parsed.filter(isEmployee);
-
-    return employees.length > 0 ? employees : seedEmployees;
-  } catch {
-    return seedEmployees;
-  }
-}
-
-function emit() {
+function emit(listeners: Set<() => void>) {
   for (const listener of listeners) listener();
 }
 
-function bindStorage() {
-  if (storageBound || typeof window === "undefined") return;
-  storageBound = true;
+function setEmployees(next: Partial<EmployeesState>) {
+  employeesState = { ...employeesState, ...next };
+  emit(employeeListeners);
+}
 
-  window.addEventListener("storage", (event) => {
-    if (event.key !== null && event.key !== STORAGE_KEY) return;
+function setSignedIn(next: SignedInEmployeeState) {
+  signedInState = next;
+  emit(signedInListeners);
+}
 
-    snapshot = readFromStorage();
-    emit();
+/** The employee list is HR-only; other roles simply see an empty list. */
+function canReadEmployees(): boolean {
+  return getSession()?.role === "HR Admin";
+}
+
+async function loadEmployees(): Promise<void> {
+  if (!canReadEmployees()) {
+    setEmployees({ employees: [], status: "ready", error: null });
+    return;
+  }
+
+  setEmployees({ status: "loading", error: null });
+
+  try {
+    const page = await api<{ data: Employee[] }>("/admin/employees?limit=200");
+
+    setEmployees({ employees: page.data, status: "ready", error: null });
+  } catch (error) {
+    setEmployees({ status: "error", error: messageOf(error) });
+  }
+}
+
+async function loadSignedIn(): Promise<void> {
+  if (!getSession()) {
+    setSignedIn({ ...EMPTY_SIGNED_IN, status: "ready" });
+    return;
+  }
+
+  setSignedIn({
+    employee: signedInState.employee,
+    status: signedInState.employee ? signedInState.status : "loading",
+    error: null,
   });
-}
 
-function getSnapshot(): Employee[] {
-  if (snapshot === null) {
-    snapshot = readFromStorage();
+  try {
+    const employee = await api<Employee>("/employee/me");
+
+    setSignedIn({ employee, status: "ready", error: null });
+  } catch (error) {
+    setSignedIn({ employee: null, status: "error", error: messageOf(error) });
   }
-
-  return snapshot;
 }
 
-function getServerSnapshot(): Employee[] {
-  return seedEmployees;
+/** Re-reads both stores after a sign-in, sign-out or a write. */
+function refreshStores() {
+  void loadEmployees();
+  void loadSignedIn();
 }
 
-function persist(next: Employee[]) {
-  snapshot = next;
+function bindSession() {
+  if (sessionBound) return;
 
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // Storage can be unavailable (private mode, quota); keep in-memory state.
-    }
-  }
-
-  emit();
+  sessionBound = true;
+  subscribeSession(refreshStores);
 }
 
-function subscribe(listener: () => void) {
-  bindStorage();
-  listeners.add(listener);
+function subscribeEmployees(listener: () => void) {
+  employeeListeners.add(listener);
+  bindSession();
+
+  if (employeesState.status === "idle") void loadEmployees();
 
   return () => {
-    listeners.delete(listener);
+    employeeListeners.delete(listener);
   };
 }
 
-function createId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
+function subscribeSignedIn(listener: () => void) {
+  signedInListeners.add(listener);
+  bindSession();
 
-  return `employee-${Date.now().toString(36)}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
+  if (signedInState.status === "idle") void loadSignedIn();
+
+  return () => {
+    signedInListeners.delete(listener);
+  };
+}
+
+/** All employees, shared across the admin screens. */
+export function useEmployeesState(): EmployeesState {
+  return useSyncExternalStore(
+    subscribeEmployees,
+    () => employeesState,
+    () => EMPTY_EMPLOYEES
+  );
+}
+
+export function useEmployees(): Employee[] {
+  return useEmployeesState().employees;
+}
+
+/** The employee behind the signed-in token. */
+export function useSignedInEmployee(): SignedInEmployeeState {
+  return useSyncExternalStore(
+    subscribeSignedIn,
+    () => signedInState,
+    () => EMPTY_SIGNED_IN
+  );
+}
+
+export function refreshEmployees(): Promise<void> {
+  return loadEmployees();
+}
+
+export function refreshSignedInEmployee(): Promise<void> {
+  return loadSignedIn();
 }
 
 export function getInitials(name: string) {
@@ -191,69 +208,80 @@ export function getInitials(name: string) {
     .join("");
 }
 
-function nowAsTime(now: Date) {
-  return `${String(now.getHours()).padStart(2, "0")}:${String(
-    now.getMinutes()
-  ).padStart(2, "0")}`;
-}
+export async function addEmployee(input: NewEmployee): Promise<Employee> {
+  const employee = await api<Employee>("/admin/employees", {
+    method: "POST",
+    body: input,
+  });
 
-/** All employees, shared across the app and persisted to localStorage. */
-export function useEmployees(): Employee[] {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-}
-
-export function addEmployee(input: NewEmployee): Employee {
-  const employee: Employee = { ...input, id: createId(), clockInAt: null };
-
-  persist([...getSnapshot(), employee]);
+  await refreshEmployees();
 
   return employee;
 }
 
-/** Replaces the stored data of an existing employee, keeping its check-in. */
-export function updateEmployee(employeeId: string, input: NewEmployee) {
-  persist(
-    getSnapshot().map((employee) =>
-      employee.id === employeeId
-        ? {
-            ...input,
-            id: employee.id,
-            clockInAt: employee.clockInAt,
-            checkInPosition: employee.checkInPosition,
-          }
-        : employee
-    )
-  );
+/** Replaces the stored data of an existing employee, keeping their check-in. */
+export async function updateEmployee(
+  employeeId: string,
+  input: NewEmployee
+): Promise<Employee> {
+  const employee = await api<Employee>(`/admin/employees/${employeeId}`, {
+    method: "PATCH",
+    body: input,
+  });
+
+  await refreshEmployees();
+
+  return employee;
+}
+
+export async function deleteEmployee(employeeId: string): Promise<void> {
+  await api<void>(`/admin/employees/${employeeId}`, { method: "DELETE" });
+
+  await refreshEmployees();
 }
 
 type CheckInDetails = {
-  /** Local time of the check-in, defaults to now. */
+  /** Local time of the check-in, defaults to the server clock. */
   at?: Date;
   /** Photo evidence taken on the phone (image data URL). */
   evidence?: string;
   /** Where the phone was when the photo was sent. */
   position?: CapturePosition | null;
-  /** Overwrite an existing check-in instead of leaving it alone. */
-  replace?: boolean;
 };
 
-/** Records a check-in for today together with the photo and position it came with. */
-export function clockIn(
+/** Direct clock-in from the dashboard, without the QR photo flow. */
+export async function clockIn(
   employeeId: string,
-  { at = new Date(), evidence, position = null, replace = false }: CheckInDetails = {}
-) {
-  const clockInAt = nowAsTime(at);
+  { at, evidence, position = null }: CheckInDetails = {}
+): Promise<Employee> {
+  const employee = await api<Employee>("/attendance/check-in", {
+    method: "POST",
+    body: {
+      employeeId,
+      evidence,
+      position,
+      capturedAt: at?.toISOString(),
+    },
+  });
 
-  persist(
-    getSnapshot().map((employee) =>
-      employee.id === employeeId && (replace || employee.clockInAt === null)
-        ? {
-            ...employee,
-            clockInAt,
-            evidence: evidence ?? employee.evidence,
-            checkInPosition: position,
-          }
-        : employee
-    )
+  await Promise.all([refreshEmployees(), refreshSignedInEmployee()]);
+
+  return employee;
+}
+
+/**
+ * The desktop confirms the photo the phone sent. This is the call that writes
+ * today's check-in with its evidence.
+ */
+export async function confirmCaptureSession(
+  sessionId: string
+): Promise<Employee> {
+  const employee = await api<Employee>(
+    `/attendance/sessions/${sessionId}/confirm`,
+    { method: "POST" }
   );
+
+  await Promise.all([refreshEmployees(), refreshSignedInEmployee()]);
+
+  return employee;
 }

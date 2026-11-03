@@ -5,29 +5,37 @@ import { UserRoundX } from "lucide-react";
 
 import { EmployeeForm } from "@/components/employee-form";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEmployees } from "@/lib/employees";
-import { useHydrated } from "@/lib/use-hydrated";
+import { useEmployeesState } from "@/lib/employees";
 
 /**
  * Looks the employee up in the shared store and renders the form prefilled with
- * the current data. Stored employees only exist after hydration, so a skeleton
- * is shown until then.
+ * the current data. The store is filled from the API, so a skeleton is shown
+ * until the first response lands.
  */
 export function EditEmployeeForm({ employeeId }: { employeeId: string }) {
-  const employees = useEmployees();
-  const hydrated = useHydrated();
+  const { employees, status, error } = useEmployeesState();
   const employee = employees.find((item) => item.id === employeeId);
+  const isLoading = status === "idle" || status === "loading";
 
   if (!employee) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-2 p-10 text-center">
-          {hydrated ? (
+          {isLoading ? (
+            <>
+              <p className="font-medium">Loading employee…</p>
+              <p className="text-sm text-muted-foreground">
+                Reading the saved data from the API.
+              </p>
+            </>
+          ) : (
             <>
               <UserRoundX className="h-8 w-8 text-muted-foreground" />
               <p className="font-medium">Employee not found</p>
               <p className="text-sm text-muted-foreground">
-                It may have been removed from this browser.
+                {status === "error" && error
+                  ? error
+                  : "It may have been removed by another admin."}
               </p>
               <Link
                 href="/admin/dashboard"
@@ -35,13 +43,6 @@ export function EditEmployeeForm({ employeeId }: { employeeId: string }) {
               >
                 Back to dashboard
               </Link>
-            </>
-          ) : (
-            <>
-              <p className="font-medium">Loading employee…</p>
-              <p className="text-sm text-muted-foreground">
-                Reading the saved data from this browser.
-              </p>
             </>
           )}
         </CardContent>

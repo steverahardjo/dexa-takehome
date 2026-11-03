@@ -1,8 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { startService } from './bootstrap.js';
 import { AppModule } from './app.module.js';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
-}
-await bootstrap();
+/** One process with every domain, for local development. */
+const DEFAULT_PORT = 4000;
+
+await startService(AppModule, DEFAULT_PORT, 'api');

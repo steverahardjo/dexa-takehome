@@ -5,7 +5,7 @@ import { EmployeeForm } from "@/components/employee-form";
 
 export const metadata = {
   title: "Add employee — Absences",
-  description: "Add a new employee with their work start time and leave balance.",
+  description: "Add a new employee to the attendance dashboard.",
 };
 
 export default function NewEmployeePage() {
@@ -22,8 +22,8 @@ export default function NewEmployeePage() {
 
         <h1 className="text-2xl font-semibold tracking-tight">Add employee</h1>
         <p className="text-sm text-muted-foreground">
-          Enter the employee data once, then track their work start countdown
-          and leave balance on the dashboard.
+          Enter the employee data once, then track their check-ins on the
+          dashboard.
         </p>
       </div>
 

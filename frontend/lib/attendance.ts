@@ -1,19 +1,18 @@
-import { formatClockTime, formatDurationShort, timeToMinutes } from "@/lib/time";
+import { formatClockTime } from "@/lib/time";
 
-type AttendanceStatus = "on-time" | "late" | "not-started";
+type AttendanceStatus = "checked-in" | "not-checked-in";
 
 type Attendance = {
   status: AttendanceStatus;
-  /** Badge text, e.g. `Late`. */
+  /** Badge text, e.g. `Checked in`. */
   label: string;
-  /** Short explanation, e.g. `Checked in 10:14 · 14 min late`. */
+  /** Short explanation, e.g. `Checked in at 10:14`. */
   detail: string;
 };
 
 const attendanceLabels: Record<AttendanceStatus, string> = {
-  "on-time": "On time",
-  late: "Late",
-  "not-started": "Not started",
+  "checked-in": "Checked in",
+  "not-checked-in": "Not yet",
 };
 
 type AttendanceTone = {
@@ -21,7 +20,7 @@ type AttendanceTone = {
   card: string;
   icon: string;
   value: string;
-  /** Full-bleed card header band: green, red, or black. */
+  /** Full-bleed card header band: green once checked in, dark before. */
   header: string;
   /** Secondary text inside the header band. */
   headerMuted: string;
@@ -29,9 +28,9 @@ type AttendanceTone = {
   headerAccent: string;
 };
 
-/** Subtle green for on time / early, subtle red for late, white for not yet. */
+/** Subtle green once checked in, neutral while there is no check-in yet. */
 export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
-  "on-time": {
+  "checked-in": {
     badge:
       "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     card: "border-emerald-500/25 bg-emerald-500/5",
@@ -41,16 +40,7 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
     headerMuted: "text-white/80",
     headerAccent: "border-white/30 bg-white/10 text-white",
   },
-  late: {
-    badge: "border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-400",
-    card: "border-red-500/25 bg-red-500/5",
-    icon: "text-red-600 dark:text-red-400",
-    value: "text-red-700 dark:text-red-400",
-    header: "bg-red-600 text-white",
-    headerMuted: "text-white/80",
-    headerAccent: "border-white/30 bg-white/10 text-white",
-  },
-  "not-started": {
+  "not-checked-in": {
     badge: "border-border bg-background text-foreground",
     card: "bg-background",
     icon: "text-muted-foreground",
@@ -62,83 +52,43 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
 };
 
 type AttendanceInput = {
-  workStart: string;
-  workEnd: string;
   clockInAt: string | null;
 };
 
 /**
  * Attendance for today.
  *
- * - Checked in at or before the work start: `on-time`.
- * - Checked in after the work start: `late`.
- * - No check-in yet: `not-started` (white), with the start time in the detail.
+ * - A check-in today: `checked-in`, with the server clock time in the detail.
+ * - No check-in yet: `not-checked-in`.
  */
-export function getAttendance(
-  now: Date,
-  employee: AttendanceInput
-): Attendance {
-  const startMinutes = timeToMinutes(employee.workStart);
-  const clockInMinutes =
-    employee.clockInAt === null ? null : timeToMinutes(employee.clockInAt);
-
-  if (startMinutes === null) {
+export function getAttendance(employee: AttendanceInput): Attendance {
+  if (employee.clockInAt !== null) {
     return {
-      status: "not-started",
-      label: attendanceLabels["not-started"],
-      detail: "Work start not set",
+      status: "checked-in",
+      label: attendanceLabels["checked-in"],
+      detail: `Checked in at ${formatClockTime(employee.clockInAt)}`,
     };
   }
-
-  if (clockInMinutes !== null) {
-    const minutesLate = clockInMinutes - startMinutes;
-
-    if (minutesLate > 0) {
-      return {
-        status: "late",
-        label: attendanceLabels.late,
-        detail: `${minutesLate} min late`,
-      };
-    }
-
-    return {
-      status: "on-time",
-      label: attendanceLabels["on-time"],
-      detail:
-        minutesLate === 0
-          ? "Right on time"
-          : `${Math.abs(minutesLate)} min early`,
-    };
-  }
-
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
   return {
-    status: "not-started",
-    label: attendanceLabels["not-started"],
-    detail:
-      nowMinutes < startMinutes
-        ? `Starts in ${formatDurationShort(
-            (startMinutes - nowMinutes) * 60
-          )} · ${formatClockTime(employee.workStart)}`
-        : `No check-in yet · was due ${formatClockTime(employee.workStart)}`,
+    status: "not-checked-in",
+    label: attendanceLabels["not-checked-in"],
+    detail: "No check-in yet today",
   };
 }
 
 type AttendanceSummary = Record<AttendanceStatus, number>;
 
 export function summarizeAttendance(
-  employees: AttendanceInput[],
-  now: Date
+  employees: AttendanceInput[]
 ): AttendanceSummary {
   const summary: AttendanceSummary = {
-    "on-time": 0,
-    late: 0,
-    "not-started": 0,
+    "checked-in": 0,
+    "not-checked-in": 0,
   };
 
   for (const employee of employees) {
-    summary[getAttendance(now, employee).status] += 1;
+    summary[getAttendance(employee).status] += 1;
   }
 
   return summary;

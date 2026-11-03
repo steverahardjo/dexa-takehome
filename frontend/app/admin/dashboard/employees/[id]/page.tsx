@@ -1,20 +1,24 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { EditEmployeeForm } from "@/components/edit-employee-form";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata = {
   title: "Change employee — Absences",
   description: "Load an employee's current details and update them.",
 };
 
-export default async function EditEmployeePage({
+/**
+ * The id is request-time data, so it is resolved inside a boundary: the heading
+ * and the back link stay in the static shell and only the card waits.
+ */
+export default function EditEmployeePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
       <div className="space-y-2">
@@ -33,7 +37,28 @@ export default async function EditEmployeePage({
         </p>
       </div>
 
-      <EditEmployeeForm employeeId={id} />
+      <Suspense fallback={<EmployeeFormSkeleton />}>
+        {params.then(({ id }) => (
+          <EditEmployeeForm employeeId={id} />
+        ))}
+      </Suspense>
     </div>
+  );
+}
+
+/**
+ * Mirrors the card the form shows while it waits for the employee list, so the
+ * swap to the loaded form does not move the page around.
+ */
+function EmployeeFormSkeleton() {
+  return (
+    <Card>
+      <CardContent className="flex flex-col items-center gap-2 p-10 text-center">
+        <p className="font-medium">Loading employee…</p>
+        <p className="text-sm text-muted-foreground">
+          Reading the saved data from the API.
+        </p>
+      </CardContent>
+    </Card>
   );
 }
