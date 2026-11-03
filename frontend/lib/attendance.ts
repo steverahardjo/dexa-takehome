@@ -1,10 +1,14 @@
+
 import { formatClockTime } from "@/lib/time";
 
-type AttendanceStatus = "checked-in" | "not-checked-in";
+export type AttendanceStatus =
+  | "checked-in"
+  | "late"
+  | "not-checked-in";
 
 type Attendance = {
   status: AttendanceStatus;
-  /** Badge text, e.g. `Checked in`. */
+  /** Badge text, e.g. `Checked in` or `Late`. */
   label: string;
   /** Short explanation, e.g. `Checked in at 10:14`. */
   detail: string;
@@ -12,6 +16,7 @@ type Attendance = {
 
 const attendanceLabels: Record<AttendanceStatus, string> = {
   "checked-in": "Checked in",
+  late: "Late",
   "not-checked-in": "Not yet",
 };
 
@@ -20,7 +25,7 @@ type AttendanceTone = {
   card: string;
   icon: string;
   value: string;
-  /** Full-bleed card header band: green once checked in, dark before. */
+  /** Full-bleed card header band. */
   header: string;
   /** Secondary text inside the header band. */
   headerMuted: string;
@@ -28,7 +33,6 @@ type AttendanceTone = {
   headerAccent: string;
 };
 
-/** Subtle green once checked in, neutral while there is no check-in yet. */
 export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
   "checked-in": {
     badge:
@@ -40,6 +44,18 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
     headerMuted: "text-white/80",
     headerAccent: "border-white/30 bg-white/10 text-white",
   },
+
+  late: {
+    badge:
+      "border-rose-500/25 bg-rose-500/10 text-rose-700 dark:text-rose-400",
+    card: "border-rose-500/25 bg-rose-500/5",
+    icon: "text-rose-600 dark:text-rose-400",
+    value: "text-rose-700 dark:text-rose-400",
+    header: "bg-rose-600 text-white",
+    headerMuted: "text-white/80",
+    headerAccent: "border-white/30 bg-white/10 text-white",
+  },
+
   "not-checked-in": {
     badge: "border-border bg-background text-foreground",
     card: "bg-background",
@@ -53,20 +69,30 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
 
 type AttendanceInput = {
   clockInAt: string | null;
+  late?: boolean;
 };
 
 /**
  * Attendance for today.
  *
- * - A check-in today: `checked-in`, with the server clock time in the detail.
+ * - A late check-in: `late`.
+ * - An on-time check-in: `checked-in`.
  * - No check-in yet: `not-checked-in`.
+ *
+ * The `late` property should come from the backend attendance record.
  */
 export function getAttendance(employee: AttendanceInput): Attendance {
   if (employee.clockInAt !== null) {
+    const status: AttendanceStatus = employee.late
+      ? "late"
+      : "checked-in";
+
     return {
-      status: "checked-in",
-      label: attendanceLabels["checked-in"],
-      detail: `Checked in at ${formatClockTime(employee.clockInAt)}`,
+      status,
+      label: attendanceLabels[status],
+      detail: employee.late
+        ? `Checked in late at ${formatClockTime(employee.clockInAt)}`
+        : `Checked in at ${formatClockTime(employee.clockInAt)}`,
     };
   }
 
@@ -84,6 +110,7 @@ export function summarizeAttendance(
 ): AttendanceSummary {
   const summary: AttendanceSummary = {
     "checked-in": 0,
+    late: 0,
     "not-checked-in": 0,
   };
 

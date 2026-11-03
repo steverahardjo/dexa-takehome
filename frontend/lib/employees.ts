@@ -21,6 +21,8 @@ export type Employee = {
   contractExpiry: string;
   /** `HH:mm` local time today when the employee checked in, or `null`. */
   clockInAt: string | null;
+  /** Today's check-in was after 09:00: the card shows the red status. */
+  late?: boolean;
   avatar?: string;
   /** Photo evidence uploaded with the check-in (image URL or data URL). */
   evidence?: string;

@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Filter,
   Hourglass,
+  Clock,
   LogOut,
   Plus,
   QrCode,
@@ -258,6 +259,13 @@ function AttendanceStats({ employees }: { employees: Employee[] }) {
       Icon: CheckCircle2,
     },
     {
+      status: "late" as const,
+      label: "Late",
+      hint: "Checked in after 09:00 today",
+      value: summary["late"],
+      Icon: Clock,
+    },
+    {
       status: "not-checked-in" as const,
       label: "Not yet",
       hint: "No check-in yet today",
@@ -267,7 +275,7 @@ function AttendanceStats({ employees }: { employees: Employee[] }) {
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-3">
       {stats.map(({ status, label, hint, value, Icon }) => {
         const tone = attendanceTone[status];
 
