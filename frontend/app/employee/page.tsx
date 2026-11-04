@@ -6,12 +6,12 @@ import { LoaderCircle, LogOut } from "lucide-react";
 
 import { CheckInPanel } from "@/components/attendance/checkin-panel";
 import { Button } from "@/components/ui/button";
-import { useSignedInEmployee } from "@/lib/employees";
+import { useSignedInState } from "@/lib/employees";
 import { signOut, useSession } from "@/lib/session";
 
 export default function EmployeePage() {
   const session = useSession();
-  const { employee, status, error } = useSignedInEmployee();
+  const { employee, attendance, status, error } = useSignedInState();
 
   const isLoading = status === "idle" || status === "loading";
 
@@ -50,7 +50,7 @@ export default function EmployeePage() {
           </div>
         ) : (
           <>
-            <CheckInPanel key={employee.id} employee={employee} />
+            <CheckInPanel employee={employee} attendance={attendance} />
 
             <div className="flex justify-center">
               <Button variant="ghost" size="sm" onClick={signOut}>

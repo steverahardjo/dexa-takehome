@@ -1,0 +1,76 @@
+name: absences-api
+
+# One NestJS app, one PostgreSQL database. `docker compose up --build` starts
+# the database, seeds it, then serves the API on http://localhost:3000.
+x-api-env: &api-env
+  NODE_ENV: ${NODE_ENV:-development}
+  PORT: 3000
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+  PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:3000}
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_USERNAME: ${DB_USERNAME:-absences}
+  DB_PASSWORD: ${DB_PASSWORD:-absences}
+  DB_DATABASE: ${DB_DATABASE:-absences}
+  DB_MIGRATIONS_RUN: "true"
+  DB_SYNCHRONIZE: "false"
+  JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-please-32-chars}
+  OTP_SECRET: ${OTP_SECRET:-dev-only-otp-secret-change-me}
+  OTP_DEV_RETURN: ${OTP_DEV_RETURN:-true}
+  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-Absences <onboarding@resend.dev>}
+  STORAGE_PROVIDER: ${STORAGE_PROVIDER:-memory}
+  COMPANY_TIMEZONE: ${COMPANY_TIMEZONE:-Asia/Jakarta}
+  MASTER_ADMIN_EMAIL: ${MASTER_ADMIN_EMAIL:-}
+  MASTER_ADMIN_NAME: ${MASTER_ADMIN_NAME:-Master Admin}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-absences}
+      POSTGRES_USER: ${DB_USERNAME:-absences}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-absences}
+      TZ: ${COMPANY_TIMEZONE:-Asia/Jakarta}
+    ports:
+      - "${DB_HOST_PORT:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME:-absences} -d ${DB_DATABASE:-absences}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  seed:
+    build: .
+    command: node dist/database/seed.js
+    restart: "no"
+    environment:
+      <<: *api-env
+      SEED_DEMO: ${SEED_DEMO:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      <<: *api-env
+      SEED_DEMO: "false"
+    ports:
+      - "${API_HOST_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:

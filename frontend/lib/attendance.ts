@@ -1,38 +1,26 @@
+export const ATTENDANCE_STATUSES = [
+  "ON_TIME",
+  "LATE",
+  "NOT_CHECKED_IN",
+  "ON_LEAVE",
+  "NOT_WORKING",
+  "ABSENT",
+] as const;
 
-import { formatClockTime } from "@/lib/time";
+export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
 
-/** Where the browser was when the check-in was sent. */
-/**
- * A position on the wire, always integers: `latitude`/`longitude` are degrees
- * × 1e6 (micro-degrees), `accuracy` is whole metres.
- */
-export type CheckInPosition = {
-  /** Degrees × 1e6, e.g. `-6200000` for -6.2°. */
-  latitude: number;
-  /** Degrees × 1e6, e.g. `106816667` for 106.816667°. */
-  longitude: number;
-  /** Metres, when the device reports it. */
-  accuracy: number | null;
+export const attendanceLabels: Record<AttendanceStatus, string> = {
+  ON_TIME: "On time",
+  LATE: "Late",
+  NOT_CHECKED_IN: "Not checked in",
+  ON_LEAVE: "On leave",
+  NOT_WORKING: "Not working",
+  ABSENT: "Absent",
 };
 
-export type AttendanceStatus =
-  | "checked-in"
-  | "late"
-  | "not-checked-in";
-
-type Attendance = {
-  status: AttendanceStatus;
-  /** Badge text, e.g. `Checked in` or `Late`. */
-  label: string;
-  /** Short explanation, e.g. `Checked in at 10:14`. */
-  detail: string;
-};
-
-const attendanceLabels: Record<AttendanceStatus, string> = {
-  "checked-in": "Checked in",
-  late: "Late",
-  "not-checked-in": "Not yet",
-};
+export function statusLabel(status: AttendanceStatus): string {
+  return attendanceLabels[status] ?? status;
+}
 
 type AttendanceTone = {
   badge: string;
@@ -48,7 +36,7 @@ type AttendanceTone = {
 };
 
 export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
-  "checked-in": {
+  ON_TIME: {
     badge:
       "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     card: "border-emerald-500/25 bg-emerald-500/5",
@@ -58,10 +46,8 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
     headerMuted: "text-white/80",
     headerAccent: "border-white/30 bg-white/10 text-white",
   },
-
-  late: {
-    badge:
-      "border-rose-500/25 bg-rose-500/10 text-rose-700 dark:text-rose-400",
+  LATE: {
+    badge: "border-rose-500/25 bg-rose-500/10 text-rose-700 dark:text-rose-400",
     card: "border-rose-500/25 bg-rose-500/5",
     icon: "text-rose-600 dark:text-rose-400",
     value: "text-rose-700 dark:text-rose-400",
@@ -69,8 +55,7 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
     headerMuted: "text-white/80",
     headerAccent: "border-white/30 bg-white/10 text-white",
   },
-
-  "not-checked-in": {
+  NOT_CHECKED_IN: {
     badge: "border-border bg-background text-foreground",
     card: "bg-background",
     icon: "text-muted-foreground",
@@ -79,58 +64,62 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
     headerMuted: "text-white/70",
     headerAccent: "border-white/25 bg-white/10 text-white",
   },
+  ON_LEAVE: {
+    badge:
+      "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    card: "border-amber-500/25 bg-amber-500/5",
+    icon: "text-amber-600 dark:text-amber-400",
+    value: "text-amber-700 dark:text-amber-400",
+    header: "bg-amber-600 text-white",
+    headerMuted: "text-white/80",
+    headerAccent: "border-white/30 bg-white/10 text-white",
+  },
+  NOT_WORKING: {
+    badge: "border-border bg-muted text-muted-foreground",
+    card: "bg-muted/30",
+    icon: "text-muted-foreground",
+    value: "text-muted-foreground",
+    header: "bg-neutral-700 text-white",
+    headerMuted: "text-white/70",
+    headerAccent: "border-white/25 bg-white/10 text-white",
+  },
+  ABSENT: {
+    badge: "border-slate-500/25 bg-slate-500/10 text-slate-700 dark:text-slate-300",
+    card: "border-slate-500/20 bg-slate-500/5",
+    icon: "text-slate-600 dark:text-slate-300",
+    value: "text-slate-700 dark:text-slate-300",
+    header: "bg-slate-700 text-white",
+    headerMuted: "text-white/75",
+    headerAccent: "border-white/25 bg-white/10 text-white",
+  },
 };
 
-type AttendanceInput = {
-  clockInAt: string | null;
-  late?: boolean;
-};
+export type AttendanceSummary = Record<AttendanceStatus, number>;
 
-/**
- * Attendance for today.
- *
- * - A late check-in: `late`.
- * - An on-time check-in: `checked-in`.
- * - No check-in yet: `not-checked-in`.
- *
- * The `late` property should come from the backend attendance record.
- */
-export function getAttendance(employee: AttendanceInput): Attendance {
-  if (employee.clockInAt !== null) {
-    const status: AttendanceStatus = employee.late
-      ? "late"
-      : "checked-in";
-
-    return {
-      status,
-      label: attendanceLabels[status],
-      detail: employee.late
-        ? `Checked in late at ${formatClockTime(employee.clockInAt)}`
-        : `Checked in at ${formatClockTime(employee.clockInAt)}`,
-    };
-  }
-
+export function emptyAttendanceSummary(): AttendanceSummary {
   return {
-    status: "not-checked-in",
-    label: attendanceLabels["not-checked-in"],
-    detail: "No check-in yet today",
+    ON_TIME: 0,
+    LATE: 0,
+    NOT_CHECKED_IN: 0,
+    ON_LEAVE: 0,
+    NOT_WORKING: 0,
+    ABSENT: 0,
   };
 }
 
-type AttendanceSummary = Record<AttendanceStatus, number>;
-
 export function summarizeAttendance(
-  employees: AttendanceInput[]
+  employees: Array<{ status: AttendanceStatus }>
 ): AttendanceSummary {
-  const summary: AttendanceSummary = {
-    "checked-in": 0,
-    late: 0,
-    "not-checked-in": 0,
-  };
+  const summary = emptyAttendanceSummary();
 
   for (const employee of employees) {
-    summary[getAttendance(employee).status] += 1;
+    summary[employee.status] += 1;
   }
 
   return summary;
+}
+
+/** A check-in wins over every other status. */
+export function isPresent(status: AttendanceStatus): boolean {
+  return status === "ON_TIME" || status === "LATE";
 }

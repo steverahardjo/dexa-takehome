@@ -2,19 +2,23 @@
 
 import { useSyncExternalStore } from "react";
 
-export const SESSION_ROLES = ["Employee", "Manager", "HR Admin"] as const;
-export type SessionRole = (typeof SESSION_ROLES)[number];
+import { ROLES, type Role } from "@/lib/roles";
+
+export const SESSION_ROLES = ROLES;
+export type SessionRole = Role;
 
 export type Session = {
   email: string;
   /** Bearer token the API expects. */
   token: string;
+  /** Rotating refresh token; opaque to the client. */
+  refreshToken: string;
   role: SessionRole;
-  /** Unix seconds at which the token stops working. */
+  /** Unix seconds at which the access token stops working. */
   expiresAt: number;
 };
 
-const STORAGE_KEY = "absences:signed-in:v2";
+const STORAGE_KEY = "absences:signed-in:v3";
 
 let snapshot: Session | null = null;
 let loaded = false;
@@ -33,18 +37,24 @@ function read(): Session | null {
 
     const parsed = JSON.parse(raw) as Partial<Session>;
 
-    if (typeof parsed.email !== "string" || typeof parsed.token !== "string") {
+    if (
+      typeof parsed.email !== "string" ||
+      typeof parsed.token !== "string" ||
+      typeof parsed.refreshToken !== "string"
+    ) {
       return null;
     }
 
     const session: Session = {
       email: parsed.email,
       token: parsed.token,
-      role: (parsed.role as SessionRole) ?? "Employee",
+      refreshToken: parsed.refreshToken,
+      role: (parsed.role as SessionRole) ?? "EMPLOYEE",
       expiresAt: typeof parsed.expiresAt === "number" ? parsed.expiresAt : 0,
     };
 
-    if (isExpired(session)) {
+    // The access token may have expired; api.ts refreshes it on the next call.
+    if (isExpired(session) && !session.refreshToken) {
       window.localStorage.removeItem(STORAGE_KEY);
       return null;
     }
@@ -61,7 +71,7 @@ function getSnapshot(): Session | null {
     loaded = true;
   }
 
-  return snapshot && !isExpired(snapshot) ? snapshot : null;
+  return snapshot;
 }
 
 function getServerSnapshot(): Session | null {
@@ -116,7 +126,7 @@ export function useSignedInRole(): SessionRole | null {
 
 /** Unix seconds at which a token issued now stops working. */
 export function expiresAtIn(seconds: number) {
-  return Math.floor(Date.now() / 1000) + seconds
+  return Math.floor(Date.now() / 1000) + seconds;
 }
 
 export function signIn(session: Session) {

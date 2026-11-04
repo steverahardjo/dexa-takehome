@@ -1,11 +1,17 @@
-
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
-import { Clock, ExternalLink, ImageIcon, MapPin } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  ImageIcon,
+  LogIn,
+  LogOut,
+  Pencil,
+} from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -18,25 +24,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EmployeeCalendar } from "@/components/employees/employee-calendar";
-import { attendanceTone, getAttendance } from "@/lib/attendance";
-import { getInitials, type Employee } from "@/lib/employees";
-import { formatCoordinates, googleMapsUrl } from "@/lib/maps";
+import {
+  attendanceTone,
+  isPresent,
+  statusLabel,
+} from "@/lib/attendance";
+import { getInitials, type DashboardEmployee } from "@/lib/employees";
 import { formatClockTime } from "@/lib/time";
 
 /**
- * Employee info card.
- * The header band is green when the employee checked in today
- * and dark while there is no check-in yet.
+ * Dashboard card for one employee.
+ * The header band is green when the employee checked in on time, red when late,
+ * amber for approved leave and dark when no check-in has been recorded.
  */
-export function EmployeeCard({ employee }: { employee: Employee }) {
-  const attendance = getAttendance(employee);
-  const tone = attendanceTone[attendance.status];
+export function EmployeeCard({ employee }: { employee: DashboardEmployee }) {
+  const tone = attendanceTone[employee.status];
   const [calendarOpen, setCalendarOpen] = React.useState(false);
+  const present = isPresent(employee.status);
 
-  /**
-   * Clicking the card opens the employee's late-day calendar.
-   * Links and buttons retain their own click behavior.
-   */
   function openCalendar(event: React.SyntheticEvent) {
     if ((event.target as HTMLElement).closest("a,button")) return;
 
@@ -49,7 +54,7 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
         className="cursor-pointer gap-0 overflow-hidden py-0 transition hover:ring-foreground/20"
         role="button"
         tabIndex={0}
-        title={`Open ${employee.name}'s late-day calendar`}
+        title={`Open ${employee.name}'s attendance calendar`}
         onClick={openCalendar}
         onKeyDown={(event) => {
           if (
@@ -61,16 +66,9 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
           }
         }}
       >
-        {/* Employee header */}
-        <div
-          className={`flex items-start justify-between gap-2 px-4 py-4 ${tone.header}`}
-        >
+        <div className={`flex items-start justify-between gap-2 px-4 py-4 ${tone.header}`}>
           <div className="flex min-w-0 items-center gap-3">
             <Avatar size="lg">
-              <AvatarImage
-                src={employee.avatar}
-                alt={`${employee.name} avatar`}
-              />
               <AvatarFallback className="bg-white/15 text-white">
                 {getInitials(employee.name)}
               </AvatarFallback>
@@ -81,13 +79,28 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
                 {employee.name}
               </CardTitle>
               <p className={`truncate text-sm ${tone.headerMuted}`}>
-                {employee.email}
+                {employee.employeeNumber}
+                {employee.division ? ` · ${employee.division}` : ""}
               </p>
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1">
-            <Badge className={tone.headerAccent}>{employee.role}</Badge>
+            <Badge className={tone.headerAccent}>{statusLabel(employee.status)}</Badge>
+
+            <Link
+              href={`/admin/dashboard/employees/${employee.id}/attendance`}
+              aria-label={`Yearly attendance for ${employee.name}`}
+              title="Yearly attendance"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "icon-sm",
+                className:
+                  "text-white/80 hover:bg-white/15 hover:text-white",
+              })}
+            >
+              <CalendarDays className="size-4" />
+            </Link>
 
             <Link
               href={`/admin/dashboard/employees/${employee.id}`}
@@ -97,81 +110,70 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
                 variant: "ghost",
                 size: "icon-sm",
                 className:
-                  "text-base font-semibold leading-none text-white/80 hover:bg-white/15 hover:text-white",
+                  "text-white/80 hover:bg-white/15 hover:text-white",
               })}
             >
-              :
+              <Pencil className="size-4" />
             </Link>
           </div>
         </div>
 
         <CardContent className="space-y-3 px-4 py-4 text-sm">
-          {/* Attendance status */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0 space-y-1">
-              <Badge className={tone.badge}>{attendance.label}</Badge>
+              <Badge className={tone.badge}>{statusLabel(employee.status)}</Badge>
               <p className="text-xs text-muted-foreground">
-                {attendance.detail}
+                {present && employee.checkInTime
+                  ? `Checked in at ${formatClockTime(employee.checkInTime)}`
+                  : employee.status === "ON_LEAVE"
+                    ? "Approved leave today"
+                    : employee.status === "NOT_WORKING"
+                      ? "Not scheduled to work today"
+                      : "No check-in recorded today"}
               </p>
             </div>
           </div>
 
-          {/* Check-in time */}
-          <div className="flex items-center gap-3">
-            <Clock className="size-4 text-muted-foreground" />
-            <span className="tabular-nums">
-              {employee.clockInAt
-                ? `Checked in ${formatClockTime(employee.clockInAt)}`
-                : "No check-in yet today"}
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="flex items-center gap-2">
+              <LogIn className="size-4 text-muted-foreground" />
+              <span className="tabular-nums">
+                {employee.checkInTime
+                  ? formatClockTime(employee.checkInTime)
+                  : "—"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <LogOut className="size-4 text-muted-foreground" />
+              <span className="tabular-nums">
+                {employee.checkOutTime
+                  ? formatClockTime(employee.checkOutTime)
+                  : "—"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Clock className="size-4" />
+            <span>
+              Scheduled {formatClockTime(employee.scheduledCheckIn ?? "09:00")} –{" "}
+              {formatClockTime(employee.scheduledCheckOut ?? "18:00")}
+              {employee.lateMinutes > 0
+                ? ` · ${employee.lateMinutes} min late`
+                : ""}
             </span>
           </div>
 
-          {/* Employee details */}
-          <p className="text-muted-foreground">
-            {employee.division}
-            {employee.contractExpiry
-              ? ` · Contract expiry: ${employee.contractExpiry}`
-              : ""}
-          </p>
-
-          <div className="space-y-1">
-            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Home address
-            </p>
-
-            <LocationLink
-              location={employee.address}
-              emptyLabel="No home address on file"
-            />
-          </div>
-
-
-          {/* Home address and actual check-in location */}
-          <div className="space-y-3 border-t pt-3">
-            <div className="space-y-1">
-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Check-in location
-              </p>
-
-              <LocationLink
-                location={
-                  employee.checkInPosition
-                    ? formatCoordinates(employee.checkInPosition)
-                    : undefined
-                }
-                emptyLabel="No check-in coordinates recorded"
-              />
-            </div>
-
-            <div className="flex justify-end">
-              <EvidenceButton employee={employee} />
-            </div>
+          <div className="flex justify-end border-t pt-3">
+            <EvidenceButton employee={employee} />
           </div>
         </CardContent>
       </Card>
 
       <EmployeeCalendar
-        employee={employee}
+        employeeId={employee.id}
+        employeeName={employee.name}
         open={calendarOpen}
         onOpenChange={setCalendarOpen}
       />
@@ -179,44 +181,9 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
   );
 }
 
-/** Displays a location with a Google Maps link. */
-function LocationLink({
-  location,
-  emptyLabel,
-}: {
-  location?: string | null;
-  emptyLabel: string;
-}) {
-  if (!location) {
-    return (
-      <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <MapPin className="size-4 shrink-0" />
-        {emptyLabel}
-      </p>
-    );
-  }
-
-  return (
-    <a
-      href={googleMapsUrl(location)}
-      target="_blank"
-      rel="noreferrer"
-      title={`Open ${location} in Google Maps`}
-      className="group inline-flex max-w-full items-center gap-1.5 text-sm font-medium underline-offset-4 hover:text-foreground hover:underline"
-    >
-      <MapPin className="size-4 shrink-0 text-muted-foreground" />
-      <span className="truncate">{location}</span>
-      <ExternalLink className="size-3.5 shrink-0 text-muted-foreground transition group-hover:text-foreground" />
-    </a>
-  );
-}
-
-/**
- * Check-in photo.
- * The button opens the photo in an overlay.
- */
-function EvidenceButton({ employee }: { employee: Employee }) {
-  if (!employee.evidence) {
+/** Check-in photo. The button opens the photo in an overlay. */
+function EvidenceButton({ employee }: { employee: DashboardEmployee }) {
+  if (!employee.photoUrl) {
     return (
       <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
         <ImageIcon className="size-4" />
@@ -245,16 +212,16 @@ function EvidenceButton({ employee }: { employee: Employee }) {
           <DialogTitle>Check-in evidence</DialogTitle>
           <DialogDescription>
             {employee.name}
-            {employee.clockInAt
-              ? ` · checked in ${formatClockTime(employee.clockInAt)}`
+            {employee.checkInTime
+              ? ` · checked in ${formatClockTime(employee.checkInTime)}`
               : ""}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Data URL stored with the check-in — next/image has nothing to optimise. */}
+        {/* Photo served by the storage provider — next/image has nothing to optimise. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={employee.evidence}
+          src={employee.photoUrl}
           alt={`${employee.name} check-in evidence`}
           className="max-h-[65vh] w-full rounded-lg bg-muted object-contain"
         />

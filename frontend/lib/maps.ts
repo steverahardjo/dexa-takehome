@@ -1,4 +1,4 @@
-import type { CheckInPosition } from "@/lib/attendance";
+import type { CheckInPosition } from "@/lib/geolocation";
 
 /** Google Maps search page for a free-text address or a `lat,lng` pair. */
 export function googleMapsUrl(query: string) {
@@ -9,5 +9,5 @@ export function googleMapsUrl(query: string) {
 
 /** `"5.12345, 0.12345"` — the query form Google Maps understands. */
 export function formatCoordinates(position: CheckInPosition) {
-  return `${position.latitude.toFixed(5)}, ${position.longitude.toFixed(5)}`;
+  return `${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}`;
 }

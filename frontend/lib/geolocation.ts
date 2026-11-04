@@ -1,7 +1,10 @@
-import type { CheckInPosition } from "@/lib/attendance";
-
-/** Degrees × 1e6: the integer scale the API and the backend expect. */
-const MICRO_DEGREES = 1_000_000;
+/** Best-effort position for check-in, in decimal degrees. */
+export type CheckInPosition = {
+  latitude: number;
+  longitude: number;
+  /** Metres, when the device reports it. */
+  accuracy: number | null;
+};
 
 /**
  * Best-effort position for the check-in. A decline, an unsupported browser or a
@@ -16,9 +19,8 @@ export function currentPosition(timeoutMs = 8000): Promise<CheckInPosition | nul
     navigator.geolocation.getCurrentPosition(
       (result) =>
         resolve({
-          // Integers only: micro-degrees for the position, metres for accuracy.
-          latitude: Math.round(result.coords.latitude * MICRO_DEGREES),
-          longitude: Math.round(result.coords.longitude * MICRO_DEGREES),
+          latitude: result.coords.latitude,
+          longitude: result.coords.longitude,
           accuracy: Number.isFinite(result.coords.accuracy)
             ? Math.round(result.coords.accuracy)
             : null,

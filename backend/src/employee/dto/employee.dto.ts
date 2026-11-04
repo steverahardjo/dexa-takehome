@@ -1,119 +1,149 @@
 import { Transform, Type } from 'class-transformer';
-import { PartialType } from '@nestjs/mapped-types';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEmail,
-  IsIn,
+  IsEnum,
   IsInt,
-  IsISO8601,
   IsOptional,
   IsString,
+  IsUUID,
+  Length,
+  Matches,
   Max,
-  MaxLength,
   Min,
-  MinLength,
 } from 'class-validator';
+import { EmploymentStatus, Role } from '../../common/enums/roles.enum.js';
 
-import {
-  DIVISIONS,
-  ROLES,
-  type Division,
-  type Role,
-} from '../entities/employee.entity.js';
-
-const trim = ({ value }: { value: unknown }) =>
-  typeof value === 'string' ? value.trim() : value;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const normalizeEmail = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
 
-/** Empty strings from the form mean "not set". */
-const optionalText =
-  (max: number) =>
-  ({ value }: { value: unknown }) => {
-    if (typeof value !== 'string') return value;
+const trim = ({ value }: { value: unknown }) =>
+  typeof value === 'string' ? value.trim() : value;
 
-    const text = value.trim();
-
-    return text.length > 0 ? text.slice(0, max) : undefined;
-  };
-
-/** `GET /admin/employees?q=&page=&limit=&role=`. */
-export class ListEmployeesDto {
-  /** Matched against name, email and division. */
-  @IsOptional()
-  @Transform(trim)
-  @IsString()
-  @MaxLength(120)
-  q?: string;
-
-  @IsOptional()
-  @Transform(trim)
-  @IsIn(ROLES)
-  role?: Role;
-
-  @IsOptional()
-  @Transform(trim)
-  @IsIn(DIVISIONS)
-  division?: Division;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @Max(500)
-  limit?: number;
-}
-
-/** What the admin form posts; mirrors the frontend `Employee` fields. */
 export class CreateEmployeeDto {
+  @IsOptional()
   @Transform(trim)
   @IsString()
-  @MinLength(1)
-  @MaxLength(120)
-  name: string;
+  @Length(2, 32)
+  employeeNumber?: string;
+
+  @Transform(trim)
+  @IsString()
+  @Length(2, 255)
+  fullName: string;
 
   @Transform(normalizeEmail)
   @IsEmail()
-  @MaxLength(190)
   email: string;
 
   @IsOptional()
-  @Transform(optionalText(32))
+  @Transform(trim)
   @IsString()
-  @MaxLength(32)
+  @Length(3, 32)
   phone?: string;
 
-  @Transform(trim)
-  @IsIn(ROLES)
-  role: Role;
-
-  /** One of the divisions the form offers; the MCQ always sends exactly one. */
-  @Transform(trim)
-  @IsIn(DIVISIONS)
-  division: Division;
+  @Matches(DATE, { message: 'joinedAt must be a YYYY-MM-DD date' })
+  joinedAt: string;
 
   @IsOptional()
-  @Transform(optionalText(2000))
-  @IsString()
-  @MaxLength(2000)
-  address?: string;
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsUUID('4', { each: true })
+  divisionIds?: string[];
 
-  /** `YYYY-MM-DD`. */
-  @IsISO8601()
-  contractExpiry: string;
-
+  /** Honoured only when the caller is MASTER_ADMIN. */
   @IsOptional()
-  @Transform(optionalText(2048))
-  @IsString()
-  @MaxLength(2048)
-  avatar?: string;
+  @IsEnum(Role)
+  role?: Role;
 }
 
-/** `PATCH /admin/employees/:id`: any subset of the form fields. */
-export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {}
+export class UpdateEmployeeDto {
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @Length(2, 255)
+  fullName?: string;
+
+  @IsOptional()
+  @Transform(normalizeEmail)
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (value === null || value === '' ? null : String(value).trim()))
+  @IsString()
+  @Length(3, 32)
+  phone?: string | null;
+
+  @IsOptional()
+  @Matches(DATE, { message: 'joinedAt must be a YYYY-MM-DD date' })
+  joinedAt?: string;
+}
+
+export class AssignDivisionsDto {
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsUUID('4', { each: true })
+  divisionIds: string[];
+}
+
+export class ChangeEmploymentStatusDto {
+  @IsOptional()
+  @Matches(DATE, { message: 'effectiveDate must be a YYYY-MM-DD date' })
+  effectiveDate?: string;
+
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @Length(3, 500)
+  reason?: string;
+}
+
+export class TerminateEmployeeDto {
+  @IsOptional()
+  @Matches(DATE, { message: 'terminatedAt must be a YYYY-MM-DD date' })
+  terminatedAt?: string;
+
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @Length(3, 500)
+  reason?: string;
+}
+
+export class SetEmployeeRoleDto {
+  @IsEnum(Role)
+  role: Role;
+}
+
+export class EmployeeQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page = 1;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit = 20;
+
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @Length(1, 255)
+  search?: string;
+
+  @IsOptional()
+  @IsUUID()
+  divisionId?: string;
+
+  @IsOptional()
+  @IsEnum(EmploymentStatus)
+  status?: EmploymentStatus;
+}

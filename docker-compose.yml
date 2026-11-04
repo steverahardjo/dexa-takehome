@@ -15,7 +15,7 @@ x-backend-env: &backend-env
   SEED_DEMO: "false"
   FRONTEND_ORIGIN: http://localhost:3000
   TZ: Asia/Jakarta
-  # Mail: Brevo when the key is set, else SMTP when the host is, else logged.
+  # Mail: Resend when the key is set, else SMTP when the host is, else logged.
   MAIL_FROM: "${MAIL_FROM:-Absence Management <absences@example.com>}"
   RESEND_API_KEY: ${RESEND_API_KEY}
   SMTP_HOST: ${SMTP_HOST:-}

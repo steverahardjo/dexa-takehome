@@ -2,87 +2,158 @@
 
 import { useSyncExternalStore } from "react";
 
-import { api } from "@/lib/api";
-import type { CheckInPosition } from "@/lib/attendance";
+import { api, apiForm } from "@/lib/api";
+import type { AttendanceStatus } from "@/lib/attendance";
+import { isAdminRole, type Role } from "@/lib/roles";
 import { getSession, subscribeSession } from "@/lib/session";
+import { todayInCompanyZone } from "@/lib/time";
 
-export const ROLES = ["Employee", "Manager", "HR Admin"] as const;
-export type Role = (typeof ROLES)[number];
+export type EmploymentStatus = "ACTIVE" | "INACTIVE" | "TERMINATED";
 
-/** The divisions the employee form offers; the form is a single-choice MCQ. */
-export const DIVISIONS = [
-  "Sales",
-  "Human Resources",
-  "Engineering",
-  "Finance",
-  "Operations",
-] as const;
-export type Division = (typeof DIVISIONS)[number];
-
-/** The employee shape the API returns and every screen renders. */
-export type Employee = {
+export type Division = {
   id: string;
   name: string;
-  email: string;
-  phone: string;
-  role: Role;
-  division: Division;
-  address: string;
-  contractExpiry: string;
-  /** `HH:mm` local time today when the employee checked in, or `null`. */
-  clockInAt: string | null;
-  /** Today's check-in was after 09:00: the card shows the red status. */
-  late?: boolean;
-  avatar?: string;
-  /** Photo evidence uploaded with the check-in (image URL or data URL). */
-  evidence?: string;
-  /** Where the browser was when the check-in photo was sent. */
-  checkInPosition?: CheckInPosition | null;
+  description: string | null;
+  employeeCount?: number;
 };
 
-/** What the admin form posts. `division` is empty only before a choice is made. */
-export type NewEmployee = {
-  name: string;
+export type Employee = {
+  id: string;
+  employeeNumber: string;
+  fullName: string;
   email: string;
-  phone: string;
-  role: Role;
-  division: Division | "";
-  address: string;
-  contractExpiry: string;
-  avatar?: string;
+  phone: string | null;
+  employmentStatus: EmploymentStatus;
+  joinedAt: string;
+  terminatedAt: string | null;
+  divisions: Division[];
+};
+
+/** What the create/edit form posts. */
+export type NewEmployee = {
+  fullName: string;
+  email: string;
+  phone?: string;
+  joinedAt: string;
+  divisionIds: string[];
+  /** Honoured by the API only for MASTER_ADMIN callers. */
+  role?: Role;
+};
+
+export type AttendanceRecord = {
+  id: string;
+  employeeId: string;
+  attendanceDate: string;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  late: boolean;
+  lateMinutes: number;
+  location: string | null;
+  pictureUrl: string | null;
+  requiredCheckIn: string | null;
+  requiredCheckOut: string | null;
+  timezone: string | null;
+};
+
+export type DashboardEmployee = {
+  id: string;
+  employeeNumber: string;
+  name: string;
+  division: string | null;
+  status: AttendanceStatus;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  scheduledCheckIn: string | null;
+  scheduledCheckOut: string | null;
+  lateMinutes: number;
+  photoUrl: string | null;
+};
+
+export type DashboardSummary = {
+  totalEmployees: number;
+  checkedIn: number;
+  onTime: number;
+  late: number;
+  notCheckedIn: number;
+  onLeave: number;
+  notWorking: number;
 };
 
 type Status = "idle" | "loading" | "ready" | "error";
 
-export type EmployeesState = {
-  employees: Employee[];
+export type DashboardState = {
+  date: string | null;
+  summary: DashboardSummary | null;
+  employees: DashboardEmployee[];
   status: Status;
   error: string | null;
 };
 
-export type SignedInEmployeeState = {
+export type SignedInState = {
   employee: Employee | null;
+  attendance: AttendanceRecord | null;
   status: Status;
   error: string | null;
 };
 
-const EMPTY_EMPLOYEES: EmployeesState = {
+type RawEmployee = {
+  id: string;
+  employeeNumber: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  employmentStatus: EmploymentStatus;
+  joinedAt: string;
+  terminatedAt: string | null;
+  divisions?: Division[];
+};
+
+type RawDashboardEmployee = {
+  employeeId: string;
+  employeeNumber: string;
+  employeeName: string;
+  division: string | null;
+  status: AttendanceStatus;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  scheduledCheckIn: string | null;
+  scheduledCheckOut: string | null;
+  lateMinutes: number;
+  photoUrl: string | null;
+};
+
+type RawToday = {
+  date: string;
+  summary: DashboardSummary;
+  employees: RawDashboardEmployee[];
+};
+
+type Paginated<T> = {
+  data: T[];
+  meta: { page: number; limit: number; total: number; totalPages: number };
+};
+
+const EMPTY_DASHBOARD: DashboardState = {
+  date: null,
+  summary: null,
   employees: [],
   status: "idle",
   error: null,
 };
 
-const EMPTY_SIGNED_IN: SignedInEmployeeState = {
+const EMPTY_SIGNED_IN: SignedInState = {
   employee: null,
+  attendance: null,
   status: "idle",
   error: null,
 };
 
-let employeesState: EmployeesState = EMPTY_EMPLOYEES;
-let signedInState: SignedInEmployeeState = EMPTY_SIGNED_IN;
+let dashboardState: DashboardState = EMPTY_DASHBOARD;
+let signedInState: SignedInState = EMPTY_SIGNED_IN;
+let divisionsCache: Division[] | null = null;
 let sessionBound = false;
 
-const employeeListeners = new Set<() => void>();
+const dashboardListeners = new Set<() => void>();
 const signedInListeners = new Set<() => void>();
 
 function messageOf(error: unknown): string {
@@ -93,62 +164,119 @@ function emit(listeners: Set<() => void>) {
   for (const listener of listeners) listener();
 }
 
-function setEmployees(next: Partial<EmployeesState>) {
-  employeesState = { ...employeesState, ...next };
-  emit(employeeListeners);
+function setDashboard(next: Partial<DashboardState>) {
+  dashboardState = { ...dashboardState, ...next };
+  emit(dashboardListeners);
 }
 
-function setSignedIn(next: SignedInEmployeeState) {
+function setSignedIn(next: SignedInState) {
   signedInState = next;
   emit(signedInListeners);
 }
 
-/** The employee list is HR-only; other roles simply see an empty list. */
-function canReadEmployees(): boolean {
-  return getSession()?.role === "HR Admin";
+export function toEmployee(raw: RawEmployee): Employee {
+  return {
+    id: raw.id,
+    employeeNumber: raw.employeeNumber,
+    fullName: raw.fullName,
+    email: raw.email,
+    phone: raw.phone,
+    employmentStatus: raw.employmentStatus,
+    joinedAt: raw.joinedAt,
+    terminatedAt: raw.terminatedAt,
+    divisions: raw.divisions ?? [],
+  };
 }
 
-async function loadEmployees(): Promise<void> {
-  if (!canReadEmployees()) {
-    setEmployees({ employees: [], status: "ready", error: null });
+function toDashboardEmployee(raw: RawDashboardEmployee): DashboardEmployee {
+  return {
+    id: raw.employeeId,
+    employeeNumber: raw.employeeNumber,
+    name: raw.employeeName,
+    division: raw.division,
+    status: raw.status,
+    checkInTime: raw.checkInTime,
+    checkOutTime: raw.checkOutTime,
+    scheduledCheckIn: raw.scheduledCheckIn,
+    scheduledCheckOut: raw.scheduledCheckOut,
+    lateMinutes: raw.lateMinutes,
+    photoUrl: raw.photoUrl,
+  };
+}
+
+async function loadDashboard(): Promise<void> {
+  const session = getSession();
+
+  if (!session || !isAdminRole(session.role)) {
+    setDashboard({ ...EMPTY_DASHBOARD, status: "ready" });
     return;
   }
 
-  setEmployees({ status: "loading", error: null });
+  setDashboard({ status: "loading", error: null });
 
   try {
-    const page = await api<{ data: Employee[] }>("/admin/employees?limit=200");
+    const today = await api<RawToday>("/reports/attendance/today");
 
-    setEmployees({ employees: page.data, status: "ready", error: null });
+    setDashboard({
+      date: today.date,
+      summary: today.summary,
+      employees: today.employees.map(toDashboardEmployee),
+      status: "ready",
+      error: null,
+    });
   } catch (error) {
-    setEmployees({ status: "error", error: messageOf(error) });
+    setDashboard({ status: "error", error: messageOf(error) });
   }
 }
 
+async function fetchTodayAttendance(): Promise<AttendanceRecord | null> {
+  const date = todayInCompanyZone();
+  const page = await api<Paginated<AttendanceRecord>>(
+    `/attendance/me?from=${date}&to=${date}&limit=1`
+  );
+
+  return page.data[0] ?? null;
+}
+
 async function loadSignedIn(): Promise<void> {
-  if (!getSession()) {
+  const session = getSession();
+
+  if (!session) {
     setSignedIn({ ...EMPTY_SIGNED_IN, status: "ready" });
     return;
   }
 
   setSignedIn({
     employee: signedInState.employee,
+    attendance: signedInState.attendance,
     status: signedInState.employee ? signedInState.status : "loading",
     error: null,
   });
 
   try {
-    const employee = await api<Employee>("/employee/me");
+    const [employee, attendance] = await Promise.all([
+      api<RawEmployee>("/employees/me"),
+      fetchTodayAttendance(),
+    ]);
 
-    setSignedIn({ employee, status: "ready", error: null });
+    setSignedIn({
+      employee: toEmployee(employee),
+      attendance,
+      status: "ready",
+      error: null,
+    });
   } catch (error) {
-    setSignedIn({ employee: null, status: "error", error: messageOf(error) });
+    setSignedIn({
+      employee: null,
+      attendance: null,
+      status: "error",
+      error: messageOf(error),
+    });
   }
 }
 
-/** Re-reads both stores after a sign-in, sign-out or a write. */
-function refreshStores() {
-  void loadEmployees();
+function refreshAll() {
+  void loadDashboard();
   void loadSignedIn();
 }
 
@@ -156,17 +284,17 @@ function bindSession() {
   if (sessionBound) return;
 
   sessionBound = true;
-  subscribeSession(refreshStores);
+  subscribeSession(refreshAll);
 }
 
-function subscribeEmployees(listener: () => void) {
-  employeeListeners.add(listener);
+function subscribeDashboard(listener: () => void) {
+  dashboardListeners.add(listener);
   bindSession();
 
-  if (employeesState.status === "idle") void loadEmployees();
+  if (dashboardState.status === "idle") void loadDashboard();
 
   return () => {
-    employeeListeners.delete(listener);
+    dashboardListeners.delete(listener);
   };
 }
 
@@ -181,21 +309,17 @@ function subscribeSignedIn(listener: () => void) {
   };
 }
 
-/** All employees, shared across the admin screens. */
-export function useEmployeesState(): EmployeesState {
+/** Today's company-wide attendance, shared by the admin screens. */
+export function useDashboardState(): DashboardState {
   return useSyncExternalStore(
-    subscribeEmployees,
-    () => employeesState,
-    () => EMPTY_EMPLOYEES
+    subscribeDashboard,
+    () => dashboardState,
+    () => EMPTY_DASHBOARD
   );
 }
 
-export function useEmployees(): Employee[] {
-  return useEmployeesState().employees;
-}
-
-/** The employee behind the signed-in token. */
-export function useSignedInEmployee(): SignedInEmployeeState {
+/** The employee behind the signed-in token, plus today's attendance record. */
+export function useSignedInState(): SignedInState {
   return useSyncExternalStore(
     subscribeSignedIn,
     () => signedInState,
@@ -203,8 +327,8 @@ export function useSignedInEmployee(): SignedInEmployeeState {
   );
 }
 
-export function refreshEmployees(): Promise<void> {
-  return loadEmployees();
+export function refreshDashboard(): Promise<void> {
+  return loadDashboard();
 }
 
 export function refreshSignedInEmployee(): Promise<void> {
@@ -220,63 +344,100 @@ export function getInitials(name: string) {
     .join("");
 }
 
-export async function addEmployee(input: NewEmployee): Promise<Employee> {
-  const employee = await api<Employee>("/admin/employees", {
-    method: "POST",
-    body: input,
-  });
-
-  await refreshEmployees();
-
-  return employee;
+export async function fetchEmployee(employeeId: string): Promise<Employee> {
+  return toEmployee(await api<RawEmployee>(`/employees/${employeeId}`));
 }
 
-/** Replaces the stored data of an existing employee, keeping their check-in. */
+export async function fetchDivisions(force = false): Promise<Division[]> {
+  if (!force && divisionsCache) return divisionsCache;
+
+  divisionsCache = await api<Division[]>("/divisions");
+  return divisionsCache;
+}
+
+export async function addEmployee(input: NewEmployee): Promise<Employee> {
+  const employee = await api<RawEmployee>("/employees", {
+    method: "POST",
+    body: {
+      fullName: input.fullName.trim(),
+      email: input.email.trim(),
+      ...(input.phone?.trim() ? { phone: input.phone.trim() } : {}),
+      joinedAt: input.joinedAt,
+      divisionIds: input.divisionIds,
+      ...(input.role ? { role: input.role } : {}),
+    },
+  });
+
+  await Promise.all([refreshDashboard(), refreshSignedInEmployee()]);
+
+  return toEmployee(employee);
+}
+
 export async function updateEmployee(
   employeeId: string,
   input: NewEmployee
 ): Promise<Employee> {
-  const employee = await api<Employee>(`/admin/employees/${employeeId}`, {
+  await api<RawEmployee>(`/employees/${employeeId}`, {
     method: "PATCH",
-    body: input,
-  });
-
-  await refreshEmployees();
-
-  return employee;
-}
-
-export async function deleteEmployee(employeeId: string): Promise<void> {
-  await api<void>(`/admin/employees/${employeeId}`, { method: "DELETE" });
-
-  await refreshEmployees();
-}
-
-type CheckInDetails = {
-  /** Photo evidence taken in the browser (image data URL). */
-  evidence?: string;
-  /** Where the browser was when the photo was sent. */
-  position?: CheckInPosition | null;
-};
-
-/**
- * Records today's check-in for the employee. The check-in time is the server's:
- * the request never carries a client clock.
- */
-export async function clockIn(
-  employeeId: string,
-  { evidence, position = null }: CheckInDetails = {}
-): Promise<Employee> {
-  const employee = await api<Employee>("/attendance/check-in", {
-    method: "POST",
     body: {
-      employeeId,
-      evidence,
-      position,
+      fullName: input.fullName.trim(),
+      email: input.email.trim(),
+      phone: input.phone?.trim() ? input.phone.trim() : null,
+      joinedAt: input.joinedAt,
     },
   });
 
-  await Promise.all([refreshEmployees(), refreshSignedInEmployee()]);
+  await api<RawEmployee>(`/employees/${employeeId}/divisions`, {
+    method: "PUT",
+    body: { divisionIds: input.divisionIds },
+  });
 
-  return employee;
+  await Promise.all([refreshDashboard(), refreshSignedInEmployee()]);
+
+  return fetchEmployee(employeeId);
+}
+
+export async function terminateEmployee(
+  employeeId: string,
+  reason = "Terminated by an administrator"
+): Promise<void> {
+  await api<RawEmployee>(`/employees/${employeeId}/terminate`, {
+    method: "POST",
+    body: { reason },
+  });
+
+  await Promise.all([refreshDashboard(), refreshSignedInEmployee()]);
+}
+
+type CheckInDetails = {
+  /** Scaled JPEG captured in the browser. */
+  file?: File | null;
+  /** `lat, lng` from the browser, when the user allowed it. */
+  location?: string | null;
+};
+
+/**
+ * Records today's check-in for the signed-in employee. The server stamps the
+ * time, so a client clock cannot be used to fake punctuality.
+ */
+export async function clockIn({
+  file,
+  location,
+}: CheckInDetails = {}): Promise<void> {
+  const form = new FormData();
+
+  if (file) form.append("picture", file);
+  if (location) form.append("location", location);
+
+  await apiForm<AttendanceRecord>("/attendance/check-in", form);
+  await Promise.all([refreshSignedInEmployee(), refreshDashboard()]);
+}
+
+export async function clockOut(): Promise<void> {
+  await api<AttendanceRecord>("/attendance/check-out", {
+    method: "POST",
+    body: {},
+  });
+
+  await Promise.all([refreshSignedInEmployee(), refreshDashboard()]);
 }

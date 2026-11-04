@@ -4,68 +4,52 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-
-import type { Role } from '../../employee/entities/employee.entity.js';
-
-/** What the token carries and what guards hand to controllers. */
-export interface TokenUser {
-  id: string;
-  email: string;
-  role: Role;
-}
-
-interface Claims {
-  sub: string;
-  email?: string;
-  role?: Role;
-  /** `access` for a session, `choose` for the admin/employee step, `capture` for a QR. */
-  scope?: string;
-}
+import type { Request } from 'express';
+import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator.js';
+import type {
+  AuthenticatedUser,
+  JwtPayload,
+} from '../../common/interfaces/authenticated-user.interface.js';
+import { AuthService } from '../services/auth.service.js';
 
 /**
- * Requires `Authorization: Bearer <token>` and checks it against the shared
- * secret. The verified claims are attached as `request.user`.
+ * Global authentication guard. Routes opt out with `@Public()`.
+ * The database is consulted on every request so disabled identities and role
+ * changes take effect immediately, not when the access token expires.
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<{
-      headers: Record<string, string | undefined>;
-      user?: TokenUser;
-    }>();
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
 
-    const token = /^Bearer\s+(.+)$/i.exec(
-      request.headers.authorization ?? '',
-    )?.[1];
+    const request = context.switchToHttp().getRequest<Request & { user?: AuthenticatedUser }>();
+    const header = request.headers.authorization;
+    const [scheme, token] = header?.split(' ') ?? [];
 
-    if (!token) {
-      throw new UnauthorizedException('Missing bearer token');
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
+      throw new UnauthorizedException('Authentication required');
     }
 
-    const claims = await this.jwtService
-      .verifyAsync<Claims>(token)
-      .catch(() => null);
-
-    if (!claims?.sub) {
-      throw new UnauthorizedException('This token is invalid or has expired');
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired access token');
     }
 
-    // Tokens minted for the choose step (or a QR capture) are not sessions.
-    if (claims.scope && claims.scope !== 'access') {
-      throw new UnauthorizedException(
-        'This token cannot be used as a session, sign in again',
-      );
-    }
-
-    request.user = {
-      id: claims.sub,
-      email: claims.email ?? '',
-      role: claims.role ?? 'Employee',
-    };
-
+    request.user = await this.authService.resolvePrincipal(payload);
     return true;
   }
 }

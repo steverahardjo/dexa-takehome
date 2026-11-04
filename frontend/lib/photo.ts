@@ -55,3 +55,17 @@ export function readPhotoFile(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 }
+
+/** Converts a canvas/JPEG data URL into a File that can be uploaded. */
+export function dataUrlToFile(dataUrl: string, filename = "check-in.jpg"): File {
+  const [header, encoded = ""] = dataUrl.split(",");
+  const mime = /data:(.*?);base64/.exec(header)?.[1] ?? "image/jpeg";
+  const binary = atob(encoded);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new File([bytes], filename, { type: mime });
+}

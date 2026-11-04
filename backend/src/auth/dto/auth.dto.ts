@@ -1,37 +1,27 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsIn, Length, Matches, MaxLength } from 'class-validator';
-
-import { OTP_LENGTH } from '../services/otp.service.js';
+import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
 const normalizeEmail = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
 
-/** `POST /auth/otp`: the address a code is requested for. */
 export class RequestOtpDto {
   @Transform(normalizeEmail)
-  @IsEmail()
-  @MaxLength(190)
+  @IsEmail({}, { message: 'A valid email address is required' })
   email: string;
 }
 
-/** `POST /auth/otp/verify`: the address and the code from the mail. */
 export class VerifyOtpDto {
   @Transform(normalizeEmail)
-  @IsEmail()
-  @MaxLength(190)
+  @IsEmail({}, { message: 'A valid email address is required' })
   email: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @Length(OTP_LENGTH, OTP_LENGTH)
-  @Matches(/^\d+$/, { message: 'code must be numeric' })
-  code: string;
+  @IsString()
+  @Matches(/^\d{6}$/, { message: 'The code must be exactly 6 digits' })
+  otp: string;
 }
 
-/**
- * `POST /auth/choice`: the view an admin picked after the code was verified.
- * `admin` keeps the admin role, `employee` signs in with the narrower one.
- */
-export class ChooseViewDto {
-  @IsIn(['admin', 'employee'])
-  view: 'admin' | 'employee';
+export class RefreshTokenDto {
+  @IsString()
+  @Length(20, 200)
+  refreshToken: string;
 }

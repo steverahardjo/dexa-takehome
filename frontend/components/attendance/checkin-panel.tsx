@@ -5,34 +5,64 @@ import {
   Camera,
   CheckCircle2,
   LoaderCircle,
+  LogOut,
   MapPin,
   RefreshCw,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { attendanceTone, getAttendance } from "@/lib/attendance";
-import { clockIn, getInitials, type Employee } from "@/lib/employees";
+import {
+  attendanceTone,
+  statusLabel,
+  type AttendanceStatus,
+} from "@/lib/attendance";
+import {
+  clockIn,
+  clockOut,
+  getInitials,
+  type AttendanceRecord,
+  type Employee,
+} from "@/lib/employees";
 import { currentPosition } from "@/lib/geolocation";
 import { formatCoordinates, googleMapsUrl } from "@/lib/maps";
-import { readPhotoFile } from "@/lib/photo";
-import { formatClockTime } from "@/lib/time";
+import { dataUrlToFile, readPhotoFile } from "@/lib/photo";
+import { COMPANY_TIMEZONE, formatInstantClock } from "@/lib/time";
+
+type CapturedPhoto = {
+  file: File;
+  preview: string;
+};
 
 /**
- * The employee's own screen: today's status, an optional photo and the button
- * that records the check-in. The server stamps the time, so it cannot be edited
- * from here.
+ * The employee's own screen: today's status, an optional photo and the buttons
+ * that record check-in/check-out. The server stamps every time, so it cannot be
+ * edited from here.
  */
-export function CheckInPanel({ employee }: { employee: Employee }) {
-  const attendance = getAttendance(employee);
-  const tone = attendanceTone[attendance.status];
-  const hasCheckedIn = attendance.status !== "not-checked-in";
+export function CheckInPanel({
+  employee,
+  attendance,
+}: {
+  employee: Employee;
+  attendance: AttendanceRecord | null;
+}) {
+  const checkedIn = Boolean(attendance?.checkInTime);
+  const checkedOut = Boolean(attendance?.checkOutTime);
+  const status: AttendanceStatus = checkedIn
+    ? attendance?.late
+      ? "LATE"
+      : "ON_TIME"
+    : "NOT_CHECKED_IN";
+  const tone = attendanceTone[status];
 
-  const [photo, setPhoto] = React.useState<string | null>(null);
+  const [photo, setPhoto] = React.useState<CapturedPhoto | null>(null);
   const [isSending, setIsSending] = React.useState(false);
+  const [isCheckingOut, setIsCheckingOut] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [saved, setSaved] = React.useState(false);
+  const [notice, setNotice] = React.useState<string | null>(null);
+
+  const timezone = attendance?.timezone ?? COMPANY_TIMEZONE;
 
   async function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -43,7 +73,8 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
     setError(null);
 
     try {
-      setPhoto(await readPhotoFile(file));
+      const preview = await readPhotoFile(file);
+      setPhoto({ preview, file: dataUrlToFile(preview) });
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "That photo could not be read."
@@ -53,18 +84,17 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
 
   async function handleCheckIn() {
     setError(null);
+    setNotice(null);
     setIsSending(true);
 
     try {
       const position = await currentPosition();
+      const location = position ? formatCoordinates(position) : undefined;
 
-      await clockIn(employee.id, {
-        evidence: photo ?? undefined,
-        position,
-      });
+      await clockIn({ file: photo?.file, location });
 
       setPhoto(null);
-      setSaved(true);
+      setNotice("Check-in saved.");
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -76,38 +106,65 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
     }
   }
 
-  const evidence = employee.evidence ?? photo;
+  async function handleCheckOut() {
+    setError(null);
+    setNotice(null);
+    setIsCheckingOut(true);
+
+    try {
+      await clockOut();
+      setNotice("Check-out saved.");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The check-out could not be saved."
+      );
+    } finally {
+      setIsCheckingOut(false);
+    }
+  }
+
+  const evidence = attendance?.pictureUrl ?? photo?.preview;
 
   return (
     <div className="overflow-hidden rounded-xl bg-card text-sm ring-1 ring-foreground/10">
       <div className="flex items-center gap-3 px-4 py-3">
         <Avatar size="lg">
-          <AvatarImage src={employee.avatar} alt={`${employee.name} avatar`} />
-          <AvatarFallback>{getInitials(employee.name)}</AvatarFallback>
+          <AvatarFallback>{getInitials(employee.fullName)}</AvatarFallback>
         </Avatar>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">{employee.name}</p>
+          <p className="truncate font-medium">{employee.fullName}</p>
           <p className="truncate text-xs text-muted-foreground">
-            {employee.role} · {employee.division}
+            {employee.employeeNumber}
+            {employee.divisions.length
+              ? ` · ${employee.divisions.map((division) => division.name).join(", ")}`
+              : ""}
           </p>
         </div>
 
-        <Badge className={tone.badge}>{attendance.label}</Badge>
+        <Badge className={tone.badge}>{statusLabel(status)}</Badge>
       </div>
 
       <div className="space-y-3 border-t px-4 py-4">
-        <p className="text-xs text-muted-foreground">{attendance.detail}</p>
+        <p className="text-xs text-muted-foreground">
+          {checkedIn && attendance?.checkInTime
+            ? attendance.late
+              ? `Checked in late at ${formatInstantClock(attendance.checkInTime, timezone)}`
+              : `Checked in at ${formatInstantClock(attendance.checkInTime, timezone)}`
+            : "No check-in yet today"}
+        </p>
 
-        {hasCheckedIn ? (
+        {checkedIn ? (
           <>
             {evidence && (
               <>
-                {/* Data URL captured in the browser — next/image has nothing to optimise. */}
+                {/* Photo served by the storage provider — next/image has nothing to optimise. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={evidence}
-                  alt={`Check-in photo for ${employee.name}`}
+                  alt={`Check-in photo for ${employee.fullName}`}
                   className="max-h-[38vh] w-full rounded-lg bg-muted object-contain"
                 />
               </>
@@ -116,20 +173,19 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
             <div className="space-y-1">
               <p className="flex items-center gap-1.5">
                 <CheckCircle2 className="size-4 text-emerald-600" />
-                Checked in at {formatClockTime(employee.clockInAt ?? "")}
+                Checked in at{" "}
+                {formatInstantClock(attendance?.checkInTime, timezone)}
               </p>
 
-              {employee.checkInPosition ? (
+              {attendance?.location ? (
                 <a
-                  href={googleMapsUrl(
-                    formatCoordinates(employee.checkInPosition)
-                  )}
+                  href={googleMapsUrl(attendance.location)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                 >
                   <MapPin className="size-4" />
-                  {formatCoordinates(employee.checkInPosition)}
+                  {attendance.location}
                 </a>
               ) : (
                 <p className="flex items-center gap-1.5 text-muted-foreground">
@@ -137,7 +193,32 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
                   Location not shared
                 </p>
               )}
+
+              <p className="flex items-center gap-1.5 text-muted-foreground">
+                <LogOut className="size-4" />
+                {checkedOut && attendance?.checkOutTime
+                  ? `Checked out at ${formatInstantClock(attendance.checkOutTime, timezone)}`
+                  : "Not checked out yet"}
+              </p>
             </div>
+
+            {!checkedOut && (
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className="h-12 w-full"
+                onClick={() => void handleCheckOut()}
+                disabled={isCheckingOut}
+              >
+                {isCheckingOut ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <LogOut />
+                )}
+                {isCheckingOut ? "Checking out…" : "Check out now"}
+              </Button>
+            )}
           </>
         ) : (
           <>
@@ -146,7 +227,7 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
                 {/* Data URL preview — next/image has nothing to optimise. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={photo}
+                  src={photo.preview}
                   alt="Check-in photo preview"
                   className="aspect-3/4 w-full rounded-lg bg-muted object-cover"
                 />
@@ -195,10 +276,10 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
           </>
         )}
 
-        {saved && !error && (
+        {notice && !error && (
           <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600">
             <CheckCircle2 className="size-4" />
-            Check-in saved.
+            {notice}
           </p>
         )}
 

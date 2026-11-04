@@ -3,22 +3,21 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  CalendarCheck2,
   CalendarDays,
   CheckCircle2,
+  Clock,
   Filter,
   Hourglass,
-  Clock,
   LogOut,
+  MinusCircle,
+  Plane,
   Plus,
+  RefreshCw,
   Search,
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -31,32 +30,61 @@ import {
 } from "@/components/ui/select";
 import { EmployeeCard } from "@/components/employees/employee-card";
 import { useTodayLabel } from "@/lib/clock";
-import { ROLES, useEmployeesState, type Employee } from "@/lib/employees";
-import { attendanceTone, summarizeAttendance } from "@/lib/attendance";
+import {
+  useDashboardState,
+  refreshDashboard,
+  type DashboardEmployee,
+} from "@/lib/employees";
+import {
+  ATTENDANCE_STATUSES,
+  attendanceTone,
+  statusLabel,
+  type AttendanceStatus,
+} from "@/lib/attendance";
+import { isAdminRole } from "@/lib/roles";
 import { signOut, useSession } from "@/lib/session";
+import { formatDateLabel } from "@/lib/time";
 
 export default function EmployeeDashboard() {
   const session = useSession();
-  const { employees, status, error } = useEmployeesState();
+  const { date, summary, employees, status, error } = useDashboardState();
   const today = useTodayLabel();
 
   const [search, setSearch] = useState("");
-  const [role, setRole] = useState("all");
-  const [date, setDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [division, setDivision] = useState("all");
+
+  const divisions = useMemo(() => {
+    const names = new Set<string>();
+    for (const employee of employees) {
+      if (employee.division) names.add(employee.division);
+    }
+    return [...names].sort();
+  }, [employees]);
 
   const filteredEmployees = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
     return employees.filter((employee) => {
-      const matchesName = employee.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      const matchesQuery =
+        !query ||
+        employee.name.toLowerCase().includes(query) ||
+        employee.employeeNumber.toLowerCase().includes(query);
 
-      const matchesRole = role === "all" || employee.role === role;
+      const matchesStatus =
+        statusFilter === "all" || employee.status === statusFilter;
 
-      const matchesDate = !date || employee.contractExpiry === date;
+      const matchesDivision =
+        division === "all" ||
+        (employee.division ?? "")
+          .toLowerCase()
+          .split(",")
+          .map((part) => part.trim())
+          .includes(division.toLowerCase());
 
-      return matchesName && matchesRole && matchesDate;
+      return matchesQuery && matchesStatus && matchesDivision;
     });
-  }, [employees, search, role, date]);
+  }, [employees, search, statusFilter, division]);
 
   if (!session) {
     return (
@@ -64,7 +92,7 @@ export default function EmployeeDashboard() {
         <div className="space-y-2 text-center">
           <p className="font-medium">Sign in to open the dashboard</p>
           <p className="text-sm text-muted-foreground">
-            The dashboard reads employee data from the admin service.
+            The dashboard reads attendance from the reporting service.
           </p>
           <Link href="/" className="text-sm underline underline-offset-4">
             Go to sign in
@@ -74,11 +102,11 @@ export default function EmployeeDashboard() {
     );
   }
 
-  if (session.role !== "HR Admin") {
+  if (!isAdminRole(session.role)) {
     return (
       <main className="flex min-h-svh items-center justify-center p-6">
         <div className="space-y-3 text-center">
-          <p className="font-medium">This dashboard needs an HR Admin account</p>
+          <p className="font-medium">This dashboard needs an admin account</p>
           <p className="text-sm text-muted-foreground">
             You are signed in as {session.email} ({session.role}).
           </p>
@@ -98,22 +126,34 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Absences &amp; WFH
+            Attendance dashboard
           </h1>
           <p className="text-sm text-muted-foreground">
-            Everyone is working from home — track who checked in today.
+            Everyone expected to work today and whether they checked in on time.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
             <CalendarDays className="h-4 w-4" />
-            <span suppressHydrationWarning>{today ?? "\u00a0"}</span>
+            <span suppressHydrationWarning>
+              {date ? formatDateLabel(date) : (today ?? "\u00a0")}
+            </span>
           </div>
+
+          <Button
+            variant="outline"
+            size="lg"
+            className="gap-1.5"
+            onClick={() => void refreshDashboard()}
+            disabled={status === "loading"}
+          >
+            <RefreshCw className={status === "loading" ? "size-4 animate-spin" : "size-4"} />
+            Refresh
+          </Button>
 
           <Link
             href="/admin/dashboard/employees/new"
@@ -124,12 +164,7 @@ export default function EmployeeDashboard() {
             Add employee
           </Link>
 
-          <Button
-            variant="ghost"
-            size="lg"
-            className="gap-1.5"
-            onClick={signOut}
-          >
+          <Button variant="ghost" size="lg" className="gap-1.5" onClick={signOut}>
             <LogOut className="size-4" />
             Sign out
           </Button>
@@ -145,15 +180,16 @@ export default function EmployeeDashboard() {
         </div>
       )}
 
-      {/* Statistics */}
-      <AttendanceStats employees={employees} />
+      <AttendanceStats
+        employees={employees}
+        summary={summary}
+      />
 
-      {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Filter className="h-4 w-4" />
-            Employee Filters
+            Employee filters
           </CardTitle>
         </CardHeader>
 
@@ -162,40 +198,46 @@ export default function EmployeeDashboard() {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name..."
+                placeholder="Search by name or employee number…"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) => setSearch(event.target.value)}
                 className="pl-9"
               />
             </div>
 
             <Select
-              value={role}
-              onValueChange={(value) => setRole(value ?? "all")}
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value ?? "all")}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by role" />
+                <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                {ROLES.map((option) => (
+                <SelectItem value="all">All statuses</SelectItem>
+                {ATTENDANCE_STATUSES.map((option) => (
                   <SelectItem key={option} value={option}>
-                    {option}
+                    {statusLabel(option)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <div className="relative">
-              <CalendarDays className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="pl-9"
-                aria-label="Filter by contract expiry date"
-              />
-            </div>
+            <Select
+              value={division}
+              onValueChange={(value) => setDivision(value ?? "all")}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Filter by division" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All divisions</SelectItem>
+                {divisions.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-3">
@@ -204,8 +246,8 @@ export default function EmployeeDashboard() {
               size="sm"
               onClick={() => {
                 setSearch("");
-                setRole("all");
-                setDate("");
+                setStatusFilter("all");
+                setDivision("all");
               }}
             >
               Clear filters
@@ -214,12 +256,9 @@ export default function EmployeeDashboard() {
         </CardContent>
       </Card>
 
-      {/* Employee List */}
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="font-semibold">Employees</h2>
-        <Badge variant="secondary">
-          {filteredEmployees.length} results
-        </Badge>
+        <Badge variant="secondary">{filteredEmployees.length} results</Badge>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -246,40 +285,100 @@ export default function EmployeeDashboard() {
   );
 }
 
-function AttendanceStats({ employees }: { employees: Employee[] }) {
-  const summary = summarizeAttendance(employees);
+function AttendanceStats({
+  employees,
+  summary,
+}: {
+  employees: DashboardEmployee[];
+  summary: {
+    totalEmployees: number;
+    checkedIn: number;
+    onTime: number;
+    late: number;
+    notCheckedIn: number;
+    onLeave: number;
+    notWorking: number;
+  } | null;
+}) {
+  const fallback = {
+    totalEmployees: employees.filter((item) => item.status !== "NOT_WORKING").length,
+    checkedIn: employees.filter(
+      (item) => item.status === "ON_TIME" || item.status === "LATE"
+    ).length,
+    onTime: employees.filter((item) => item.status === "ON_TIME").length,
+    late: employees.filter((item) => item.status === "LATE").length,
+    notCheckedIn: employees.filter((item) => item.status === "NOT_CHECKED_IN").length,
+    onLeave: employees.filter((item) => item.status === "ON_LEAVE").length,
+    notWorking: employees.filter((item) => item.status === "NOT_WORKING").length,
+  };
 
-  const stats = [
+  const counts = summary ?? fallback;
+
+  const stats: Array<{
+    key: string;
+    status: AttendanceStatus;
+    label: string;
+    hint: string;
+    value: number;
+    Icon: typeof CheckCircle2;
+  }> = [
     {
-      status: "checked-in" as const,
-      label: "Checked in",
-      hint: "Submitted a check-in today",
-      value: summary["checked-in"],
+      key: "expected",
+      status: "NOT_CHECKED_IN",
+      label: "Expected today",
+      hint: "Scheduled or on leave",
+      value: counts.totalEmployees,
+      Icon: CalendarCheck2,
+    },
+    {
+      key: "on-time",
+      status: "ON_TIME",
+      label: "On time",
+      hint: "Checked in by 09:00",
+      value: counts.onTime,
       Icon: CheckCircle2,
     },
     {
-      status: "late" as const,
+      key: "late",
+      status: "LATE",
       label: "Late",
-      hint: "Checked in after 09:00 today",
-      value: summary["late"],
+      hint: "Checked in after 09:00",
+      value: counts.late,
       Icon: Clock,
     },
     {
-      status: "not-checked-in" as const,
-      label: "Not yet",
-      hint: "No check-in yet today",
-      value: summary["not-checked-in"],
+      key: "not-checked-in",
+      status: "NOT_CHECKED_IN",
+      label: "Not checked in",
+      hint: "No check-in recorded yet",
+      value: counts.notCheckedIn,
       Icon: Hourglass,
+    },
+    {
+      key: "leave",
+      status: "ON_LEAVE",
+      label: "On leave",
+      hint: "Approved leave today",
+      value: counts.onLeave,
+      Icon: Plane,
+    },
+    {
+      key: "not-working",
+      status: "NOT_WORKING",
+      label: "Not working",
+      hint: "Not scheduled today",
+      value: counts.notWorking,
+      Icon: MinusCircle,
     },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      {stats.map(({ status, label, hint, value, Icon }) => {
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      {stats.map(({ key, status, label, hint, value, Icon }) => {
         const tone = attendanceTone[status];
 
         return (
-          <Card key={status} className={tone.card}>
+          <Card key={key} className={tone.card}>
             <CardContent className="flex items-center gap-4 p-5">
               <Icon className={`h-8 w-8 ${tone.icon}`} />
               <div>
