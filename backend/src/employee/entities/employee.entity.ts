@@ -47,7 +47,8 @@ export class Employee {
   @Column({ type: 'enum', enum: ROLES, default: 'Employee' })
   role: Role;
 
-  @Column({ type: 'enum', enum: DIVISIONS, default: 'Engineering' })
+  /** Single choice from `DIVISIONS`; the DTO rejects anything else. */
+  @Column({ type: 'enum', enum: DIVISIONS })
   division: Division;
 
   @Column({ type: 'text', nullable: true })

@@ -102,11 +102,6 @@ export class CheckInDto {
   @ValidateNested()
   @Type(() => CapturePositionDto)
   position?: CapturePositionDto | null;
-
-  /** The phone's clock, kept as evidence only. */
-  @IsOptional()
-  @IsISO8601()
-  capturedAt?: string;
 }
 
 /** `GET /admin/attendance?date=YYYY-MM-DD`. */

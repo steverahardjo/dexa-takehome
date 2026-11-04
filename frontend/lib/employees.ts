@@ -253,18 +253,19 @@ export async function deleteEmployee(employeeId: string): Promise<void> {
 }
 
 type CheckInDetails = {
-  /** Local time of the check-in, defaults to the server clock. */
-  at?: Date;
   /** Photo evidence taken in the browser (image data URL). */
   evidence?: string;
   /** Where the browser was when the photo was sent. */
   position?: CheckInPosition | null;
 };
 
-/** Records today's check-in for the employee. */
+/**
+ * Records today's check-in for the employee. The check-in time is the server's:
+ * the request never carries a client clock.
+ */
 export async function clockIn(
   employeeId: string,
-  { at, evidence, position = null }: CheckInDetails = {}
+  { evidence, position = null }: CheckInDetails = {}
 ): Promise<Employee> {
   const employee = await api<Employee>("/attendance/check-in", {
     method: "POST",
@@ -272,7 +273,6 @@ export async function clockIn(
       employeeId,
       evidence,
       position,
-      capturedAt: at?.toISOString(),
     },
   });
 

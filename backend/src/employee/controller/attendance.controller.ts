@@ -116,7 +116,6 @@ export class AttendanceController {
     await this.attendance.record(employee, {
       evidence: dto.evidence ?? null,
       position: dto.position ?? null,
-      capturedAt: dto.capturedAt ? new Date(dto.capturedAt) : null,
       source: 'manual',
     });
 

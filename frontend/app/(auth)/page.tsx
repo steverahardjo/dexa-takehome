@@ -24,8 +24,6 @@ type ViewChoice = "admin" | "employee"
 type OtpRequested = {
   message: string
   expiresIn: number
-  /** Only returned outside production, so the demo needs no mail. */
-  devCode?: string
 }
 
 type SignedInUser = {
@@ -61,7 +59,6 @@ export default function LoginPage() {
   const [step, setStep] = React.useState<Step>("login")
   const [email, setEmail] = React.useState("")
   const [expiresIn, setExpiresIn] = React.useState(10 * 60)
-  const [devCode, setDevCode] = React.useState<string | null>(null)
   const [choice, setChoice] = React.useState<{
     token: string
     email: string
@@ -80,7 +77,6 @@ export default function LoginPage() {
 
     setEmail(address)
     setExpiresIn(result.expiresIn)
-    setDevCode(result.devCode ?? null)
     setStep("otp")
   }
 
@@ -207,7 +203,6 @@ export default function LoginPage() {
         codeLength={OTP_LENGTH}
         expiresInSeconds={expiresIn}
         resendInSeconds={OTP_RESEND_SECONDS}
-        devCode={devCode}
         onVerify={handleVerify}
         onResend={handleResend}
         onChangeEmail={() => setStep("login")}

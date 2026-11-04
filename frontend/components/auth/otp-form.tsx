@@ -41,8 +41,6 @@ export type OtpFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
   expiresInSeconds?: number
   /** Seconds before another code may be requested. */
   resendInSeconds?: number
-  /** Dev-only code, shown and prefilled when the API returns one. */
-  devCode?: string | null
   /** Lets the user go back and edit the address. */
   onChangeEmail?: () => void
   /** Request a new code. The timer restarts when it resolves. */
@@ -57,13 +55,12 @@ export function OtpForm({
   codeLength = 6,
   expiresInSeconds = 60,
   resendInSeconds = 60,
-  devCode = null,
   onChangeEmail,
   onResend,
   onVerify,
   ...props
 }: OtpFormProps) {
-  const [code, setCode] = React.useState(() => devCode ?? "")
+  const [code, setCode] = React.useState("")
   const [isVerifying, setIsVerifying] = React.useState(false)
   const [isResending, setIsResending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -200,14 +197,6 @@ export function OtpForm({
                     ? `The code expires in ${formatCountdown(secondsLeft)}.`
                     : "This code has expired. Request a new one to continue."}
                 </FieldDescription>
-                {devCode && (
-                  <FieldDescription>
-                    Dev code:{" "}
-                    <span className="font-mono font-semibold tracking-widest text-foreground">
-                      {devCode}
-                    </span>
-                  </FieldDescription>
-                )}
                 <FieldError id={errorId}>{error}</FieldError>
               </Field>
 
