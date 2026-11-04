@@ -1,108 +1,132 @@
-# Absences API
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-NestJS + TypeORM + MySQL. One image, three entrypoints — each container imports
-only the domain it serves, so a missing module fails in one container instead of
-everywhere.
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-| Container  | Port | Entrypoint                     | Domain                                    |
-| ---------- | ---- | ------------------------------ | ----------------------------------------- |
-| `auth`     | 3001 | `dist/services/auth/main.js`    | OTP sign-in, token issuing, `/auth/me`    |
-| `employee` | 3002 | `dist/services/employee/main.js`| Own profile, check-ins, QR capture flow   |
-| `admin`    | 3003 | `dist/services/admin/main.js`   | Employee master data, attendance summary  |
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-`src/main.ts` boots every domain in one process on port 4000 for local
-development; `src/bootstrap.ts` holds the shared validation, CORS and shutdown
-setup all four entrypoints use.
+## Description
 
-```
-src/
-├── auth/         OTP (entity, service, rate limits), JWT guards, mailer
-├── employee/     employee + attendance + capture-session entities, DTOs, services
-├── admin/        HRD-facing service on top of the same entities
-├── database/     TypeORM module and the demo seed
-├── health/       /health for the compose healthchecks
-├── config/       env reads and the shared clock helpers
-└── services/     one AppModule + main per container
-```
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Run
-
-```bash
-npm install
-cp .env.example .env      # MySQL on 127.0.0.1:3306
-npm run start:dev         # all domains on :4000
-```
-
-Or per domain, which is what the containers do:
+## Project setup
 
 ```bash
-npm run dev:auth          # :3001
-npm run dev:employee      # :3002
-npm run dev:admin         # :3003
+$ npm install
 ```
 
-## Mail
-
-`EmailService` sends the sign-in code through the first channel that is configured:
-
-| Channel | Enabled by | Notes |
-| ------- | ---------- | ----- |
-| Brevo | `RESEND_API_KEY` | Official `@resend` SDK, transactional email API |
-| SMTP | `SMTP_HOST` | `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` |
-| Log | neither | Nothing leaves the process; a failed send logs the code outside production |
-
-`MAIL_FROM` (`Name <address>` or a bare address) is the sender for both real
-channels; in Brevo that address has to be a verified sender. A failed send is
-logged and, outside production, falls back to logging the code; in production it
-is an error.
-
-`.env` is loaded by `npm run start:dev` and the `dev:*` scripts (`--env-file`).
-The containers get their environment from compose.
-
-## Seed
-
-`src/database/seed-data.json` holds the demo employees and their check-ins.
-Attendance days are stored as `daysAgo`, so the file keeps producing check-ins
-on "today" instead of going stale:
-```bash
-npm run seed                            # src/database/seed-data.json
-SEED_FILE=./other.json npm run seed     # any file with the same shape
-```
-
-Seeding matches employees by email and check-ins by `(employee, work date)`, so
-re-running it only inserts what is missing. `SeedService` separately seeds three
-demo people when the app boots; `SEED_DEMO=false` turns that off.
-
-## Divisions
-
-`division` is a single-choice field limited to `DIVISIONS` in
-`src/employee/entities/employee.entity.ts` (the column is a MySQL enum and the
-DTO rejects anything else). Older databases stored free text; normalize them
-once before starting the new backend with `DB_SYNCHRONIZE`:
+## Compile and run the project
 
 ```bash
-mysql -h "$DB_HOST" -u "$DB_USERNAME" -p "$DB_DATABASE" \
-  < backend/scripts/normalize-divisions.sql
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
 ```
 
-The SQL mapping mirrors `src/employee/divisions.ts`, which the seed script uses
-to turn legacy values in `seed-data.json` into a valid option.
-
-## Checks
+## Run tests
 
 ```bash
-npm run lint              # oxlint, type aware
-npm test                  # vitest
-npm run build             # nest build → dist/
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
 ```
 
-## Conventions
+## Deployment
 
-- Every response goes through a presenter or a `*View` type, so entities never
-  leak out of the domain that owns them.
-- Validation is global (`whitelist` + `forbidNonWhitelisted`), so an unexpected
-  field is a 400 rather than a silently ignored value.
-- Access is decided by guards: `JwtAuthGuard` for a token, `RolesGuard` +
-  `@Roles('HR Admin')` for HRD-only routes.
-- Everything date-related uses the `TZ` the containers share; `src/config/clock.ts`
-  is the only place that builds day strings or compares against work hours.
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+
+```bash
+$ npm install -g @nestjs/mau
+$ mau deploy
+```
+
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+
+## Observability
+
+In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+
+[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+
+- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
+- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
+- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
+- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
+- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
+- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
+- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
+- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+
+To add it to this project, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
+
+```bash
+$ npx @nestjs/observe link
+```
+
+It installs `@nestjs/observe`, wires it into `AppModule` and `main.ts`, and writes the app key and secret into `.env`, which every `nest start` script (`start`, `start:dev`, `start:debug`) then loads. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
+
+Or do it by hand:
+
+```bash
+$ npm install @nestjs/observe
+```
+
+Then follow the [setup guide](https://docs.nestjs.com/observability/sdk) - it takes a single import and an app key.
+
+The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+
+## Resources
+
+Check out a few resources that may come in handy when working with NestJS:
+
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
