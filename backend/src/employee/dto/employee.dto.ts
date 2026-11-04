@@ -13,7 +13,12 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { ROLES, type Role } from '../entities/employee.entity.js';
+import {
+  DIVISIONS,
+  ROLES,
+  type Division,
+  type Role,
+} from '../entities/employee.entity.js';
 
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
@@ -45,6 +50,11 @@ export class ListEmployeesDto {
   @Transform(trim)
   @IsIn(ROLES)
   role?: Role;
+
+  @IsOptional()
+  @Transform(trim)
+  @IsIn(DIVISIONS)
+  division?: Division;
 
   @IsOptional()
   @Type(() => Number)
@@ -83,11 +93,10 @@ export class CreateEmployeeDto {
   @IsIn(ROLES)
   role: Role;
 
-  @IsOptional()
-  @Transform(optionalText(120))
-  @IsString()
-  @MaxLength(120)
-  division?: string;
+  /** One of the divisions the form offers; the MCQ always sends exactly one. */
+  @Transform(trim)
+  @IsIn(DIVISIONS)
+  division: Division;
 
   @IsOptional()
   @Transform(optionalText(2000))

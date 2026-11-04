@@ -9,6 +9,16 @@ import { getSession, subscribeSession } from "@/lib/session";
 export const ROLES = ["Employee", "Manager", "HR Admin"] as const;
 export type Role = (typeof ROLES)[number];
 
+/** The divisions the employee form offers; the form is a single-choice MCQ. */
+export const DIVISIONS = [
+  "Sales",
+  "Human Resources",
+  "Engineering",
+  "Finance",
+  "Operations",
+] as const;
+export type Division = (typeof DIVISIONS)[number];
+
 /** The employee shape the API returns and every screen renders. */
 export type Employee = {
   id: string;
@@ -16,7 +26,7 @@ export type Employee = {
   email: string;
   phone: string;
   role: Role;
-  division: string;
+  division: Division;
   address: string;
   contractExpiry: string;
   /** `HH:mm` local time today when the employee checked in, or `null`. */
@@ -30,13 +40,13 @@ export type Employee = {
   checkInPosition?: CheckInPosition | null;
 };
 
-/** What the admin form posts. */
+/** What the admin form posts. `division` is empty only before a choice is made. */
 export type NewEmployee = {
   name: string;
   email: string;
   phone: string;
   role: Role;
-  division: string;
+  division: Division | "";
   address: string;
   contractExpiry: string;
   avatar?: string;
@@ -270,4 +280,3 @@ export async function clockIn(
 
   return employee;
 }
-

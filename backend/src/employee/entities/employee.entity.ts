@@ -12,6 +12,20 @@ export const ROLES = ['Employee', 'Manager', 'HR Admin'] as const;
 export type Role = (typeof ROLES)[number];
 
 /**
+ * The divisions the employee form offers. The form is a single-choice MCQ, so
+ * every employee belongs to exactly one of these — the column is an enum and
+ * anything else is rejected by the DTO.
+ */
+export const DIVISIONS = [
+  'Sales',
+  'Human Resources',
+  'Engineering',
+  'Finance',
+  'Operations',
+] as const;
+export type Division = (typeof DIVISIONS)[number];
+
+/**
  * One row per person. The email is the login identity: there is no separate
  * credentials table, because signing in is an OTP sent to this address.
  */
@@ -33,8 +47,8 @@ export class Employee {
   @Column({ type: 'enum', enum: ROLES, default: 'Employee' })
   role: Role;
 
-  @Column({ type: 'varchar', length: 120, nullable: true })
-  division: string | null;
+  @Column({ type: 'enum', enum: DIVISIONS, default: 'Engineering' })
+  division: Division;
 
   @Column({ type: 'text', nullable: true })
   address: string | null;

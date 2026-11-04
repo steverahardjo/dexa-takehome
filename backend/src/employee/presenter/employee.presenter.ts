@@ -5,8 +5,9 @@ import { In, Repository } from 'typeorm';
 import { clockString, dayString } from '../../config/clock.js';
 import { WORK_START } from '../../config/env.js';
 import { Attendance } from '../entities/attendance.entity.js';
-import type { Employee, Role } from '../entities/employee.entity.js';
+import type { Division, Employee, Role } from '../entities/employee.entity.js';
 import type { CapturePosition } from '../dto/attendance.dto.js';
+import { microDegrees } from '../geo.js';
 
 /** Exactly the `Employee` shape the frontend renders. */
 export interface EmployeeView {
@@ -15,7 +16,7 @@ export interface EmployeeView {
   email: string;
   phone: string;
   role: Role;
-  division: string;
+  division: Division;
   /** Registered address: where the employee is on file. */
   address: string;
   /** `YYYY-MM-DD`. */
@@ -35,12 +36,10 @@ export interface EmployeeView {
 export function positionOf(
   row: Pick<Attendance, 'latitude' | 'longitude' | 'accuracy'>,
 ): CapturePosition | null {
-  if (row.latitude === null || row.longitude === null) return null;
+  const latitude = microDegrees(row.latitude);
+  const longitude = microDegrees(row.longitude);
 
-  const latitude = Number(row.latitude);
-  const longitude = Number(row.longitude);
-
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude === null || longitude === null) return null;
 
   return {
     latitude,
@@ -92,7 +91,7 @@ export class EmployeePresenter {
       email: employee.email,
       phone: employee.phone ?? '',
       role: employee.role,
-      division: employee.division ?? '',
+      division: employee.division,
       address: employee.address ?? '',
       contractExpiry: employee.contractExpiry ?? '',
       clockInAt: today ? clockString(today.clockInAt) : null,

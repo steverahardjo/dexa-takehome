@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { dayString } from '../config/clock.js';
-import { WORK_START } from '../config/env.js';
 import { Attendance } from '../employee/entities/attendance.entity.js';
 import { Employee } from '../employee/entities/employee.entity.js';
 import {
@@ -40,14 +39,6 @@ export interface AttendanceStats {
   totalEmployees: number;
   attending: number;
   notAttending: number;
-}
-
-/** One late day of the year, for the whole company. */
-export interface LateDay {
-  /** Local day, `YYYY-MM-DD`. */
-  date: string;
-  /** Employees who checked in late that day. */
-  late: number;
 }
 
 /**
@@ -119,6 +110,12 @@ export class AdminService {
       builder.andWhere('employee.role = :role', { role: query.role });
     }
 
+    if (query.division) {
+      builder.andWhere('employee.division = :division', {
+        division: query.division,
+      });
+    }
+
     builder
       .orderBy('employee.name', 'ASC')
       .skip((page - 1) * limit)
@@ -156,6 +153,8 @@ export class AdminService {
       throw error;
     }
   }
+
+  async search_history_date(id: string, dto: ): Promise<AttendanceView>
 
   async update(id: string, dto: UpdateEmployeeDto): Promise<EmployeeView> {
     const employee = await this.findEntity(id);
@@ -241,46 +240,6 @@ export class AdminService {
         hasEvidence: Boolean(row.evidence),
       };
     });
-  }
-
-  /**
-   * The days of `year` with at least one late check-in, counted per day. Only the
-   * late ones: a day that is not in the list is a day nobody was late. Pass
-   * `employeeId` for one person's calendar (the value is then always 1).
-   */
-  async lateDays(
-    year: number = Number(dayString().slice(0, 4)),
-    employeeId?: string,
-  ): Promise<LateDay[]> {
-    const builder = this.attendance
-      .createQueryBuilder('attendance')
-      .select('attendance.workDate', 'date')
-      .addSelect('COUNT(*)', 'late')
-      .where('attendance.workDate >= :from', { from: `${year}-01-01` })
-      .andWhere('attendance.workDate < :to', { to: `${year + 1}-01-01` })
-      // No stored flag: late is the clock-in time, after `WORK_START`.
-      .andWhere('TIME(attendance.clockInAt) > :workStart', {
-        workStart: `${WORK_START}:00`,
-      });
-
-    if (employeeId) {
-      builder.andWhere('attendance.empId = :employeeId', { employeeId });
-    }
-
-    const rows = await builder
-      .groupBy('attendance.workDate')
-      .orderBy('attendance.workDate', 'ASC')
-      // A `date` column arrives as a Date at local midnight on MySQL.
-      .getRawMany<{ date: string | Date; late: string }>();
-
-    return rows.map((row) => ({
-      // `date` columns come back as a Date at local midnight; the API speaks days.
-      date:
-        row.date instanceof Date
-          ? dayString(row.date)
-          : String(row.date).slice(0, 10),
-      late: Number(row.late),
-    }));
   }
 
   private async findEntity(id: string): Promise<Employee> {

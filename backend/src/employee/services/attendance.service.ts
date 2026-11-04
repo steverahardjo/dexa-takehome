@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { dayString } from '../../config/clock.js';
 import type { CapturePosition } from '../dto/attendance.dto.js';
+import { degrees } from '../geo.js';
 import { Attendance } from '../entities/attendance.entity.js';
 import type { Employee } from '../entities/employee.entity.js';
 
@@ -37,8 +38,8 @@ export class AttendanceService {
     const values = {
       clockInAt: now,
       evidence: input.evidence ?? null,
-      latitude: position ? String(position.latitude) : null,
-      longitude: position ? String(position.longitude) : null,
+      latitude: position ? degrees(position.latitude) : null,
+      longitude: position ? degrees(position.longitude) : null,
       accuracy: position?.accuracy ?? null,
       capturedAt: input.capturedAt ?? null,
       source: input.source,
@@ -70,7 +71,9 @@ export class AttendanceService {
   /** The check-ins of one employee, newest first. */
   history(employeeId: string, date?: string): Promise<Attendance[]> {
     return this.attendance.find({
-      where: date ? { empId: employeeId, workDate: date } : { empId: employeeId },
+      where: date
+        ? { empId: employeeId, workDate: date }
+        : { empId: employeeId },
       order: { clockInAt: 'DESC' },
       take: 100,
     });

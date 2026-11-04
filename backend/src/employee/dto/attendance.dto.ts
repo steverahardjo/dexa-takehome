@@ -22,24 +22,29 @@ const MAX_IMAGE_CHARS = 4_000_000;
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
+/**
+ * A position, as integers: micro-degrees (degrees × 1e6) and whole metres.
+ * `geo.ts` is the one place that converts to the decimal columns.
+ */
 export interface CapturePosition {
+  /** Degrees × 1e6. */
   latitude: number;
+  /** Degrees × 1e6. */
   longitude: number;
+  /** Metres, when the device reports it. */
   accuracy: number | null;
 }
 
 /** `position` in the phone payload. */
 export class CapturePositionDto implements CapturePosition {
+  // No latitude/longitude range check: the device reports what it reports, and
+  // the integers are stored as they arrive.
   @Type(() => Number)
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
+  @IsInt()
   latitude: number;
 
   @Type(() => Number)
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
+  @IsInt()
   longitude: number;
 
   /** Metres, when the device reports it. */

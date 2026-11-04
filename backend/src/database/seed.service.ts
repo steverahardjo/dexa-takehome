@@ -5,14 +5,18 @@ import { Repository } from 'typeorm';
 import { dayString } from '../config/clock.js';
 import { env } from '../config/env.js';
 import { Attendance } from '../employee/entities/attendance.entity.js';
-import { Employee, type Role } from '../employee/entities/employee.entity.js';
+import {
+  Employee,
+  type Division,
+  type Role,
+} from '../employee/entities/employee.entity.js';
 
 interface DemoEmployee {
   name: string;
   email: string;
   phone: string;
   role: Role;
-  division: string;
+  division: Division;
   address: string;
   contractExpiry: string;
   avatar: string;
@@ -30,7 +34,7 @@ const DEMO_EMPLOYEES: DemoEmployee[] = [
     email: 'john@company.com',
     phone: '+62 812 3456 7890',
     role: 'HR Admin',
-    division: 'People Operations',
+    division: 'Human Resources',
     address: 'Jl. Sudirman 12, Jakarta',
     contractExpiry: '2026-12-31',
     avatar: 'https://i.pravatar.cc/160?img=12',
@@ -41,7 +45,7 @@ const DEMO_EMPLOYEES: DemoEmployee[] = [
     email: 'steve.jevon.r@gmail.com',
     phone: '+62 812 3456 7890',
     role: 'HR Admin',
-    division: 'People Operations',
+    division: 'Human Resources',
     address: 'Jl. Sudirman 12, Jakarta',
     contractExpiry: '2026-12-31',
     avatar: 'https://i.pravatar.cc/160?img=12',

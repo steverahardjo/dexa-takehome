@@ -35,7 +35,7 @@
       "email": "dewi@company.com",
       "phone": "+62 812 1000 0004",
       "role": "Employee",
-      "division": "People Operations",
+      "division": "Human Resources",
       "address": "Jl. Cikini Raya 3, Jakarta",
       "contractExpiry": "2026-12-31",
       "avatar": "https://i.pravatar.cc/160?img=9"
@@ -55,7 +55,7 @@
       "email": "putri@company.com",
       "phone": "+62 812 1000 0006",
       "role": "Employee",
-      "division": "Marketing",
+      "division": "Sales",
       "address": "Jl. Bangka 14, Jakarta",
       "contractExpiry": "2026-08-31",
       "avatar": "https://i.pravatar.cc/160?img=16"
@@ -95,7 +95,7 @@
       "email": "maya@company.com",
       "phone": "+62 812 1000 0010",
       "role": "Employee",
-      "division": "Marketing",
+      "division": "Sales",
       "address": "Jl. Bintaro 66, Tangerang",
       "contractExpiry": "2026-11-30",
       "avatar": "https://i.pravatar.cc/160?img=24"
@@ -115,7 +115,7 @@
       "email": "rina@company.com",
       "phone": "+62 812 1000 0012",
       "role": "Employee",
-      "division": "People Operations",
+      "division": "Human Resources",
       "address": "Jl. Tomang 18, Jakarta",
       "contractExpiry": "2026-07-31",
       "avatar": "https://i.pravatar.cc/160?img=44"
@@ -135,7 +135,7 @@
       "email": "intan@company.com",
       "phone": "+62 812 1000 0014",
       "role": "Employee",
-      "division": "Design",
+      "division": "Engineering",
       "address": "Jl. Senayan 27, Jakarta",
       "contractExpiry": "2026-12-15",
       "avatar": "https://i.pravatar.cc/160?img=47"
@@ -185,7 +185,7 @@
       "email": "citra@company.com",
       "phone": "+62 812 1000 0018",
       "role": "Employee",
-      "division": "Design",
+      "division": "Engineering",
       "address": "Jl. Kemang Selatan 8, Jakarta",
       "contractExpiry": "2026-10-15",
       "avatar": "https://i.pravatar.cc/160?img=49"
@@ -205,7 +205,7 @@
       "email": "wulan@company.com",
       "phone": "+62 812 1000 0020",
       "role": "Employee",
-      "division": "People Operations",
+      "division": "Human Resources",
       "address": "Jl. Kramat 19, Jakarta",
       "contractExpiry": "2026-06-30",
       "avatar": "https://i.pravatar.cc/160?img=45"
@@ -215,7 +215,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-14",
-      "clockIn": "09:45",
+      "clockIn": "09:56",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -223,15 +223,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:59",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "bayu@company.com",
-      "date": "2026-10-14",
-      "clockIn": "10:04",
+      "clockIn": "08:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -239,7 +231,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-14",
-      "clockIn": "09:35",
+      "clockIn": "08:54",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -247,15 +239,15 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-14",
-      "clockIn": "09:03",
+      "clockIn": "08:48",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "dewi@company.com",
+      "email": "dimas@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:26",
+      "clockIn": "08:01",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -263,7 +255,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-14",
-      "clockIn": "09:12",
+      "clockIn": "08:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -271,7 +263,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:19",
+      "clockIn": "09:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -279,7 +271,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-14",
-      "clockIn": "10:15",
+      "clockIn": "08:57",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -287,7 +279,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:03",
+      "clockIn": "09:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -295,7 +287,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-14",
-      "clockIn": "09:07",
+      "clockIn": "08:47",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -303,7 +295,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:19",
+      "clockIn": "08:05",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -311,7 +303,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-14",
-      "clockIn": "09:26",
+      "clockIn": "08:17",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -319,7 +311,7 @@
     {
       "email": "putri@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:56",
+      "clockIn": "10:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -327,7 +319,7 @@
     {
       "email": "rina@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:01",
+      "clockIn": "08:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -335,126 +327,6 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-14",
-      "clockIn": "08:32",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "wulan@company.com",
-      "date": "2026-10-14",
-      "clockIn": "10:11",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "agus@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:45",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "andi@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:54",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "bayu@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:27",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "budi@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:37",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "citra@company.com",
-      "date": "2026-10-15",
-      "clockIn": "09:21",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "dimas@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:01",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "eko@company.com",
-      "date": "2026-10-15",
-      "clockIn": "09:31",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "fajar@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:20",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "intan@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:42",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "lina@company.com",
-      "date": "2026-10-15",
-      "clockIn": "09:47",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "maya@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:33",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "nur@company.com",
-      "date": "2026-10-15",
-      "clockIn": "08:11",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "putri@company.com",
-      "date": "2026-10-15",
-      "clockIn": "10:29",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "siti@company.com",
-      "date": "2026-10-15",
       "clockIn": "09:14",
       "latitude": -6.2,
       "longitude": 106.816667,
@@ -462,8 +334,152 @@
     },
     {
       "email": "steve.jevon.r@gmail.com",
+      "date": "2026-10-14",
+      "clockIn": "08:53",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "wulan@company.com",
+      "date": "2026-10-14",
+      "clockIn": "10:00",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "yoga@company.com",
+      "date": "2026-10-14",
+      "clockIn": "08:57",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "agus@company.com",
       "date": "2026-10-15",
-      "clockIn": "08:05",
+      "clockIn": "08:12",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "andi@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:40",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "bayu@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:32",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "budi@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:02",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "citra@company.com",
+      "date": "2026-10-15",
+      "clockIn": "09:19",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "dimas@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:04",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "eko@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:15",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "fajar@company.com",
+      "date": "2026-10-15",
+      "clockIn": "09:27",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "hendra@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:06",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "intan@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:32",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "lina@company.com",
+      "date": "2026-10-15",
+      "clockIn": "09:32",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "maya@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:35",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "nur@company.com",
+      "date": "2026-10-15",
+      "clockIn": "09:07",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rina@company.com",
+      "date": "2026-10-15",
+      "clockIn": "09:41",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "siti@company.com",
+      "date": "2026-10-15",
+      "clockIn": "08:01",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "steve.jevon.r@gmail.com",
+      "date": "2026-10-15",
+      "clockIn": "08:28",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -471,7 +487,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-15",
-      "clockIn": "08:54",
+      "clockIn": "08:33",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -479,7 +495,15 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-15",
-      "clockIn": "08:11",
+      "clockIn": "09:24",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "agus@company.com",
+      "date": "2026-10-16",
+      "clockIn": "08:37",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -487,15 +511,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-16",
-      "clockIn": "10:06",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "bayu@company.com",
-      "date": "2026-10-16",
-      "clockIn": "08:33",
+      "clockIn": "09:58",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -503,7 +519,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:13",
+      "clockIn": "09:34",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -511,7 +527,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:41",
+      "clockIn": "08:20",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -519,7 +535,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:51",
+      "clockIn": "10:10",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -527,15 +543,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:30",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "fajar@company.com",
-      "date": "2026-10-16",
-      "clockIn": "08:01",
+      "clockIn": "08:19",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -543,7 +551,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-16",
-      "clockIn": "09:26",
+      "clockIn": "08:59",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -551,7 +559,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-16",
-      "clockIn": "09:52",
+      "clockIn": "09:34",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -559,7 +567,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:29",
+      "clockIn": "08:26",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -567,7 +575,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:26",
+      "clockIn": "08:40",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -575,7 +583,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:34",
+      "clockIn": "09:14",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -583,7 +591,7 @@
     {
       "email": "putri@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:53",
+      "clockIn": "08:21",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -591,15 +599,7 @@
     {
       "email": "rina@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:52",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rizky@company.com",
-      "date": "2026-10-16",
-      "clockIn": "08:02",
+      "clockIn": "09:25",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -607,7 +607,7 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:24",
+      "clockIn": "09:27",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -615,7 +615,7 @@
     {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-16",
-      "clockIn": "08:48",
+      "clockIn": "08:49",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -623,15 +623,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-16",
-      "clockIn": "08:58",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "yoga@company.com",
-      "date": "2026-10-16",
-      "clockIn": "08:23",
+      "clockIn": "09:15",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -639,7 +631,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:07",
+      "clockIn": "09:18",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -647,7 +639,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:11",
+      "clockIn": "10:29",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -655,15 +647,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-19",
-      "clockIn": "10:08",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "budi@company.com",
-      "date": "2026-10-19",
-      "clockIn": "08:38",
+      "clockIn": "08:06",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -671,7 +655,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:37",
+      "clockIn": "09:57",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -687,7 +671,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-19",
-      "clockIn": "10:04",
+      "clockIn": "08:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -695,7 +679,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-19",
-      "clockIn": "09:57",
+      "clockIn": "08:59",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -711,7 +695,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:24",
+      "clockIn": "09:21",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -719,7 +703,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:43",
+      "clockIn": "08:57",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -727,7 +711,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:38",
+      "clockIn": "08:58",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -735,7 +719,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-19",
-      "clockIn": "09:35",
+      "clockIn": "08:51",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -743,7 +727,7 @@
     {
       "email": "putri@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:32",
+      "clockIn": "08:37",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -751,7 +735,23 @@
     {
       "email": "rina@company.com",
       "date": "2026-10-19",
-      "clockIn": "10:05",
+      "clockIn": "09:31",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rizky@company.com",
+      "date": "2026-10-19",
+      "clockIn": "08:02",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "siti@company.com",
+      "date": "2026-10-19",
+      "clockIn": "09:49",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -759,7 +759,7 @@
     {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-19",
-      "clockIn": "09:19",
+      "clockIn": "08:47",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -767,7 +767,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-19",
-      "clockIn": "08:49",
+      "clockIn": "08:09",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -775,7 +775,7 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-19",
-      "clockIn": "09:22",
+      "clockIn": "09:37",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -783,7 +783,15 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-20",
-      "clockIn": "09:28",
+      "clockIn": "08:54",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "andi@company.com",
+      "date": "2026-10-20",
+      "clockIn": "08:25",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -791,7 +799,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-20",
-      "clockIn": "08:35",
+      "clockIn": "09:44",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -799,7 +807,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-20",
-      "clockIn": "09:19",
+      "clockIn": "08:24",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -807,7 +815,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-20",
-      "clockIn": "08:05",
+      "clockIn": "09:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -821,79 +829,7 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "dimas@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:15",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
       "email": "eko@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:04",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "fajar@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:17",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "hendra@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:33",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "intan@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:13",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "lina@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:33",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "maya@company.com",
-      "date": "2026-10-20",
-      "clockIn": "08:02",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "nur@company.com",
-      "date": "2026-10-20",
-      "clockIn": "09:00",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rina@company.com",
-      "date": "2026-10-20",
-      "clockIn": "10:28",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rizky@company.com",
       "date": "2026-10-20",
       "clockIn": "08:46",
       "latitude": -6.2,
@@ -901,9 +837,65 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
+      "email": "fajar@company.com",
+      "date": "2026-10-20",
+      "clockIn": "09:50",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "intan@company.com",
+      "date": "2026-10-20",
+      "clockIn": "08:57",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "lina@company.com",
+      "date": "2026-10-20",
+      "clockIn": "08:37",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "maya@company.com",
+      "date": "2026-10-20",
+      "clockIn": "09:49",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "nur@company.com",
+      "date": "2026-10-20",
+      "clockIn": "09:26",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "putri@company.com",
+      "date": "2026-10-20",
+      "clockIn": "08:34",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "siti@company.com",
+      "date": "2026-10-20",
+      "clockIn": "08:04",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-20",
-      "clockIn": "08:20",
+      "clockIn": "08:23",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -911,15 +903,15 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-20",
-      "clockIn": "08:14",
+      "clockIn": "10:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "agus@company.com",
-      "date": "2026-10-21",
-      "clockIn": "08:33",
+      "email": "yoga@company.com",
+      "date": "2026-10-20",
+      "clockIn": "09:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -927,7 +919,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-21",
-      "clockIn": "10:29",
+      "clockIn": "08:39",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -935,15 +927,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:47",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "budi@company.com",
-      "date": "2026-10-21",
-      "clockIn": "10:19",
+      "clockIn": "08:33",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -951,7 +935,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-21",
-      "clockIn": "09:14",
+      "clockIn": "10:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -967,7 +951,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:24",
+      "clockIn": "08:05",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -975,7 +959,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:52",
+      "clockIn": "08:40",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -983,7 +967,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-21",
-      "clockIn": "09:09",
+      "clockIn": "08:34",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -991,7 +975,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:55",
+      "clockIn": "09:37",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -999,7 +983,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:36",
+      "clockIn": "08:23",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1007,7 +991,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-21",
-      "clockIn": "09:38",
+      "clockIn": "08:04",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1015,7 +999,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:51",
+      "clockIn": "08:39",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1023,23 +1007,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-21",
-      "clockIn": "08:48",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "putri@company.com",
-      "date": "2026-10-21",
-      "clockIn": "08:14",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rina@company.com",
-      "date": "2026-10-21",
-      "clockIn": "08:30",
+      "clockIn": "08:11",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1047,7 +1015,7 @@
     {
       "email": "rizky@company.com",
       "date": "2026-10-21",
-      "clockIn": "09:10",
+      "clockIn": "08:46",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1055,7 +1023,7 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-21",
-      "clockIn": "09:07",
+      "clockIn": "10:27",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1063,7 +1031,7 @@
     {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-21",
-      "clockIn": "09:57",
+      "clockIn": "08:38",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1071,23 +1039,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-21",
-      "clockIn": "09:18",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "yoga@company.com",
-      "date": "2026-10-21",
-      "clockIn": "09:11",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "agus@company.com",
-      "date": "2026-10-22",
-      "clockIn": "10:20",
+      "clockIn": "09:27",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1095,7 +1047,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-22",
-      "clockIn": "08:25",
+      "clockIn": "08:53",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1103,15 +1055,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-22",
-      "clockIn": "09:32",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "budi@company.com",
-      "date": "2026-10-22",
-      "clockIn": "09:10",
+      "clockIn": "08:40",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1119,7 +1063,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-22",
-      "clockIn": "10:22",
+      "clockIn": "09:41",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1133,17 +1077,9 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "dimas@company.com",
-      "date": "2026-10-22",
-      "clockIn": "09:50",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
       "email": "eko@company.com",
       "date": "2026-10-22",
-      "clockIn": "08:13",
+      "clockIn": "09:32",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1151,7 +1087,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-22",
-      "clockIn": "10:09",
+      "clockIn": "08:16",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1159,45 +1095,13 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-22",
-      "clockIn": "08:33",
+      "clockIn": "08:39",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "lina@company.com",
-      "date": "2026-10-22",
-      "clockIn": "09:15",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "maya@company.com",
-      "date": "2026-10-22",
-      "clockIn": "09:12",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "nur@company.com",
-      "date": "2026-10-22",
-      "clockIn": "08:44",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "putri@company.com",
-      "date": "2026-10-22",
-      "clockIn": "10:19",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "siti@company.com",
+      "email": "intan@company.com",
       "date": "2026-10-22",
       "clockIn": "08:25",
       "latitude": -6.2,
@@ -1205,7 +1109,39 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "steve.jevon.r@gmail.com",
+      "email": "lina@company.com",
+      "date": "2026-10-22",
+      "clockIn": "10:02",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "maya@company.com",
+      "date": "2026-10-22",
+      "clockIn": "08:34",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "nur@company.com",
+      "date": "2026-10-22",
+      "clockIn": "08:34",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "putri@company.com",
+      "date": "2026-10-22",
+      "clockIn": "10:17",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rina@company.com",
       "date": "2026-10-22",
       "clockIn": "09:00",
       "latitude": -6.2,
@@ -1213,9 +1149,33 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
+      "email": "rizky@company.com",
+      "date": "2026-10-22",
+      "clockIn": "09:10",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "siti@company.com",
+      "date": "2026-10-22",
+      "clockIn": "09:43",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "steve.jevon.r@gmail.com",
+      "date": "2026-10-22",
+      "clockIn": "08:47",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
       "email": "wulan@company.com",
       "date": "2026-10-22",
-      "clockIn": "08:33",
+      "clockIn": "08:17",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1223,7 +1183,7 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-22",
-      "clockIn": "08:55",
+      "clockIn": "09:13",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1231,7 +1191,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-23",
-      "clockIn": "09:05",
+      "clockIn": "08:07",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1239,7 +1199,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:39",
+      "clockIn": "09:25",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1247,7 +1207,15 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:26",
+      "clockIn": "08:35",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "budi@company.com",
+      "date": "2026-10-23",
+      "clockIn": "10:17",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1255,7 +1223,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-23",
-      "clockIn": "10:24",
+      "clockIn": "08:46",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1271,7 +1239,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-23",
-      "clockIn": "09:08",
+      "clockIn": "10:24",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1279,7 +1247,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:24",
+      "clockIn": "08:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1287,7 +1255,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:08",
+      "clockIn": "08:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1303,7 +1271,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:16",
+      "clockIn": "09:44",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1311,7 +1279,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-23",
-      "clockIn": "10:05",
+      "clockIn": "08:02",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1319,7 +1287,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-23",
-      "clockIn": "10:09",
+      "clockIn": "08:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1327,31 +1295,15 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-23",
-      "clockIn": "09:50",
+      "clockIn": "09:35",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "putri@company.com",
+      "email": "rina@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:57",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rizky@company.com",
-      "date": "2026-10-23",
-      "clockIn": "08:57",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "siti@company.com",
-      "date": "2026-10-23",
-      "clockIn": "08:12",
+      "clockIn": "08:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1359,7 +1311,7 @@
     {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-23",
-      "clockIn": "10:08",
+      "clockIn": "10:24",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1367,7 +1319,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:50",
+      "clockIn": "09:40",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1375,7 +1327,7 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-23",
-      "clockIn": "08:36",
+      "clockIn": "08:32",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1383,7 +1335,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:43",
+      "clockIn": "09:28",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1391,7 +1343,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:53",
+      "clockIn": "08:49",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1399,7 +1351,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:57",
+      "clockIn": "08:02",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1407,7 +1359,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:00",
+      "clockIn": "08:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1415,7 +1367,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:31",
+      "clockIn": "09:47",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1431,7 +1383,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:19",
+      "clockIn": "08:31",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1439,7 +1391,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:41",
+      "clockIn": "09:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1447,15 +1399,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:57",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "hendra@company.com",
-      "date": "2026-10-26",
-      "clockIn": "10:21",
+      "clockIn": "09:44",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1463,7 +1407,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:48",
+      "clockIn": "09:46",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1471,7 +1415,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:17",
+      "clockIn": "08:46",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1479,7 +1423,15 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:51",
+      "clockIn": "09:01",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "nur@company.com",
+      "date": "2026-10-26",
+      "clockIn": "09:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1487,7 +1439,7 @@
     {
       "email": "rina@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:36",
+      "clockIn": "08:51",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1495,7 +1447,7 @@
     {
       "email": "rizky@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:08",
+      "clockIn": "08:57",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1503,7 +1455,7 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-26",
-      "clockIn": "09:12",
+      "clockIn": "08:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1511,7 +1463,7 @@
     {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-26",
-      "clockIn": "09:41",
+      "clockIn": "09:42",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1519,7 +1471,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:15",
+      "clockIn": "09:20",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1527,7 +1479,7 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-26",
-      "clockIn": "08:21",
+      "clockIn": "09:48",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1535,7 +1487,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:19",
+      "clockIn": "08:33",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1543,7 +1495,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-27",
-      "clockIn": "09:25",
+      "clockIn": "08:53",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1551,7 +1503,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:37",
+      "clockIn": "08:24",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1559,7 +1511,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:29",
+      "clockIn": "08:36",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1567,7 +1519,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:48",
+      "clockIn": "10:27",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1583,15 +1535,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:11",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "eko@company.com",
-      "date": "2026-10-27",
-      "clockIn": "08:18",
+      "clockIn": "08:48",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1599,7 +1543,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:44",
+      "clockIn": "08:31",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1607,7 +1551,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:20",
+      "clockIn": "09:26",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1615,7 +1559,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:06",
+      "clockIn": "08:03",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1623,7 +1567,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:44",
+      "clockIn": "09:32",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1631,7 +1575,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-27",
-      "clockIn": "10:01",
+      "clockIn": "09:06",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1639,7 +1583,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:58",
+      "clockIn": "08:48",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1647,15 +1591,7 @@
     {
       "email": "putri@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:12",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rina@company.com",
-      "date": "2026-10-27",
-      "clockIn": "09:15",
+      "clockIn": "10:19",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1663,7 +1599,7 @@
     {
       "email": "rizky@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:22",
+      "clockIn": "08:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1671,15 +1607,7 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-27",
-      "clockIn": "09:53",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "steve.jevon.r@gmail.com",
-      "date": "2026-10-27",
-      "clockIn": "08:46",
+      "clockIn": "09:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1687,15 +1615,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-27",
-      "clockIn": "08:57",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "yoga@company.com",
-      "date": "2026-10-27",
-      "clockIn": "09:15",
+      "clockIn": "09:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1703,7 +1623,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:41",
+      "clockIn": "10:20",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1711,7 +1631,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:49",
+      "clockIn": "09:38",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1719,7 +1639,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:04",
+      "clockIn": "10:04",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1727,7 +1647,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:51",
+      "clockIn": "08:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1743,7 +1663,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:01",
+      "clockIn": "08:51",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1751,7 +1671,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:58",
+      "clockIn": "09:05",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1759,7 +1679,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:37",
+      "clockIn": "09:09",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1767,7 +1687,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:12",
+      "clockIn": "08:01",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1775,7 +1695,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-28",
-      "clockIn": "09:44",
+      "clockIn": "08:42",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1783,7 +1703,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:48",
+      "clockIn": "10:20",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1791,7 +1711,15 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-28",
-      "clockIn": "10:01",
+      "clockIn": "08:51",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "nur@company.com",
+      "date": "2026-10-28",
+      "clockIn": "08:44",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1799,7 +1727,7 @@
     {
       "email": "putri@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:21",
+      "clockIn": "08:57",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1807,7 +1735,15 @@
     {
       "email": "rina@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:18",
+      "clockIn": "08:58",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rizky@company.com",
+      "date": "2026-10-28",
+      "clockIn": "08:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1815,15 +1751,7 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-28",
-      "clockIn": "09:32",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "steve.jevon.r@gmail.com",
-      "date": "2026-10-28",
-      "clockIn": "09:47",
+      "clockIn": "08:43",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1831,7 +1759,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:45",
+      "clockIn": "10:02",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1839,7 +1767,15 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-28",
-      "clockIn": "08:52",
+      "clockIn": "08:11",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "agus@company.com",
+      "date": "2026-10-29",
+      "clockIn": "09:05",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1847,7 +1783,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:53",
+      "clockIn": "08:29",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1855,7 +1791,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-29",
-      "clockIn": "10:02",
+      "clockIn": "08:27",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1863,7 +1799,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:08",
+      "clockIn": "08:19",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1871,7 +1807,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:31",
+      "clockIn": "08:24",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1887,15 +1823,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:02",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "eko@company.com",
-      "date": "2026-10-29",
-      "clockIn": "08:37",
+      "clockIn": "08:31",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1903,7 +1831,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-29",
-      "clockIn": "09:29",
+      "clockIn": "10:09",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1911,7 +1839,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:56",
+      "clockIn": "08:33",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1919,7 +1847,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:33",
+      "clockIn": "09:52",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1927,7 +1855,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:32",
+      "clockIn": "09:07",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1935,7 +1863,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-29",
-      "clockIn": "09:54",
+      "clockIn": "09:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1943,15 +1871,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:32",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "putri@company.com",
-      "date": "2026-10-29",
-      "clockIn": "08:57",
+      "clockIn": "09:50",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1959,15 +1879,7 @@
     {
       "email": "rina@company.com",
       "date": "2026-10-29",
-      "clockIn": "09:08",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rizky@company.com",
-      "date": "2026-10-29",
-      "clockIn": "09:54",
+      "clockIn": "08:45",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1975,7 +1887,7 @@
     {
       "email": "siti@company.com",
       "date": "2026-10-29",
-      "clockIn": "10:00",
+      "clockIn": "08:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1983,7 +1895,7 @@
     {
       "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-29",
-      "clockIn": "10:27",
+      "clockIn": "08:43",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1991,7 +1903,7 @@
     {
       "email": "wulan@company.com",
       "date": "2026-10-29",
-      "clockIn": "08:26",
+      "clockIn": "09:14",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -1999,7 +1911,7 @@
     {
       "email": "yoga@company.com",
       "date": "2026-10-29",
-      "clockIn": "09:43",
+      "clockIn": "08:23",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2007,7 +1919,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-10-30",
-      "clockIn": "09:35",
+      "clockIn": "08:43",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2015,7 +1927,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-10-30",
-      "clockIn": "09:38",
+      "clockIn": "08:35",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2023,7 +1935,7 @@
     {
       "email": "bayu@company.com",
       "date": "2026-10-30",
-      "clockIn": "08:02",
+      "clockIn": "08:33",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2031,13 +1943,21 @@
     {
       "email": "budi@company.com",
       "date": "2026-10-30",
-      "clockIn": "09:20",
+      "clockIn": "08:15",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "citra@company.com",
+      "date": "2026-10-30",
+      "clockIn": "08:36",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "dimas@company.com",
       "date": "2026-10-30",
       "clockIn": "08:04",
       "latitude": -6.2,
@@ -2045,9 +1965,9 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "dimas@company.com",
+      "email": "eko@company.com",
       "date": "2026-10-30",
-      "clockIn": "09:46",
+      "clockIn": "09:12",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2055,7 +1975,15 @@
     {
       "email": "fajar@company.com",
       "date": "2026-10-30",
-      "clockIn": "08:53",
+      "clockIn": "08:08",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "hendra@company.com",
+      "date": "2026-10-30",
+      "clockIn": "08:55",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2063,7 +1991,7 @@
     {
       "email": "intan@company.com",
       "date": "2026-10-30",
-      "clockIn": "08:40",
+      "clockIn": "08:24",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2071,7 +1999,7 @@
     {
       "email": "lina@company.com",
       "date": "2026-10-30",
-      "clockIn": "08:56",
+      "clockIn": "09:47",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2079,45 +2007,13 @@
     {
       "email": "maya@company.com",
       "date": "2026-10-30",
-      "clockIn": "08:08",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "nur@company.com",
-      "date": "2026-10-30",
-      "clockIn": "08:29",
+      "clockIn": "10:09",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "putri@company.com",
-      "date": "2026-10-30",
-      "clockIn": "08:16",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rizky@company.com",
-      "date": "2026-10-30",
-      "clockIn": "10:04",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "siti@company.com",
-      "date": "2026-10-30",
-      "clockIn": "10:12",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "steve.jevon.r@gmail.com",
       "date": "2026-10-30",
       "clockIn": "08:12",
       "latitude": -6.2,
@@ -2125,208 +2021,80 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "wulan@company.com",
-      "date": "2026-10-30",
-      "clockIn": "09:34",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "yoga@company.com",
-      "date": "2026-10-30",
-      "clockIn": "08:49",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "agus@company.com",
-      "date": "2026-11-02",
-      "clockIn": "09:07",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "andi@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:29",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "bayu@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:46",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "budi@company.com",
-      "date": "2026-11-02",
-      "clockIn": "10:19",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "citra@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:26",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "dimas@company.com",
-      "date": "2026-11-02",
-      "clockIn": "10:01",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "eko@company.com",
-      "date": "2026-11-02",
-      "clockIn": "09:11",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "fajar@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:33",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "hendra@company.com",
-      "date": "2026-11-02",
-      "clockIn": "09:12",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "intan@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:35",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "lina@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:00",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "maya@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:02",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "nur@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:06",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "putri@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:51",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
       "email": "rina@company.com",
-      "date": "2026-11-02",
-      "clockIn": "09:13",
+      "date": "2026-10-30",
+      "clockIn": "08:32",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "rizky@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:24",
+      "date": "2026-10-30",
+      "clockIn": "09:54",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "siti@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:46",
+      "date": "2026-10-30",
+      "clockIn": "08:26",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "steve.jevon.r@gmail.com",
-      "date": "2026-11-02",
-      "clockIn": "08:24",
+      "date": "2026-10-30",
+      "clockIn": "08:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "wulan@company.com",
-      "date": "2026-11-02",
-      "clockIn": "08:08",
+      "date": "2026-10-30",
+      "clockIn": "08:37",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "yoga@company.com",
-      "date": "2026-11-02",
-      "clockIn": "09:27",
+      "date": "2026-10-30",
+      "clockIn": "09:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "agus@company.com",
-      "date": "2026-11-03",
-      "clockIn": "09:14",
+      "date": "2026-11-02",
+      "clockIn": "08:19",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "andi@company.com",
-      "date": "2026-11-03",
-      "clockIn": "08:35",
+      "date": "2026-11-02",
+      "clockIn": "08:45",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "bayu@company.com",
-      "date": "2026-11-03",
-      "clockIn": "09:32",
+      "date": "2026-11-02",
+      "clockIn": "10:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "budi@company.com",
-      "date": "2026-11-03",
+      "date": "2026-11-02",
       "clockIn": "10:21",
       "latitude": -6.2,
       "longitude": 106.816667,
@@ -2334,8 +2102,152 @@
     },
     {
       "email": "citra@company.com",
+      "date": "2026-11-02",
+      "clockIn": "09:59",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "dimas@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:26",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "eko@company.com",
+      "date": "2026-11-02",
+      "clockIn": "09:31",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "fajar@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:57",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "hendra@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:33",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "intan@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:13",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "lina@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:29",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "maya@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:51",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "nur@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:58",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "putri@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:21",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rina@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:51",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rizky@company.com",
+      "date": "2026-11-02",
+      "clockIn": "10:04",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "siti@company.com",
+      "date": "2026-11-02",
+      "clockIn": "09:54",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "wulan@company.com",
+      "date": "2026-11-02",
+      "clockIn": "08:38",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "agus@company.com",
       "date": "2026-11-03",
-      "clockIn": "08:22",
+      "clockIn": "08:41",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "andi@company.com",
+      "date": "2026-11-03",
+      "clockIn": "08:32",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "bayu@company.com",
+      "date": "2026-11-03",
+      "clockIn": "08:35",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "budi@company.com",
+      "date": "2026-11-03",
+      "clockIn": "09:50",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "citra@company.com",
+      "date": "2026-11-03",
+      "clockIn": "09:03",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2351,7 +2263,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-11-03",
-      "clockIn": "09:24",
+      "clockIn": "08:22",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2359,7 +2271,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-11-03",
-      "clockIn": "08:52",
+      "clockIn": "08:30",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2367,7 +2279,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-11-03",
-      "clockIn": "08:16",
+      "clockIn": "08:44",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2375,77 +2287,13 @@
     {
       "email": "hendra@company.com",
       "date": "2026-11-03",
-      "clockIn": "09:54",
+      "clockIn": "08:37",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
       "email": "intan@company.com",
-      "date": "2026-11-03",
-      "clockIn": "08:02",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "lina@company.com",
-      "date": "2026-11-03",
-      "clockIn": "08:39",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "maya@company.com",
-      "date": "2026-11-03",
-      "clockIn": "10:28",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "nur@company.com",
-      "date": "2026-11-03",
-      "clockIn": "08:41",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "putri@company.com",
-      "date": "2026-11-03",
-      "clockIn": "09:28",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rina@company.com",
-      "date": "2026-11-03",
-      "clockIn": "08:32",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "rizky@company.com",
-      "date": "2026-11-03",
-      "clockIn": "09:10",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "siti@company.com",
-      "date": "2026-11-03",
-      "clockIn": "08:24",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "steve.jevon.r@gmail.com",
       "date": "2026-11-03",
       "clockIn": "08:36",
       "latitude": -6.2,
@@ -2453,9 +2301,57 @@
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
+      "email": "lina@company.com",
+      "date": "2026-11-03",
+      "clockIn": "08:43",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "maya@company.com",
+      "date": "2026-11-03",
+      "clockIn": "10:01",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "putri@company.com",
+      "date": "2026-11-03",
+      "clockIn": "08:57",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "rizky@company.com",
+      "date": "2026-11-03",
+      "clockIn": "08:24",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "siti@company.com",
+      "date": "2026-11-03",
+      "clockIn": "10:16",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "steve.jevon.r@gmail.com",
+      "date": "2026-11-03",
+      "clockIn": "08:05",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
       "email": "wulan@company.com",
       "date": "2026-11-03",
-      "clockIn": "08:17",
+      "clockIn": "08:57",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2463,7 +2359,7 @@
     {
       "email": "yoga@company.com",
       "date": "2026-11-03",
-      "clockIn": "09:44",
+      "clockIn": "09:11",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2471,7 +2367,7 @@
     {
       "email": "agus@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:51",
+      "clockIn": "09:59",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2479,15 +2375,7 @@
     {
       "email": "andi@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:45",
-      "latitude": -6.2,
-      "longitude": 106.816667,
-      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
-    },
-    {
-      "email": "bayu@company.com",
-      "date": "2026-11-04",
-      "clockIn": "10:20",
+      "clockIn": "09:09",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2495,7 +2383,7 @@
     {
       "email": "budi@company.com",
       "date": "2026-11-04",
-      "clockIn": "09:50",
+      "clockIn": "08:38",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2503,7 +2391,7 @@
     {
       "email": "citra@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:53",
+      "clockIn": "09:08",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2511,7 +2399,7 @@
     {
       "email": "dewi@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:37",
+      "clockIn": "09:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2519,7 +2407,7 @@
     {
       "email": "dimas@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:58",
+      "clockIn": "08:51",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2527,7 +2415,7 @@
     {
       "email": "eko@company.com",
       "date": "2026-11-04",
-      "clockIn": "09:02",
+      "clockIn": "08:21",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2535,7 +2423,7 @@
     {
       "email": "fajar@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:54",
+      "clockIn": "08:56",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2543,7 +2431,7 @@
     {
       "email": "hendra@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:12",
+      "clockIn": "08:14",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2551,7 +2439,15 @@
     {
       "email": "intan@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:24",
+      "clockIn": "10:19",
+      "latitude": -6.2,
+      "longitude": 106.816667,
+      "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
+    },
+    {
+      "email": "lina@company.com",
+      "date": "2026-11-04",
+      "clockIn": "08:49",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2559,7 +2455,7 @@
     {
       "email": "maya@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:15",
+      "clockIn": "08:21",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2567,7 +2463,7 @@
     {
       "email": "nur@company.com",
       "date": "2026-11-04",
-      "clockIn": "09:32",
+      "clockIn": "08:41",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2575,7 +2471,7 @@
     {
       "email": "putri@company.com",
       "date": "2026-11-04",
-      "clockIn": "08:20",
+      "clockIn": "09:52",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2583,23 +2479,23 @@
     {
       "email": "rina@company.com",
       "date": "2026-11-04",
-      "clockIn": "09:48",
+      "clockIn": "09:05",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "steve.jevon.r@gmail.com",
+      "email": "rizky@company.com",
       "date": "2026-11-04",
-      "clockIn": "09:59",
+      "clockIn": "08:00",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     },
     {
-      "email": "wulan@company.com",
+      "email": "siti@company.com",
       "date": "2026-11-04",
-      "clockIn": "10:14",
+      "clockIn": "09:03",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
@@ -2607,14 +2503,14 @@
     {
       "email": "yoga@company.com",
       "date": "2026-11-04",
-      "clockIn": "09:46",
+      "clockIn": "08:45",
       "latitude": -6.2,
       "longitude": 106.816667,
       "proof": "https://picsum.photos/seed/wfh-proof/900/1200"
     }
   ],
   "meta": {
-    "generatedAt": "2026-11-04T03:33:47",
+    "generatedAt": "2026-11-04T21:17:19",
     "rules": {
       "workStart": "09:00",
       "days": 21,
@@ -2622,9 +2518,9 @@
       "absentRate": 0.15
     },
     "summary": {
-      "late": 110,
-      "on_time": 190,
-      "absent": 36
+      "late": 108,
+      "on_time": 179,
+      "absent": 49
     }
   }
 }

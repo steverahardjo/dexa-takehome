@@ -56,7 +56,7 @@ returned in the response as `devCode` when it is not (`OTP_DEV_RETURN=true`):
 
 | Email               | Role      |
 | ------------------- | --------- |
-| `john@company.com`  | HR Admin  |
+| `steve.jevon.r@gmail.com`  | HR Admin  |
 | `jane@company.com`  | Employee  |
 | `michael@company.com` | Manager |
 
@@ -131,5 +131,7 @@ cd frontend && npx eslint . && npm run build   # eslint + next build
 - Dates and times use one timezone everywhere — `TZ`, default `Asia/Jakarta` —
   for the containers, MySQL and the seed.
 - `DB_SYNCHRONIZE=true` creates the tables on boot, which is fine for this
-  take-home. A real deployment would use migrations.
+  take-home. A real deployment would use migrations. Because division is an
+  enum column, run `backend/scripts/normalize-divisions.sql` once against an
+  older database before the first boot (see `backend/README.md`).
 - `spec.md` is the brief this was built against.

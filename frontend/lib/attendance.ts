@@ -2,8 +2,14 @@
 import { formatClockTime } from "@/lib/time";
 
 /** Where the browser was when the check-in was sent. */
+/**
+ * A position on the wire, always integers: `latitude`/`longitude` are degrees
+ * × 1e6 (micro-degrees), `accuracy` is whole metres.
+ */
 export type CheckInPosition = {
+  /** Degrees × 1e6, e.g. `-6200000` for -6.2°. */
   latitude: number;
+  /** Degrees × 1e6, e.g. `106816667` for 106.816667°. */
   longitude: number;
   /** Metres, when the device reports it. */
   accuracy: number | null;

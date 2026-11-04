@@ -89,7 +89,7 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{employee.name}</p>
           <p className="truncate text-xs text-muted-foreground">
-            {employee.role} · {employee.division || "No division"}
+            {employee.role} · {employee.division}
           </p>
         </div>
 

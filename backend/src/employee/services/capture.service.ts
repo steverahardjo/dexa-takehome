@@ -11,6 +11,7 @@ import { env } from '../../config/env.js';
 import type { TokenUser } from '../../auth/guards/jwt-auth.guard.js';
 import type { CapturePosition } from '../dto/attendance.dto.js';
 import type { SubmitCaptureDto } from '../dto/attendance.dto.js';
+import { degrees } from '../geo.js';
 import { CaptureSession } from '../entities/capture-session.entity.js';
 import { Employee } from '../entities/employee.entity.js';
 import {
@@ -90,11 +91,11 @@ export class CaptureService {
     session.capturedAt = new Date(dto.capturedAt);
     session.latitude =
       dto.position?.latitude !== undefined
-        ? String(dto.position.latitude)
+        ? degrees(dto.position.latitude)
         : null;
     session.longitude =
       dto.position?.longitude !== undefined
-        ? String(dto.position.longitude)
+        ? degrees(dto.position.longitude)
         : null;
     session.accuracy = dto.position?.accuracy ?? null;
     session.status = 'submitted';

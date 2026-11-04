@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Resend } from 'resend';
 import nodemailer, { type Transporter } from 'nodemailer';
 
 import { env } from '../../config/env.js';
@@ -10,10 +11,33 @@ export interface OtpMail {
   ttlMinutes: number;
 }
 
+/** Everything one message needs, whichever channel ends up carrying it. */
+interface Mail {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}
+
+const DEFAULT_MAIL_FROM = 'Absence Management <absences@example.com>';
+
+/** `message (HTTP 401)`, so a rejected key is obvious in the log line. */
+function describeError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+
+  const status = (error as { statusCode?: unknown }).statusCode;
+
+  return typeof status === 'number'
+    ? `${error.message} (HTTP ${status})`
+    : error.message;
+}
+
 /**
- * Sends the sign-in code. With `SMTP_HOST` set the mail goes out over SMTP;
- * without it the transport keeps the message in memory and logs it, so a local
- * run needs no mail server. The code is also returned by the API in dev.
+ * Sends the sign-in code over the first channel that is configured: Resend
+ * when `RESEND_API_KEY` is set, SMTP when `SMTP_HOST` is, and otherwise a
+ * transport that keeps the message in memory and logs it, so a local run needs
+ * no mail server. `MAIL_FROM` is the sender for both real channels. The code is
+ * also returned by the API in dev.
  */
 @Injectable()
 export class EmailService {
@@ -36,21 +60,10 @@ export class EmailService {
     `;
 
     try {
-      await this.getTransport().sendMail({
-        from: env.string(
-          'MAIL_FROM',
-          'Absence Management <absences@example.com>',
-        ),
-        to,
-        subject: 'Your sign-in code',
-        text,
-        html,
-      });
+      await this.deliver({ to, subject: 'Your sign-in code', text, html });
     } catch (error) {
       this.logger.error(
-        `Could not send the sign-in code to ${to}: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
+        `Could not send the sign-in code to ${to}: ${describeError(error)}`,
       );
 
       if (process.env.NODE_ENV === 'production') {
@@ -61,6 +74,35 @@ export class EmailService {
     }
   }
 
+  /** Resend deliver app */
+  private async deliver(mail: Mail): Promise<void> {
+    const apiKey = env.optionalString('RESEND_API_KEY');
+
+    if (apiKey) {
+      await new Resend(apiKey).emails.send({
+        from: this.from(),
+        to: mail.to,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+      });
+
+      return;
+    }
+
+    await this.getTransport().sendMail({
+      from: this.from(),
+      to: mail.to,
+      subject: mail.subject,
+      text: mail.text,
+      html: mail.html,
+    });
+  }
+
+  private from(): string {
+    return env.string('MAIL_FROM', DEFAULT_MAIL_FROM);
+  }
+
   private getTransport(): Transporter {
     if (this.transport) return this.transport;
 
@@ -68,7 +110,7 @@ export class EmailService {
 
     if (!host) {
       this.logger.warn(
-        'SMTP_HOST is not set: codes are logged instead of mailed',
+        'Neither RESEND_API_KEY nor SMTP_HOST is set: codes are logged instead of mailed',
       );
       this.transport = nodemailer.createTransport({ jsonTransport: true });
 

@@ -7,6 +7,7 @@ import { DataSource } from 'typeorm';
 import { dayString } from '../config/clock.js';
 import { env } from '../config/env.js';
 import { Attendance } from '../employee/entities/attendance.entity.js';
+import { toDivision } from '../employee/divisions.js';
 import {
   Employee,
   ROLES,
@@ -19,6 +20,7 @@ interface SeedEmployee {
   email: string;
   phone?: string;
   role?: Role;
+  /** Legacy free text: normalized to a `DIVISIONS` entry on seed. */
   division?: string;
   address?: string;
   /** `YYYY-MM-DD`. */
@@ -152,6 +154,14 @@ async function seedEmployees(
 
     const assigned: Role = known ?? 'Employee';
 
+    const division = toDivision(entry.division);
+
+    if (entry.division && !division) {
+      logger.warn(
+        `${entry.email}: unknown division "${entry.division}", seeding as Operations`,
+      );
+    }
+
     const existing = await employees.findOne({
       where: { email: entry.email },
     });
@@ -167,7 +177,7 @@ async function seedEmployees(
         email: entry.email,
         phone: entry.phone ?? null,
         role: assigned,
-        division: entry.division ?? null,
+        division: division ?? 'Operations',
         address: entry.address ?? null,
         contractExpiry: entry.contractExpiry ?? null,
         avatar: entry.avatar ?? null,

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -24,7 +26,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
+  DIVISIONS,
   ROLES,
   addEmployee,
   getInitials,
@@ -46,7 +50,7 @@ const emptyForm: NewEmployee = {
 };
 
 function toFormValues(employee?: Employee): NewEmployee {
-  if (!employee) return emptyForm;
+  if (!employee) return { ...emptyForm };
 
   return {
     name: employee.name,
@@ -63,32 +67,51 @@ function toFormValues(employee?: Employee): NewEmployee {
 export function EmployeeForm({ employee }: { employee?: Employee }) {
   const router = useRouter();
   const isEditing = Boolean(employee);
+
   const [form, setForm] = React.useState<NewEmployee>(() =>
     toFormValues(employee)
   );
+
   const [errors, setErrors] = React.useState<
     Partial<Record<keyof NewEmployee, string>>
   >({});
+
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  function update<K extends keyof NewEmployee>(key: K, value: NewEmployee[K]) {
-    setForm((current) => ({ ...current, [key]: value }));
-    setErrors((current) => ({ ...current, [key]: undefined }));
+  function update<K extends keyof NewEmployee>(
+    key: K,
+    value: NewEmployee[K]
+  ) {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+
+    setErrors((current) => ({
+      ...current,
+      [key]: undefined,
+    }));
   }
 
   function validate(): boolean {
     const nextErrors: Partial<Record<keyof NewEmployee, string>> = {};
 
-    if (!form.name.trim()) nextErrors.name = "Full name is required.";
+    if (!form.name.trim()) {
+      nextErrors.name = "Full name is required.";
+    }
 
     if (!form.email.trim()) {
       nextErrors.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
+    ) {
       nextErrors.email = "Enter a valid email address.";
     }
 
-    if (!form.division.trim()) nextErrors.division = "Division is required.";
+    if (!form.division) {
+      nextErrors.division = "Choose a division.";
+    }
 
     if (!form.contractExpiry) {
       nextErrors.contractExpiry = "Contract expiry date is required.";
@@ -99,10 +122,12 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
     return Object.keys(nextErrors).length === 0;
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
-    if (!validate()) return;
+    if (isSubmitting || !validate()) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -112,9 +137,9 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
-      division: form.division.trim(),
+      division: form.division,
       address: form.address.trim(),
-      avatar: form.avatar?.trim() ? form.avatar.trim() : undefined,
+      avatar: form.avatar?.trim() || undefined,
     };
 
     try {
@@ -127,7 +152,9 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       router.push("/admin/dashboard");
     } catch (error) {
       setSubmitError(
-        error instanceof Error ? error.message : "Could not save the employee."
+        error instanceof Error
+          ? error.message
+          : "Could not save the employee."
       );
       setIsSubmitting(false);
     }
@@ -137,7 +164,10 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{isEditing ? "Edit employee" : "Employee details"}</CardTitle>
+          <CardTitle>
+            {isEditing ? "Edit employee" : "Employee details"}
+          </CardTitle>
+
           <CardDescription>
             {isEditing
               ? "The card on the dashboard updates as soon as you save."
@@ -146,11 +176,14 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
         </CardHeader>
 
         <CardContent className="space-y-5">
+          {/* Employee preview */}
           <div className="flex flex-wrap items-center gap-4 rounded-lg border bg-muted/30 p-4">
             <Avatar size="lg">
               <AvatarImage src={form.avatar || undefined} alt="" />
               <AvatarFallback>
-                {getInitials(form.name) || <UserPlus className="size-4" />}
+                {getInitials(form.name) || (
+                  <UserPlus className="size-4" />
+                )}
               </AvatarFallback>
             </Avatar>
 
@@ -158,6 +191,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
               <p className="truncate font-medium">
                 {form.name.trim() || (isEditing ? "Employee" : "New employee")}
               </p>
+
               <p className="truncate text-sm text-muted-foreground">
                 {form.email.trim() || "employee@company.com"}
               </p>
@@ -165,10 +199,14 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
 
             <div className="ml-auto flex items-center gap-2">
               <Badge variant="outline">{form.role}</Badge>
+              {form.division && (
+                <Badge variant="secondary">{form.division}</Badge>
+              )}
               <Badge variant="secondary">WFH</Badge>
             </div>
           </div>
 
+          {/* Employee information */}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field data-invalid={Boolean(errors.name)}>
               <FieldLabel htmlFor="name">Full name</FieldLabel>
@@ -178,6 +216,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                 placeholder="Jane Smith"
                 value={form.name}
                 onChange={(event) => update("name", event.target.value)}
+                aria-invalid={Boolean(errors.name)}
               />
               {errors.name && <FieldError>{errors.name}</FieldError>}
             </Field>
@@ -191,6 +230,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                 placeholder="jane@company.com"
                 value={form.email}
                 onChange={(event) => update("email", event.target.value)}
+                aria-invalid={Boolean(errors.email)}
               />
               {errors.email && <FieldError>{errors.email}</FieldError>}
             </Field>
@@ -205,17 +245,6 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                 value={form.phone}
                 onChange={(event) => update("phone", event.target.value)}
               />
-            </Field>
-
-            <Field data-invalid={Boolean(errors.division)}>
-              <FieldLabel htmlFor="division">Division</FieldLabel>
-              <Input
-                id="division"
-                placeholder="Engineering"
-                value={form.division}
-                onChange={(event) => update("division", event.target.value)}
-              />
-              {errors.division && <FieldError>{errors.division}</FieldError>}
             </Field>
 
             <Field>
@@ -233,11 +262,14 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
               <FieldLabel htmlFor="role">Role</FieldLabel>
               <Select
                 value={form.role}
-                onValueChange={(value) => update("role", (value ?? "Employee") as Role)}
+                onValueChange={(value) =>
+                  update("role", (value ?? "Employee") as Role)
+                }
               >
                 <SelectTrigger id="role" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent>
                   {ROLES.map((role) => (
                     <SelectItem key={role} value={role}>
@@ -249,7 +281,9 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
             </Field>
 
             <Field data-invalid={Boolean(errors.contractExpiry)}>
-              <FieldLabel htmlFor="contractExpiry">Contract expiry</FieldLabel>
+              <FieldLabel htmlFor="contractExpiry">
+                Contract expiry
+              </FieldLabel>
               <Input
                 id="contractExpiry"
                 type="date"
@@ -257,10 +291,38 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                 onChange={(event) =>
                   update("contractExpiry", event.target.value)
                 }
+                aria-invalid={Boolean(errors.contractExpiry)}
               />
               {errors.contractExpiry && (
                 <FieldError>{errors.contractExpiry}</FieldError>
               )}
+            </Field>
+
+            <Field
+              className="sm:col-span-2"
+              data-invalid={Boolean(errors.division)}
+            >
+              <FieldLabel id="division-label">Division</FieldLabel>
+
+              <RadioGroup
+                aria-labelledby="division-label"
+                aria-invalid={Boolean(errors.division)}
+                value={form.division}
+                onValueChange={(value) => update("division", value)}
+                className="grid gap-2 sm:grid-cols-3"
+              >
+                {DIVISIONS.map((division) => (
+                  <label
+                    key={division}
+                    className="flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-sm transition-colors hover:bg-muted/50 has-data-checked:border-primary/40 has-data-checked:bg-primary/5"
+                  >
+                    <Radio value={division} />
+                    {division}
+                  </label>
+                ))}
+              </RadioGroup>
+
+              {errors.division && <FieldError>{errors.division}</FieldError>}
             </Field>
 
             <Field className="sm:col-span-2">
@@ -280,9 +342,13 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
         </CardContent>
       </Card>
 
+      {/* Form actions */}
       <div className="flex flex-wrap items-center justify-end gap-2">
         {submitError && (
-          <p role="alert" className="mr-auto text-sm font-medium text-destructive">
+          <p
+            role="alert"
+            className="mr-auto text-sm font-medium text-destructive"
+          >
             {submitError}
           </p>
         )}
@@ -291,6 +357,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
           variant="ghost"
           size="lg"
           render={<Link href="/admin/dashboard" />}
+          disabled={isSubmitting}
         >
           <ArrowLeft />
           Cancel
@@ -304,6 +371,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
           ) : (
             <UserPlus />
           )}
+
           {isEditing ? "Save changes" : "Save employee"}
         </Button>
       </div>

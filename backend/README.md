@@ -41,12 +41,29 @@ npm run dev:employee      # :3002
 npm run dev:admin         # :3003
 ```
 
+## Mail
+
+`EmailService` sends the sign-in code through the first channel that is configured:
+
+| Channel | Enabled by | Notes |
+| ------- | ---------- | ----- |
+| Brevo | `RESEND_API_KEY` | Official `@resend` SDK, transactional email API |
+| SMTP | `SMTP_HOST` | `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` |
+| Log | neither | Nothing leaves the process; a failed send logs the code outside production |
+
+`MAIL_FROM` (`Name <address>` or a bare address) is the sender for both real
+channels; in Brevo that address has to be a verified sender. A failed send is
+logged and, outside production, falls back to logging the code; in production it
+is an error.
+
+`.env` is loaded by `npm run start:dev` and the `dev:*` scripts (`--env-file`).
+The containers get their environment from compose.
+
 ## Seed
 
 `src/database/seed-data.json` holds the demo employees and their check-ins.
 Attendance days are stored as `daysAgo`, so the file keeps producing check-ins
 on "today" instead of going stale:
-
 ```bash
 npm run seed                            # src/database/seed-data.json
 SEED_FILE=./other.json npm run seed     # any file with the same shape
@@ -55,6 +72,21 @@ SEED_FILE=./other.json npm run seed     # any file with the same shape
 Seeding matches employees by email and check-ins by `(employee, work date)`, so
 re-running it only inserts what is missing. `SeedService` separately seeds three
 demo people when the app boots; `SEED_DEMO=false` turns that off.
+
+## Divisions
+
+`division` is a single-choice field limited to `DIVISIONS` in
+`src/employee/entities/employee.entity.ts` (the column is a MySQL enum and the
+DTO rejects anything else). Older databases stored free text; normalize them
+once before starting the new backend with `DB_SYNCHRONIZE`:
+
+```bash
+mysql -h "$DB_HOST" -u "$DB_USERNAME" -p "$DB_DATABASE" \
+  < backend/scripts/normalize-divisions.sql
+```
+
+The SQL mapping mirrors `src/employee/divisions.ts`, which the seed script uses
+to turn legacy values in `seed-data.json` into a valid option.
 
 ## Checks
 

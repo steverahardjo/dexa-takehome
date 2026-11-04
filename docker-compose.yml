@@ -1,5 +1,30 @@
 name: absences
 
+# Shared by every backend container: the same database, secret and timezone.
+x-backend-env: &backend-env
+  NODE_ENV: production
+  DB_HOST: db
+  DB_PORT: 3306
+  DB_DATABASE: absences
+  DB_USERNAME: attendance
+  DB_PASSWORD: attend1234
+  DB_SYNCHRONIZE: "true"
+  JWT_SECRET: dev-only-change-me
+  OTP_DEV_RETURN: "true"
+  # Off: `seed-data.json` is the only source of people and check-ins.
+  SEED_DEMO: "false"
+  FRONTEND_ORIGIN: http://localhost:3000
+  TZ: Asia/Jakarta
+  # Mail: Brevo when the key is set, else SMTP when the host is, else logged.
+  MAIL_FROM: "${MAIL_FROM:-Absence Management <absences@example.com>}"
+  RESEND_API_KEY: ${RESEND_API_KEY}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_SECURE: ${SMTP_SECURE:-false}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+
+
 services:
   db:
     image: mysql:8.4
@@ -20,30 +45,34 @@ services:
       timeout: 5s
       retries: 20
 
+  # One-shot seed: `dist/database/seed-data.json` (employees + attendances) is
+  # applied before any service starts. `docker compose run --rm seed` re-runs it.
+  seed:
+    build: ./backend
+    command: node dist/database/seed.js
+    restart: "no"
+    environment:
+      <<: *backend-env
+      SEED_FILE: /app/dist/database/seed-data.json
+    depends_on:
+      db:
+        condition: service_healthy
+
   auth:
     build: ./backend
     command: node dist/services/auth/main.js
     restart: unless-stopped
-    environment: &backend-env
-      NODE_ENV: production
+    environment:
+      <<: *backend-env
       PORT: 3001
       SERVICE_NAME: auth
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: absences
-      DB_USERNAME: attendance
-      DB_PASSWORD: attend1234
-      DB_SYNCHRONIZE: true
-      JWT_SECRET: dev-only-change-me
-      OTP_DEV_RETURN: true
-      SEED_DEMO: true
-      FRONTEND_ORIGIN: http://localhost:3000
-      TZ: Asia/Jakarta
     ports:
       - "3001:3001"
     depends_on:
       db:
         condition: service_healthy
+      seed:
+        condition: service_completed_successfully
 
   employee:
     build: ./backend
@@ -58,6 +87,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      seed:
+        condition: service_completed_successfully
 
   admin:
     build: ./backend
@@ -72,6 +103,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      seed:
+        condition: service_completed_successfully
 
 volumes:
   db-data:
