@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 /**
  * The backend runs as three containers. The browser only talks to this origin;
  * these rewrites forward `/api/<domain>/*` to the service that owns it, so no
- * CORS setup is needed and the phone's QR flow keeps working over the LAN.
+ * CORS setup is needed.
  */
 const authServiceUrl = process.env.AUTH_SERVICE_URL ?? "http://localhost:3001";
 const employeeServiceUrl =
@@ -31,9 +31,8 @@ const nextConfig: NextConfig = {
           destination: `${employeeServiceUrl}/employee/:path*`,
         },
       ],
-      // `fallback` runs after the filesystem routes, so the two QR route
-      // handlers keep adding `lanHosts` and stay reachable while the rest of
-      // `/api/attendance/*` is proxied.
+      // `fallback` runs after the filesystem routes, so a route handler added
+      // under `app/api` later still wins over the proxy.
       fallback: [
         {
           source: "/api/attendance/:path*",

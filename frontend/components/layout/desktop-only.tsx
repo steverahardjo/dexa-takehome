@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { DesktopNotice } from "@/components/desktop-notice"
+import { DesktopNotice } from "@/components/layout/desktop-notice"
 
 /**
  * Below this width the dashboard columns stop fitting. Matches Tailwind's `lg`,

@@ -1,48 +1,19 @@
+"use client";
 
-"use client"
+import * as React from "react";
+import Link from "next/link";
+import { LoaderCircle, LogOut } from "lucide-react";
 
-import * as React from "react"
-import Link from "next/link"
-import { LogOut, LoaderCircle, Camera } from "lucide-react"
-
-import { CheckInCard } from "@/components/checkin-card"
-import { Button } from "@/components/ui/button"
-import { attendanceTone, getAttendance } from "@/lib/attendance"
-import { useSignedInEmployee } from "@/lib/employees"
-import { signOut, useSession } from "@/lib/session"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { CheckInPanel } from "@/components/attendance/checkin-panel";
+import { Button } from "@/components/ui/button";
+import { useSignedInEmployee } from "@/lib/employees";
+import { signOut, useSession } from "@/lib/session";
 
 export default function EmployeePage() {
-  const session = useSession()
-  const { employee, status, error } = useSignedInEmployee()
-  const isMobile = useIsMobile()
+  const session = useSession();
+  const { employee, status, error } = useSignedInEmployee();
 
-  const [photo, setPhoto] = React.useState<File | null>(null)
-  const [preview, setPreview] = React.useState<string | null>(null)
-
-  const attendance = employee ? getAttendance(employee) : null
-  const tone = attendanceTone[attendance?.status ?? "not-checked-in"]
-  const isLoading = status === "idle" || status === "loading"
-
-  React.useEffect(() => {
-    if (!photo) {
-      setPreview(null)
-      return
-    }
-
-    const url = URL.createObjectURL(photo)
-    setPreview(url)
-
-    return () => URL.revokeObjectURL(url)
-  }, [photo])
-
-  function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-
-    if (file) {
-      setPhoto(file)
-    }
-  }
+  const isLoading = status === "idle" || status === "loading";
 
   return (
     <main className="flex min-h-svh flex-col items-center justify-center gap-3 p-4">
@@ -79,63 +50,7 @@ export default function EmployeePage() {
           </div>
         ) : (
           <>
-            {isMobile ? (
-              <div className="space-y-4 rounded-xl bg-card p-6 ring-1 ring-foreground/10">
-                <div className="space-y-1 text-center">
-                  <h2 className="font-semibold">Attendance photo</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Take a photo using your phone camera to check in.
-                  </p>
-                </div>
-
-                {preview && (
-                  <img
-                    src={preview}
-                    alt="Attendance preview"
-                    className="aspect-square w-full rounded-lg object-cover"
-                  />
-                )}
-
-                <input
-                  id="attendance-camera"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                />
-
-                <Button
-                  className="w-full"
-                  onClick={() =>
-                    document.getElementById("attendance-camera")?.click()
-                  }
-                >
-                  <Camera className="mr-2 size-4" />
-                  {photo ? "Retake photo" : "Open camera"}
-                </Button>
-
-                {photo && (
-                  <p className="text-center text-xs text-muted-foreground">
-                    {photo.name}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <CheckInCard
-                key={employee.id}
-                employee={employee}
-                status={
-                  attendance
-                    ? {
-                        label: attendance.label,
-                        detail: attendance.detail,
-                        tone: tone.badge,
-                      }
-                    : null
-                }
-              />
-            )}
+            <CheckInPanel key={employee.id} employee={employee} />
 
             <div className="flex justify-center">
               <Button variant="ghost" size="sm" onClick={signOut}>
@@ -147,5 +62,5 @@ export default function EmployeePage() {
         )}
       </div>
     </main>
-  )
+  );
 }

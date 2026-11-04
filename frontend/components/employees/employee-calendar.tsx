@@ -2,8 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRightIcon, LoaderCircleIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { LoaderCircleIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar"
@@ -18,7 +17,7 @@ import { api } from "@/lib/api"
 import type { Employee } from "@/lib/employees"
 import { cn } from "@/lib/utils"
 
-const YEAR = 2026
+const YEAR = new Date().getFullYear()
 
 type LateDay = {
   date: string
@@ -49,16 +48,14 @@ export function EmployeeCalendar({
   open,
   onOpenChange,
 }: EmployeeCalendarProps) {
-  const router = useRouter()
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{employee.name}: late days</DialogTitle>
           <DialogDescription>
-            Red dates indicate late attendance in {YEAR}.
-            Select a red date to view its attendance record.
+            Red dates indicate late attendance in {YEAR}. Select one to
+            highlight the day.
           </DialogDescription>
         </DialogHeader>
 
@@ -66,12 +63,6 @@ export function EmployeeCalendar({
           key={`${employee.id}-${open}`}
           employee={employee}
           year={YEAR}
-          onView={(date) => {
-            onOpenChange(false)
-            router.push(
-              `/admin/employees/${employee.id}/attendance?date=${date}`
-            )
-          }}
         />
       </DialogContent>
     </Dialog>
@@ -81,55 +72,53 @@ export function EmployeeCalendar({
 type LateYearProps = {
   employee: Employee
   year: number
-  onView: (date: string) => void
 }
 
-function LateYear({ employee, year, onView }: LateYearProps) {
+function LateYear({ employee, year }: LateYearProps) {
   const [lateDays, setLateDays] = React.useState<LateDay[] | null>(null)
   const [error, setError] = React.useState<string | null>(null)
+  const [attempt, setAttempt] = React.useState(0)
   const [selected, setSelected] = React.useState<Date>()
   const [month, setMonth] = React.useState(
     () => new Date(year, 0, 1)
   )
 
-  const requestId = React.useRef(0)
-
-  const load = React.useCallback(async () => {
-    const currentRequest = ++requestId.current
-
-    setLateDays(null)
-    setError(null)
-
-    try {
-      const result = await api<LateDay[]>(
-        `/admin/employees/${employee.id}/late-days?year=${year}`
-      )
-
-      if (currentRequest !== requestId.current) return
-
-      setLateDays(result)
-    } catch (loadError) {
-      if (currentRequest !== requestId.current) return
-
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "The late days could not be loaded."
-      )
-    }
-
-    return () => {
-      requestId.current++
-    }
-  }, [employee.id, year])
-
   React.useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      try {
+        const result = await api<LateDay[]>(
+          `/admin/employees/${employee.id}/late-days?year=${year}`
+        )
+
+        if (cancelled) return
+
+        setLateDays(result)
+        setError(null)
+      } catch (loadError) {
+        if (cancelled) return
+
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "The late days could not be loaded."
+        )
+      }
+    }
+
     void load()
 
     return () => {
-      requestId.current++
+      cancelled = true
     }
-  }, [load])
+  }, [employee.id, year, attempt])
+
+  function retry() {
+    setLateDays(null)
+    setError(null)
+    setAttempt((current) => current + 1)
+  }
 
   const late = React.useMemo(
     () => (lateDays ?? []).map((day) => parseDay(day.date)),
@@ -159,11 +148,7 @@ function LateYear({ employee, year, onView }: LateYearProps) {
       <div className="space-y-3">
         <p className="text-sm text-destructive">{error}</p>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => void load()}
-        >
+        <Button variant="outline" size="sm" onClick={retry}>
           Try again
         </Button>
       </div>

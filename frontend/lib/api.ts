@@ -77,7 +77,3 @@ export async function api<T>(
   return (await response.json()) as T;
 }
 
-/** Same as `api`, but for the QR session calls that must not send a token. */
-export function errorText(payload: unknown, fallback: string): string {
-  return errorMessage(payload, fallback);
-}

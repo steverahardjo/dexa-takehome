@@ -1,6 +1,14 @@
 
 import { formatClockTime } from "@/lib/time";
 
+/** Where the browser was when the check-in was sent. */
+export type CheckInPosition = {
+  latitude: number;
+  longitude: number;
+  /** Metres, when the device reports it. */
+  accuracy: number | null;
+};
+
 export type AttendanceStatus =
   | "checked-in"
   | "late"

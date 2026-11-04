@@ -1,4 +1,4 @@
-import { DesktopNotice } from "@/components/desktop-notice";
+import { DesktopNotice } from "@/components/layout/desktop-notice";
 
 export const metadata = {
   title: "Open on a laptop — Absences",

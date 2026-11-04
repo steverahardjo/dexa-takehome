@@ -1,14 +1,14 @@
 # Absences
 
 Employee work-absence system for WFH days: sign in with an emailed one-time code,
-check in from the browser (optionally by handing the check-in to a phone through a
-QR code), and let HR Admin manage employees and watch today's attendance.
+check in from the browser with an optional photo, and let HR Admin manage
+employees and watch today's attendance.
 
 ```
 absences/
 ├── frontend/            Next.js 16 app (App Router, React 19, Tailwind 4)
-│   ├── app/             pages, and the two /api routes the phone talks to
-│   ├── components/      UI, including the check-in and capture flows
+│   ├── app/             pages and layouts
+│   ├── components/      UI, grouped by domain (auth, attendance, employees, layout)
 │   ├── hooks/           client hooks
 │   └── lib/             API client, session, clock and attendance helpers
 ├── backend/             NestJS API (TypeScript, TypeORM, MySQL)
@@ -24,9 +24,9 @@ absences/
 ## Run it
 
 The backend is three containers behind one MySQL: `auth` (sign-in), `employee`
-(self service and the QR flow) and `admin` (HRD). The browser only ever talks to
+(self service and check-ins) and `admin` (HRD). The browser only ever talks to
 the Next.js origin — `next.config.ts` rewrites `/api/*` to the right container, so
-there is no CORS setup and the phone stays on the same origin.
+there is no CORS setup.
 
 ```bash
 # 1. API + database
@@ -96,7 +96,7 @@ Self service (`employee`, 3002):
 | -------- | ----------------------------- | ---------------------------------------- |
 | `GET`    | `/employee/me`                | The signed-in employee, as the page renders them |
 | `GET`    | `/employee/me/attendance`     | Own check-ins, newest first              |
-| `POST`   | `/attendance/check-in`        | Clock in directly, no photo              |
+| `POST`   | `/attendance/check-in`        | Clock in; photo and position optional    |
 | `POST`   | `/attendance/sessions`        | Start a QR session (desktop)             |
 | `GET`    | `/attendance/sessions/:id`    | Session status (desktop polls, phone reads) |
 | `POST`   | `/attendance/sessions/:id`    | Phone submits photo, time and position   |

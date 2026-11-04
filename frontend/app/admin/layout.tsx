@@ -1,4 +1,4 @@
-import { DesktopOnly } from "@/components/desktop-only";
+import { DesktopOnly } from "@/components/layout/desktop-only";
 
 export const metadata = {
   title: "Admin dashboard — Absences",

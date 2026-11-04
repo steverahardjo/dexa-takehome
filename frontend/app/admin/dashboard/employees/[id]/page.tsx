@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { EditEmployeeForm } from "@/components/edit-employee-form";
+import { EditEmployeeForm } from "@/components/employees/edit-employee-form";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata = {

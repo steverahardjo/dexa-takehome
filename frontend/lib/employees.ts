@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 
 import { api } from "@/lib/api";
-import type { CapturePosition } from "@/lib/attendance-capture";
+import type { CheckInPosition } from "@/lib/attendance";
 import { getSession, subscribeSession } from "@/lib/session";
 
 export const ROLES = ["Employee", "Manager", "HR Admin"] as const;
@@ -26,8 +26,8 @@ export type Employee = {
   avatar?: string;
   /** Photo evidence uploaded with the check-in (image URL or data URL). */
   evidence?: string;
-  /** Where the phone was when the check-in photo was sent. */
-  checkInPosition?: CapturePosition | null;
+  /** Where the browser was when the check-in photo was sent. */
+  checkInPosition?: CheckInPosition | null;
 };
 
 /** What the admin form posts. */
@@ -245,13 +245,13 @@ export async function deleteEmployee(employeeId: string): Promise<void> {
 type CheckInDetails = {
   /** Local time of the check-in, defaults to the server clock. */
   at?: Date;
-  /** Photo evidence taken on the phone (image data URL). */
+  /** Photo evidence taken in the browser (image data URL). */
   evidence?: string;
-  /** Where the phone was when the photo was sent. */
-  position?: CapturePosition | null;
+  /** Where the browser was when the photo was sent. */
+  position?: CheckInPosition | null;
 };
 
-/** Direct clock-in from the dashboard, without the QR photo flow. */
+/** Records today's check-in for the employee. */
 export async function clockIn(
   employeeId: string,
   { at, evidence, position = null }: CheckInDetails = {}
@@ -271,19 +271,3 @@ export async function clockIn(
   return employee;
 }
 
-/**
- * The desktop confirms the photo the phone sent. This is the call that writes
- * today's check-in with its evidence.
- */
-export async function confirmCaptureSession(
-  sessionId: string
-): Promise<Employee> {
-  const employee = await api<Employee>(
-    `/attendance/sessions/${sessionId}/confirm`,
-    { method: "POST" }
-  );
-
-  await Promise.all([refreshEmployees(), refreshSignedInEmployee()]);
-
-  return employee;
-}

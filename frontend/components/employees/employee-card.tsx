@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { EmployeeCalendar } from "@/components/employee-calendar";
+import { EmployeeCalendar } from "@/components/employees/employee-calendar";
 import { attendanceTone, getAttendance } from "@/lib/attendance";
 import { getInitials, type Employee } from "@/lib/employees";
 import { formatCoordinates, googleMapsUrl } from "@/lib/maps";
@@ -251,6 +251,8 @@ function EvidenceButton({ employee }: { employee: Employee }) {
           </DialogDescription>
         </DialogHeader>
 
+        {/* Data URL stored with the check-in — next/image has nothing to optimise. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={employee.evidence}
           alt={`${employee.name} check-in evidence`}

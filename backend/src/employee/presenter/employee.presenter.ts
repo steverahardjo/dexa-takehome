@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
 import { clockString, dayString } from '../../config/clock.js';
+import { WORK_START } from '../../config/env.js';
 import { Attendance } from '../entities/attendance.entity.js';
 import type { Employee, Role } from '../entities/employee.entity.js';
 import type { CapturePosition } from '../dto/attendance.dto.js';
@@ -21,6 +22,8 @@ export interface EmployeeView {
   contractExpiry: string;
   /** `HH:mm` local time of today's check-in, or null. */
   clockInAt: string | null;
+  /** Today's check-in landed after `WORK_START`: the card paints itself red. */
+  late: boolean;
   avatar?: string;
   /** Today's photo evidence, when there is a check-in. */
   evidence?: string;
@@ -93,6 +96,7 @@ export class EmployeePresenter {
       address: employee.address ?? '',
       contractExpiry: employee.contractExpiry ?? '',
       clockInAt: today ? clockString(today.clockInAt) : null,
+      late: today ? clockString(today.clockInAt) > WORK_START : false,
       avatar: employee.avatar ?? undefined,
       evidence: today?.evidence ?? undefined,
       checkInPosition: today ? positionOf(today) : null,

@@ -42,9 +42,9 @@ export interface AttendanceStats {
   notAttending: number;
 }
 
-/** One late day of the year: the calendar paints these red. */
+/** One late day of the year, for the whole company. */
 export interface LateDay {
-  /** Local day, `YYYY-MM-DD` — never a timestamp, the calendar keys on it. */
+  /** Local day, `YYYY-MM-DD`. */
   date: string;
   /** Employees who checked in late that day. */
   late: number;

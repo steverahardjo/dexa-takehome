@@ -3,8 +3,8 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 
-import { LoginForm } from "@/components/login-form"
-import { OtpForm } from "@/components/otp-form"
+import { LoginForm } from "@/components/auth/login-form"
+import { OtpForm } from "@/components/auth/otp-form"
 import { Button } from "@/components/ui/button"
 import { api } from "@/lib/api"
 import type { Role } from "@/lib/employees"

@@ -10,7 +10,6 @@ import {
   Clock,
   LogOut,
   Plus,
-  QrCode,
   Search,
 } from "lucide-react";
 
@@ -30,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { EmployeeCard } from "@/components/employee-card";
+import { EmployeeCard } from "@/components/employees/employee-card";
 import { useTodayLabel } from "@/lib/clock";
 import { ROLES, useEmployeesState, type Employee } from "@/lib/employees";
 import { attendanceTone, summarizeAttendance } from "@/lib/attendance";

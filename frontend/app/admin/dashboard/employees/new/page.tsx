@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { EmployeeForm } from "@/components/employee-form";
+import { EmployeeForm } from "@/components/employees/employee-form";
 
 export const metadata = {
   title: "Add employee — Absences",

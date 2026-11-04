@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { UserRoundX } from "lucide-react";
 
-import { EmployeeForm } from "@/components/employee-form";
+import { EmployeeForm } from "@/components/employees/employee-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEmployeesState } from "@/lib/employees";
 

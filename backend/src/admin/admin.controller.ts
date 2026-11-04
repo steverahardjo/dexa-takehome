@@ -73,7 +73,7 @@ export class AdminController {
     return this.admin.remove(id);
   }
 
-  /** One employee's late days of a year: what the card's calendar opens with. */
+  /** One employee's late days of a year, as a plain list. */
   @Get('employees/:id/late-days')
   employeeLateDays(
     @Param('id', ParseUUIDPipe) id: string,
