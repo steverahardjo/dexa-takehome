@@ -6,6 +6,12 @@
     "composite": true,
     "tsBuildInfoFile": "../../dist/apps/backend/tsconfig.tsbuildinfo"
   },
-  "include": ["**/*.ts", "../../shared/**/*.ts"],
+  "include": [
+    "**/*.ts",
+    "../../shared/**/*.ts",
+    "../auth/guards/**/*.ts",
+    "../auth/decorators/**/*.ts",
+    "../auth/services/jwt.service.ts"
+  ],
   "exclude": ["node_modules", "dist", "**/*spec.ts"]
 }
