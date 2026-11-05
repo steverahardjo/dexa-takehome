@@ -1,10 +1,9 @@
-
 name: absences
 
 # Shared environment for all backend containers.
 x-backend-env: &backend-env
   NODE_ENV: production
-
+  TZ: Asia/Jakarta
   DB_HOST: db
   DB_PORT: 3306
   DB_DATABASE: absences
@@ -12,29 +11,31 @@ x-backend-env: &backend-env
   DB_PASSWORD: ${DB_PASSWORD:-attend1234}
   DB_SYNCHRONIZE: "true"
 
-  JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
-  OTP_DEV_RETURN: "true"
+# Token signing. Auth signs, the gateway verifies; both need the same secret.
+x-auth-env: &auth-env
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-only-change-me}
+  JWT_ACCESS_TTL_SECONDS: "900"
+  OTP_HASH_SECRET: ${OTP_HASH_SECRET:-dev-only-otp-secret}
+  OTP_EXPIRY_SECONDS: "300"
+  EMAIL_PROVIDER: log
 
-  # Seed file is the only source of demo people and attendance.
-  SEED_DEMO: "false"
-
-  FRONTEND_ORIGIN: http://localhost:3000
-  TZ: Asia/Jakarta
-
-  # Email configuration.
-  MAIL_FROM: "${MAIL_FROM:-Absence Management <absences@example.com>}"
-  RESEND_API_KEY: ${RESEND_API_KEY:-}
-
-  SMTP_HOST: ${SMTP_HOST:-}
-  SMTP_PORT: ${SMTP_PORT:-587}
-  SMTP_SECURE: ${SMTP_SECURE:-false}
-  SMTP_USER: ${SMTP_USER:-}
-  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+# MinIO access, shared by the storage service only.
+x-minio-env: &minio-env
+  MINIO_ENDPOINT: aistor
+  MINIO_PORT: 9000
+  MINIO_USE_SSL: "false"
+  MINIO_ACCESS_KEY: ${AISTOR_ROOT_USER:-absences_admin}
+  MINIO_SECRET_KEY: ${AISTOR_ROOT_PASSWORD:?Set AISTOR_ROOT_PASSWORD in .env}
+  MINIO_BUCKET: absences
+  MINIO_UPLOAD_URL_TTL: "600"
+  MINIO_DOWNLOAD_URL_TTL: "900"
+  # A phone photo after downscaling; the browser never uploads more than this.
+  MINIO_MAX_UPLOAD_BYTES: "10485760"
 
 services:
 
   # --------------------------------------------------
-  # MySQL Database
+  # MySQL database
   # --------------------------------------------------
   db:
     image: mysql:8.4
@@ -64,7 +65,7 @@ services:
       retries: 20
 
   # --------------------------------------------------
-  # MinIO AIStor Object Storage
+  # MinIO object storage
   # --------------------------------------------------
   aistor:
     image: quay.io/minio/aistor/minio:latest
@@ -79,6 +80,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${AISTOR_ROOT_USER:-absences_admin}
       MINIO_ROOT_PASSWORD: ${AISTOR_ROOT_PASSWORD:?Set AISTOR_ROOT_PASSWORD in .env}
+      # The browser PUTs the bytes straight here, so this origin must be allowed.
+      MINIO_API_CORS_ALLOW_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
       TZ: Asia/Jakarta
     ports:
       - "9000:9000"
@@ -88,95 +91,117 @@ services:
       - ./aistor/minio.license:/minio.license:ro
 
   # --------------------------------------------------
-  # One-shot Database Seeder
+  # Storage service (internal TCP only)
   # --------------------------------------------------
-  seed:
+  storage:
     build: ./backend
-    command: node dist/database/seed.js
-    restart: "no"
-    environment:
-      <<: *backend-env
-      SEED_FILE: /app/dist/database/seed-data.json
-    depends_on:
-      db:
-        condition: service_healthy
-
-  # --------------------------------------------------
-  # Authentication Service
-  # --------------------------------------------------
-  auth:
-    build: ./backend
-    command: node dist/services/auth/main.js
+    command: node dist/apps/storage/main.js
     restart: unless-stopped
     environment:
-      <<: *backend-env
-      PORT: 3001
-      SERVICE_NAME: auth
-    ports:
-      - "3001:3001"
+      <<: [*backend-env, *minio-env]
+      STORAGE_TCP_HOST: 0.0.0.0
+      STORAGE_TCP_PORT: "4001"
+    expose:
+      - "4001"
     depends_on:
-      db:
-        condition: service_healthy
-      seed:
-        condition: service_completed_successfully
-
-  # --------------------------------------------------
-  # Employee Service
-  # --------------------------------------------------
-  employee:
-    build: ./backend
-    command: node dist/services/employee/main.js
-    restart: unless-stopped
-    environment:
-      <<: *backend-env
-      PORT: 3002
-      SERVICE_NAME: employee
-
-      # S3 / AIStor configuration
-      S3_ENDPOINT: http://aistor:9000
-      S3_BUCKET: attendance-photos
-      S3_ACCESS_KEY: ${AISTOR_ROOT_USER:-absences_admin}
-      S3_SECRET_KEY: ${AISTOR_ROOT_PASSWORD}
-      S3_REGION: us-east-1
-      S3_FORCE_PATH_STYLE: "true"
-
-    ports:
-      - "3002:3002"
-    depends_on:
-      db:
-        condition: service_healthy
-      seed:
-        condition: service_completed_successfully
       aistor:
         condition: service_started
 
   # --------------------------------------------------
-  # Administration Service
+  # Auth service (internal TCP only)
   # --------------------------------------------------
-  admin:
+  auth:
     build: ./backend
-    command: node dist/services/admin/main.js
+    command: node dist/apps/auth/main.js
     restart: unless-stopped
     environment:
-      <<: *backend-env
-      PORT: 3003
-      SERVICE_NAME: admin
-
-      S3_ENDPOINT: http://aistor:9000
-      S3_BUCKET: attendance-photos
-      S3_ACCESS_KEY: ${AISTOR_ROOT_USER:-absences_admin}
-      S3_SECRET_KEY: ${AISTOR_ROOT_PASSWORD}
-      S3_REGION: us-east-1
-      S3_FORCE_PATH_STYLE: "true"
-
-    ports:
-      - "3003:3003"
+      <<: [*backend-env, *auth-env]
+      AUTH_TCP_HOST: 0.0.0.0
+      AUTH_TCP_PORT: "4002"
+    expose:
+      - "4002"
     depends_on:
       db:
         condition: service_healthy
-      seed:
-        condition: service_completed_successfully
-      aistor:
+
+  # --------------------------------------------------
+  # Employee service (internal TCP only)
+  # --------------------------------------------------
+  employee:
+    build: ./backend
+    command: node dist/apps/employee/main.js
+    restart: unless-stopped
+    environment:
+      <<: [*backend-env, *auth-env]
+      EMPLOYEE_TCP_HOST: 0.0.0.0
+      EMPLOYEE_TCP_PORT: "4003"
+      AUTH_TCP_HOST: auth
+      AUTH_TCP_PORT: "4002"
+      STORAGE_TCP_HOST: storage
+      STORAGE_TCP_PORT: "4001"
+    expose:
+      - "4003"
+    depends_on:
+      db:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      storage:
+        condition: service_started
+
+  # --------------------------------------------------
+  # Attendance service (internal TCP only)
+  # --------------------------------------------------
+  attendance:
+    build: ./backend
+    command: node dist/apps/attendance/main.js
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      ATTENDANCE_TCP_HOST: 0.0.0.0
+      ATTENDANCE_TCP_PORT: "4004"
+      EMPLOYEE_TCP_HOST: employee
+      EMPLOYEE_TCP_PORT: "4003"
+      STORAGE_TCP_HOST: storage
+      STORAGE_TCP_PORT: "4001"
+      COMPANY_TIMEZONE: ${COMPANY_TIMEZONE:-Asia/Jakarta}
+      REQUIRED_CHECK_IN: ${REQUIRED_CHECK_IN:-09:00}
+      ATTENDANCE_ABSENT_CRON: ${ATTENDANCE_ABSENT_CRON:-0 15 * * *}
+    expose:
+      - "4004"
+    depends_on:
+      db:
+        condition: service_healthy
+      employee:
+        condition: service_started
+      storage:
+        condition: service_started
+
+  # --------------------------------------------------
+  # Gateway (the only public HTTP port)
+  # --------------------------------------------------
+  gateway:
+    build: ./backend
+    command: node dist/apps/backend/main.js
+    restart: unless-stopped
+    environment:
+      <<: [*backend-env, *auth-env]
+      GATEWAY_HTTP_PORT: "3003"
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      AUTH_TCP_HOST: auth
+      AUTH_TCP_PORT: "4002"
+      EMPLOYEE_TCP_HOST: employee
+      EMPLOYEE_TCP_PORT: "4003"
+      ATTENDANCE_TCP_HOST: attendance
+      ATTENDANCE_TCP_PORT: "4004"
+    ports:
+      - "3003:3003"
+    depends_on:
+      auth:
+        condition: service_started
+      employee:
+        condition: service_started
+      attendance:
         condition: service_started
 
 volumes:
