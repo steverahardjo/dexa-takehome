@@ -239,6 +239,12 @@ All phases done for the backend; the frontend is only rewired, not data-aligned 
   presigned PUT followed by `{ proofKey, location }`.
 - `libs/database` and `libs/shared` scaffolding removed; `nest-cli.json` and `tsconfig.json` cleaned.
 - `npm start` / `start:dev` now target the gateway; `start:gateway` is explicit.
+- OpenAPI: the gateway serves Swagger UI on `/docs` and the raw documents on `/docs-json`
+  and `/docs-yaml` (`apps/backend/src/docs/`). Response shapes come from models that
+  `implements` their `shared/contracts` counterpart, so a contract change breaks the build
+  instead of silently documenting a lie; request bodies reuse the real DTOs. `OPENAPI_ENABLED=false`
+  turns it off. Documented that way there is one source of truth per shape, and 22 schemas are
+  generated for 14 paths.
 
 Verified locally: five projects typecheck, `nest build` for all five, `vitest` 63/63, e2e 6/6, `oxlint` clean,
 `docker compose config` valid, and a live run of gateway + auth + employee + attendance against MySQL

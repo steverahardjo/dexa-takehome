@@ -11,7 +11,8 @@
     "../../shared/**/*.ts",
     "../auth/guards/**/*.ts",
     "../auth/decorators/**/*.ts",
-    "../auth/services/jwt.service.ts"
+    "../auth/services/jwt.service.ts",
+    "../employee/dto/employee.dto.ts"
   ],
   "exclude": ["node_modules", "dist", "**/*spec.ts"]
 }

@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsEmail, IsString, Matches, MaxLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 const normalizeEmail = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
@@ -10,6 +11,11 @@ const normalizeEmail = ({ value }: { value: unknown }) =>
  * auth service, which answers every failure the same way.
  */
 export class RequestOtpDto {
+  @ApiProperty({
+    format: 'email',
+    example: 'ada@example.com',
+    description: 'Address the code is mailed to. Normalised to lower case.',
+  })
   @Transform(normalizeEmail)
   @IsEmail()
   @MaxLength(255)
@@ -17,6 +23,10 @@ export class RequestOtpDto {
 }
 
 export class VerifyOtpDto extends RequestOtpDto {
+  @ApiProperty({
+    example: '123456',
+    description: 'The 6-digit code from the email.',
+  })
   @IsString()
   @Matches(/^\d{6}$/, { message: 'code must be a 6-digit number' })
   code: string;
