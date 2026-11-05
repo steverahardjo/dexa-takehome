@@ -1,10 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "declaration": false,
     "rootDir": "../..",
-    "outDir": "../../dist/apps/employee"
+    "outDir": "../../dist/apps/employee",
+    "composite": true,
+    "tsBuildInfoFile": "../../dist/apps/employee/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "include": ["**/*.ts", "../../shared/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*spec.ts"]
 }
