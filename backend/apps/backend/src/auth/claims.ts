@@ -19,11 +19,26 @@ export function requireEmployeeId(user: JwtPayload): string {
   return user.employeeId;
 }
 
-/** Reading someone else's attendance needs an admin role; reading your own does not. */
-export function assertSelfOrAdmin(
+/**
+ * Role assignment is a master-admin privilege.
+ *
+ * The employee service cannot see who is calling — it only receives a payload
+ * over TCP — so an ADMIN could otherwise create a MASTER_ADMIN and escalate.
+ * The field is dropped here, before it is forwarded.
+ */
+export function withoutRoleAssignment(
   user: JwtPayload,
-  employeeId: string,
-): void {
+  body: Record<string, unknown>,
+): Record<string, unknown> {
+  if (user.role === Role.MASTER_ADMIN) return body;
+
+  const { role: _ignored, ...rest } = body;
+
+  return rest;
+}
+
+/** Reading someone else's attendance needs an admin role; reading your own does not. */
+export function assertSelfOrAdmin(user: JwtPayload, employeeId: string): void {
   if (user.employeeId === employeeId || isAdmin(user)) return;
 
   throw new ForbiddenException('You can only read your own attendance');

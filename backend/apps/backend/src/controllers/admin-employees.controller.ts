@@ -29,7 +29,9 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { CurrentUser } from '../../../auth/decorators/current-user.decorator.js';
 import { AuthGuard } from '../../../auth/guards/jwt.guard.js';
+import type { JwtPayload } from '../../../auth/services/jwt.service.js';
 import {
   CreateEmployeeDto,
   UpdateEmployeeDto,
@@ -45,6 +47,7 @@ import {
 import type { UploadUrlResult } from '../../../../shared/contracts/storage.contracts.js';
 import { Role } from '../../../../shared/enums/roles.enum.js';
 import { sendRpc } from '../../../../shared/rpc/rpc-call.js';
+import { withoutRoleAssignment } from '../auth/claims.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
 import { ATTENDANCE_CLIENT, EMPLOYEE_CLIENT } from '../clients/tokens.js';
@@ -133,21 +136,22 @@ export class AdminEmployeesController {
   @ApiOperation({
     summary: 'Create an employee',
     description:
-      'Creates the employee and, in the same request, its login identity with the given email. A failed identity write rolls the employee back, so the two are never out of sync.',
+      'Creates the employee and, in the same request, its login identity with the given email. A failed identity write rolls the employee back, so the two are never out of sync. A `role` is only honoured for a master admin: for anyone else the field is dropped, not rejected.',
   })
   @ApiBody({ type: CreateEmployeeDto })
   @ApiCreatedResponse({
     type: EmployeeViewModel,
     description: 'The employee, and its login identity',
   })
-  @ApiForbiddenResponse({
-    description: 'Not an admin, or an ADMIN tried to set a role',
-  })
-  create(@Body() body: Record<string, unknown>): Promise<EmployeeView> {
+  @ApiForbiddenResponse({ description: 'The caller is not an admin' })
+  create(
+    @CurrentUser() user: JwtPayload,
+    @Body() body: Record<string, unknown>,
+  ): Promise<EmployeeView> {
     return sendRpc<EmployeeView>(
       this.employees,
       EMPLOYEE_PATTERNS.create,
-      body,
+      withoutRoleAssignment(user, body),
       'Could not create the employee',
     );
   }
