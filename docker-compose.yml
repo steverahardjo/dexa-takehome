@@ -212,21 +212,32 @@ services:
         condition: service_started
 
   # --------------------------------------------------
-  # Frontend (Next.js, the only other published port)
+  # Frontend (Next.js dev server, the only other published port)
+  #
+  # The container runs `next dev` so the source is mounted from the host and
+  # reloads on save. The rewrite target is a runtime variable because
+  # next.config.ts is evaluated when the dev server boots, not when it is built.
+  # Rebuild this service after changing package.json: the dependencies live in
+  # the image, not in the bind mount.
   # --------------------------------------------------
   frontend:
     build:
       context: ./frontend
-      args:
-        # Baked into the build: every /api/* call is rewritten to the gateway
-        # from inside this container, so the browser never needs to know it.
-        GATEWAY_URL: http://gateway:3003
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: "3000"
       HOSTNAME: 0.0.0.0
       TZ: Asia/Jakarta
+      # Every /api/* call is rewritten to the gateway from inside this
+      # container, so the browser never needs to know it exists.
+      GATEWAY_URL: http://gateway:3003
+    volumes:
+      - ./frontend:/app
+      # Keep the image's install and the dev build cache: mounting ./frontend
+      # over /app would otherwise replace them with the host's stale copies.
+      - frontend-node-modules:/app/node_modules
+      - frontend-next:/app/.next
     ports:
       - "3000:3000"
     depends_on:
@@ -236,3 +247,5 @@ services:
 volumes:
   db-data:
   aistor-data:
+  frontend-node-modules:
+  frontend-next:
