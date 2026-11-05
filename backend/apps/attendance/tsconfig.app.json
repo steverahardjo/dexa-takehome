@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "../../dist/apps/attendance",
+    "composite": true,
+    "tsBuildInfoFile": "../../dist/apps/attendance/tsconfig.tsbuildinfo"
+  },
+  "include": ["**/*.ts", "../../shared/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*spec.ts"]
+}

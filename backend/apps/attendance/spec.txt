@@ -1,0 +1,10 @@
+this is going to work as an app that can:
+- make a call to the minio to get a presigned url to upload the proof
+- a getpresignedUrl that send a url to the frontend to upload with a guard to also check what time is it (weekend is forbidden)
+- a cron scheduler that when time is over 3 pm, they didnt come and attendance record is automatic as a red
+- call an emitter to the /employee microservice, get the employee_id, year (2026) record, only the late date.
+
+Master refactor:
+- no need to make a .spec.ts for this
+- all microservice that require an oltp database will use mysql as prescribed in the sql so make this into more root and general.
+- find a way to do a today check (this is supposed to be a master admin so the level of auth should be /employee) maybe we can instead ask attendance to emit three two type late and ontime category or inversely and purpose
