@@ -348,8 +348,9 @@ type ProofUpload = {
 };
 
 /**
- * Uploads the check-in photo straight to MinIO with a presigned URL: the bytes
- * never pass through the API, which only hands out the URL and records the key.
+ * Uploads the check-in photo straight to object storage with a presigned URL:
+ * the bytes never pass through the API, which only hands out the URL and
+ * records the key.
  */
 async function uploadProof(dataUrl: string): Promise<string> {
   const blob = await (await fetch(dataUrl)).blob();
@@ -391,9 +392,10 @@ type CheckInDetails = {
 };
 
 /**
- * Records today's check-in: reserve a proof URL, PUT the photo to MinIO, then
- * send the key. The employee and the check-in time both come from the token and
- * the server clock — the request cannot name someone else or backdate itself.
+ * Records today's check-in: reserve a proof URL, PUT the photo to object
+ * storage, then send the key. The employee and the check-in time both come from
+ * the token and the server clock — the request cannot name someone else or
+ * backdate itself.
  *
  * Returns the refreshed `/employee/me` view the gateway composes after the
  * write, so the screen does not need a second request.

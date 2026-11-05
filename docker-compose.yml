@@ -19,14 +19,26 @@ x-auth-env: &auth-env
   OTP_EXPIRY_SECONDS: "300"
   EMAIL_PROVIDER: log
 
-# MinIO access, shared by the storage service only.
-x-minio-env: &minio-env
-  MINIO_ENDPOINT: aistor
-  MINIO_PORT: 9000
+# Object storage access, shared by the storage service only. RustFS speaks S3
+# and the backend talks to it through the MinIO client, so the variable names
+# keep the MINIO_ prefix.
+x-storage-env: &storage-env
+  # Internal endpoint: only the storage container talks to this name.
+  MINIO_ENDPOINT: rustfs
+  MINIO_PORT: "9000"
   MINIO_USE_SSL: "false"
-  MINIO_ACCESS_KEY: ${AISTOR_ROOT_USER:-absences_admin}
-  MINIO_SECRET_KEY: ${AISTOR_ROOT_PASSWORD:?Set AISTOR_ROOT_PASSWORD in .env}
-  MINIO_BUCKET: absences
+  # Must match RUSTFS_REGION below: the client signs the region into the SigV4
+  # scope, and RustFS falls back to us-east-1 when the variable is unset.
+  MINIO_REGION: us-east-1
+  MINIO_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-absencesrustfs}
+  MINIO_SECRET_KEY: ${RUSTFS_SECRET_KEY:-7689b2602111aaae666f8f9fb7168418133ae9f295426cefe3e6336fda23b62a}
+  MINIO_BUCKET: ${RUSTFS_BUCKET:-absences}
+  # A presigned URL is signed over the host it will be fetched from, and a
+  # browser cannot resolve the compose service name "rustfs". Sign for the
+  # published S3 port instead; point these at the public host/port in
+  # production (the signature breaks if the two disagree).
+  MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-localhost}
+  MINIO_PUBLIC_PORT: ${MINIO_PUBLIC_PORT:-9000}
   MINIO_UPLOAD_URL_TTL: "600"
   MINIO_DOWNLOAD_URL_TTL: "900"
   # A phone photo after downscaling; the browser never uploads more than this.
@@ -65,36 +77,64 @@ services:
       retries: 20
 
   # --------------------------------------------------
-  # MinIO object storage
+  # RustFS object storage (S3-compatible, Apache-2.0)
+  #
+  # Credentials come from the environment, so there is no cluster layout or key
+  # import step: the server is ready to sign requests as soon as it is healthy,
+  # and the storage service creates its private bucket on boot.
   # --------------------------------------------------
-  aistor:
-    image: quay.io/minio/aistor/minio:latest
-    container_name: absences-aistor
+  rustfs:
+    image: rustfs/rustfs:1.0.4
     restart: unless-stopped
-    command:
-      - minio
-      - server
-      - /mnt/data
-      - --license
-      - /minio.license
-    # The storage service signs URLs against MINIO_ENDPOINT, and the browser
-    # then PUTs to that same host — the signature covers it, so both sides must
-    # resolve the same name. Compose gives "aistor" to the containers; add
-    #   127.0.0.1 aistor
-    # to the host's /etc/hosts so the browser agrees. (Point MINIO_ENDPOINT at a
-    # real domain in production instead.)
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      rustfs_perms:
+        condition: service_completed_successfully
     environment:
-      MINIO_ROOT_USER: ${AISTOR_ROOT_USER:-absences_admin}
-      MINIO_ROOT_PASSWORD: ${AISTOR_ROOT_PASSWORD:?Set AISTOR_ROOT_PASSWORD in .env}
-      # The browser PUTs the bytes straight here, so this origin must be allowed.
-      MINIO_API_CORS_ALLOW_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
       TZ: Asia/Jakarta
+      # The image defaults to /data; one directory is enough for a single node.
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      # Must match MINIO_REGION in x-storage-env, otherwise the SigV4 scope and
+      # the server disagree.
+      RUSTFS_REGION: us-east-1
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-absencesrustfs}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-7689b2602111aaae666f8f9fb7168418133ae9f295426cefe3e6336fda23b62a}
+      # RustFS enforces CORS at the listener, not per bucket: the browser PUTs
+      # straight to the presigned URL from the frontend origin.
+      RUSTFS_CORS_ALLOWED_ORIGINS: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      RUSTFS_OBS_LOGGER_LEVEL: info
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000" # S3 API (backend + presigned browser uploads)
+      - "9001:9001" # web console
     volumes:
-      - aistor-data:/mnt/data
-      - ./aistor/minio.license:/minio.license:ro
+      - rustfs-data:/data
+    healthcheck:
+      # The container ships curl; /health answers 200 once the S3 listener is up.
+      test:
+        - CMD-SHELL
+        - curl -fsS http://127.0.0.1:9000/health
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  # --------------------------------------------------
+  # One-shot: hand the data volume to the RustFS user.
+  #
+  # RustFS runs as uid 10001 and a fresh named volume is root-owned, so the
+  # server would fail to write. Idempotent; re-runs on every `up`.
+  # --------------------------------------------------
+  rustfs_perms:
+    image: alpine:3.20
+    restart: "no"
+    user: root
+    command: ["chown", "-R", "10001:10001", "/data"]
+    volumes:
+      - rustfs-data:/data
 
   # --------------------------------------------------
   # Storage service (internal TCP only)
@@ -104,14 +144,16 @@ services:
     command: node dist/apps/storage/main.js
     restart: unless-stopped
     environment:
-      <<: [*backend-env, *minio-env]
+      <<: [*backend-env, *storage-env]
       STORAGE_TCP_HOST: 0.0.0.0
       STORAGE_TCP_PORT: "4001"
     expose:
       - "4001"
     depends_on:
-      aistor:
-        condition: service_started
+      # The bucket is created by onModuleInit, which retries until the S3
+      # listener answers; waiting for health keeps that retry window short.
+      rustfs:
+        condition: service_healthy
 
   # --------------------------------------------------
   # Auth service (internal TCP only)
@@ -246,6 +288,6 @@ services:
 
 volumes:
   db-data:
-  aistor-data:
+  rustfs-data:
   frontend-node-modules:
   frontend-next:

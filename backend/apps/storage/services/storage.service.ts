@@ -4,7 +4,10 @@ import { RpcException } from '@nestjs/microservices';
 import { randomUUID } from 'node:crypto';
 import type { Client } from 'minio';
 
-import { MINIO_CLIENT } from '../minio-client.provider.js';
+import {
+  MINIO_CLIENT,
+  MINIO_PRESIGN_CLIENT,
+} from '../minio-client.provider.js';
 import {
   STORAGE_NAMESPACES,
   STORAGE_KEY,
@@ -17,6 +20,10 @@ const DEFAULT_BUCKET = 'absences';
 const DEFAULT_TTL = 900;
 const MAX_TTL = 604800; // 7 days
 const DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/** The S3 listener can accept /health before it accepts signed requests. */
+const BUCKET_INIT_ATTEMPTS = 10;
+const BUCKET_INIT_DELAY_MS = 1000;
 
 const ALLOWED_TYPES: Record<string, string> = {
   'image/jpeg': '.jpg',
@@ -38,6 +45,8 @@ export class StorageService implements OnModuleInit {
   constructor(
     @Inject(MINIO_CLIENT)
     private readonly minio: Client,
+    @Inject(MINIO_PRESIGN_CLIENT)
+    private readonly presign: Client,
     config: ConfigService,
   ) {
     this.bucket = config.get<string>('MINIO_BUCKET', DEFAULT_BUCKET);
@@ -69,18 +78,40 @@ export class StorageService implements OnModuleInit {
 
   /**
    * Ensure the private bucket exists when the service starts.
+   *
+   * RustFS has no separate provisioning step — credentials come from its
+   * environment — but it may still be finishing startup when this container
+   * begins listening, so retry briefly instead of restart-looping.
    */
   async onModuleInit(): Promise<void> {
-    try {
-      const exists = await this.minio.bucketExists(this.bucket);
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        const exists = await this.minio.bucketExists(this.bucket);
 
-      if (!exists) {
-        await this.minio.makeBucket(this.bucket);
-        this.logger.log(`Created bucket: ${this.bucket}`);
+        if (!exists) {
+          await this.minio.makeBucket(this.bucket);
+          this.logger.log(`Created bucket: ${this.bucket}`);
+        }
+
+        return;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+
+        if (attempt >= BUCKET_INIT_ATTEMPTS) {
+          this.logger.error(
+            `Failed to initialize storage bucket after ${attempt} attempts: ${message}`,
+          );
+          throw error;
+        }
+
+        this.logger.warn(
+          `Storage not ready (attempt ${attempt}/${BUCKET_INIT_ATTEMPTS}): ${message}`,
+        );
+
+        await new Promise((resolve) =>
+          setTimeout(resolve, BUCKET_INIT_DELAY_MS),
+        );
       }
-    } catch (error) {
-      this.logger.error('Failed to initialize storage bucket', error);
-      throw error;
     }
   }
 
@@ -117,7 +148,7 @@ export class StorageService implements OnModuleInit {
     const key = `${namespace}/${year}/${month}/${randomUUID()}${extension}`;
 
     try {
-      const uploadUrl = await this.minio.presignedPutObject(
+      const uploadUrl = await this.presign.presignedPutObject(
         this.bucket,
         key,
         this.uploadTtl,
@@ -189,7 +220,7 @@ export class StorageService implements OnModuleInit {
     try {
       const stat = await this.minio.statObject(this.bucket, key);
 
-      const downloadUrl = await this.minio.presignedGetObject(
+      const downloadUrl = await this.presign.presignedGetObject(
         this.bucket,
         key,
         this.downloadTtl,

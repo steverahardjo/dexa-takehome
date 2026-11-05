@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import type { Client } from 'minio';
@@ -48,9 +49,18 @@ const createClient = (): FakeClient => ({
 const createService = (
   client: FakeClient = createClient(),
   overrides: Record<string, unknown> = {},
-): { service: StorageService; client: FakeClient } => ({
-  service: new StorageService(client as unknown as Client, config(overrides)),
+  // Same fake by default: presigning and bucket operations then share one
+  // record, so existing assertions stay valid. Pass a second client to assert
+  // the two are wired separately.
+  presign: FakeClient = client,
+): { service: StorageService; client: FakeClient; presign: FakeClient } => ({
+  service: new StorageService(
+    client as unknown as Client,
+    presign as unknown as Client,
+    config(overrides),
+  ),
   client,
+  presign,
 });
 
 const errorWithCode = (code: string): Error =>
@@ -85,6 +95,47 @@ describe('StorageService.onModuleInit', () => {
 
     expect(client.makeBucket).not.toHaveBeenCalled();
   });
+
+  it('retries while the S3 listener is still starting', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const client = createClient();
+      client.bucketExists
+        .mockRejectedValueOnce(new Error('ECONNREFUSED'))
+        .mockResolvedValue(true);
+      const { service } = createService(client);
+
+      const init = service.onModuleInit();
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      await expect(init).resolves.toBeUndefined();
+      expect(client.bucketExists).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('gives up after the retry budget so compose can restart it', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const client = createClient();
+      client.bucketExists.mockRejectedValue(new Error('ECONNREFUSED'));
+      const { service } = createService(client);
+      vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+      vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+
+      const init = service.onModuleInit();
+      const settled = expect(init).rejects.toThrow('ECONNREFUSED');
+
+      await vi.advanceTimersByTimeAsync(9_000);
+      await settled;
+    } finally {
+      vi.useRealTimers();
+      vi.restoreAllMocks();
+    }
+  });
 });
 
 describe('StorageService.getUploadUrl', () => {
@@ -104,6 +155,17 @@ describe('StorageService.getUploadUrl', () => {
       uploadUrl: 'https://minio/absences/key?upload-signature',
       expiresInSeconds: 600,
     });
+  });
+
+  it('signs with the presign client, not the internal one', async () => {
+    const client = createClient();
+    const presign = createClient();
+    const { service } = createService(client, {}, presign);
+
+    await service.getUploadUrl('image/png');
+
+    expect(presign.presignedPutObject).toHaveBeenCalledTimes(1);
+    expect(client.presignedPutObject).not.toHaveBeenCalled();
   });
 
   it('refuses a fileName that disagrees with the contentType', async () => {
