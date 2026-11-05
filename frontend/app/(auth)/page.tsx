@@ -1,199 +1,102 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { useRouter } from "next/navigation";
 
-import { LoginForm } from "@/components/auth/login-form"
-import { OtpForm } from "@/components/auth/otp-form"
-import { Button } from "@/components/ui/button"
-import { api } from "@/lib/api"
-import type { Role } from "@/lib/employees"
-import { expiresAtIn, signIn } from "@/lib/session"
+import { LoginForm } from "@/components/auth/login-form";
+import { OtpForm } from "@/components/auth/otp-form";
+import { api } from "@/lib/api";
+import { isAdminRole, type Role } from "@/lib/roles";
+import { expiresAtIn, signIn } from "@/lib/session";
 
-const OTP_LENGTH = 6
-const OTP_RESEND_SECONDS = 60
+const OTP_LENGTH = 6;
+const OTP_RESEND_SECONDS = 60;
+/** `OTP_EXPIRY_SECONDS` default in the auth service; the request only 202s. */
+const OTP_LIFETIME_SECONDS = 5 * 60;
 
-/** The account the demo database seeds as HR Admin. */
-const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL ?? "john@company.com"
+/** The account a seeded database expects to sign in first. */
+const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL ?? "john@company.com";
 
-type Step = "login" | "otp" | "choose"
-
-/** The two screens an admin account can open. */
-type ViewChoice = "admin" | "employee"
+type Step = "login" | "otp";
 
 type OtpRequested = {
-  message: string
-  expiresIn: number
-}
+  message: string;
+};
 
-type SignedInUser = {
-  id: string
-  email: string
-  name: string
-  role: Role
-}
+type AccessTokenResponse = {
+  accessToken: string;
+  tokenType: "Bearer";
+  expiresIn: number;
+};
 
-type OtpVerified = {
-  accessToken: string
-  expiresIn: number
-  tokenType: "Bearer"
-  user: SignedInUser
-}
+/** Claims of the token just issued; the browser does not decode the JWT. */
+type JwtClaims = {
+  sub: string;
+  employeeId: string | null;
+  email: string;
+  role: Role;
+  type: "access";
+};
 
 /**
- * An admin account is not signed in yet: the code was good, and the API asks
- * which of the two screens this session should open.
+ * Two screens: ask for a code, then exchange it for an access token.
+ *
+ * The verify response carries only the token, so the role and employee id are
+ * read back from `GET /auth/me` — the same claims the gateway uses, verified
+ * rather than decoded.
  */
-type RoleChoiceResponse = {
-  needsChoice: true
-  choiceToken: string
-  expiresIn: number
-  user: SignedInUser
-  options: { view: ViewChoice; label: string; role: Role }[]
-}
-
-type VerifyResult = OtpVerified | RoleChoiceResponse
-
 export default function LoginPage() {
-  const router = useRouter()
-  const [step, setStep] = React.useState<Step>("login")
-  const [email, setEmail] = React.useState("")
-  const [expiresIn, setExpiresIn] = React.useState(10 * 60)
-  const [choice, setChoice] = React.useState<{
-    token: string
-    email: string
-    options: { view: ViewChoice; label: string }[]
-  } | null>(null)
-  const [choosing, setChoosing] = React.useState<ViewChoice | null>(null)
-  const [choiceError, setChoiceError] = React.useState<string | null>(null)
+  const router = useRouter();
+  const [step, setStep] = React.useState<Step>("login");
+  const [email, setEmail] = React.useState("");
 
   /** Asks the auth service for a code and moves to the code step. */
   async function requestCode(address: string) {
-    const result = await api<OtpRequested>("/auth/otp", {
+    await api<OtpRequested>("/auth/otp/request", {
       method: "POST",
       body: { email: address },
       auth: false,
-    })
+    });
 
-    setEmail(address)
-    setExpiresIn(result.expiresIn)
-    setStep("otp")
+    setEmail(address);
+    setStep("otp");
   }
 
   async function handleLogin(address: string) {
-    const trimmed = address.trim()
+    const trimmed = address.trim();
 
     if (!trimmed) {
-      throw new Error("Enter your email address to continue.")
+      throw new Error("Enter your email address to continue.");
     }
 
-    await requestCode(trimmed)
+    await requestCode(trimmed);
   }
 
   /** Stores the session and opens the screen the role belongs to. */
-  function openScreen(session: OtpVerified) {
-    signIn({
-      email: session.user.email,
-      token: session.accessToken,
-      role: session.user.role,
-      expiresAt: expiresAtIn(session.expiresIn),
-    })
-
-    router.push(
-      session.user.role === "HR Admin" ? "/admin/dashboard" : "/employee"
-    )
-  }
-
   async function handleVerify(code: string) {
-    const result = await api<VerifyResult>("/auth/otp/verify", {
+    const token = await api<AccessTokenResponse>("/auth/otp/verify", {
       method: "POST",
       body: { email, code },
       auth: false,
-    })
+    });
 
-    if ("choiceToken" in result) {
-      setChoice({
-        token: result.choiceToken,
-        email: result.user.email,
-        options: result.options,
-      })
-      setStep("choose")
-      return
-    }
+    const claims = await api<JwtClaims>("/auth/me", {
+      token: token.accessToken,
+    });
 
-    openScreen(result)
-  }
+    signIn({
+      email: claims.email,
+      token: token.accessToken,
+      role: claims.role,
+      employeeId: claims.employeeId,
+      expiresAt: expiresAtIn(token.expiresIn),
+    });
 
-  /** The choice token buys the view that was picked. */
-  async function handleChoose(view: ViewChoice) {
-    if (!choice) return
-
-    setChoiceError(null)
-    setChoosing(view)
-
-    try {
-      const session = await api<OtpVerified>("/auth/choice", {
-        method: "POST",
-        body: { view },
-        auth: false,
-        token: choice.token,
-      })
-
-      openScreen(session)
-    } catch (chooseError) {
-      setChoiceError(
-        chooseError instanceof Error
-          ? chooseError.message
-          : "That view could not be opened. Pick again."
-      )
-      setChoosing(null)
-    }
+    router.push(isAdminRole(claims.role) ? "/admin/dashboard" : "/employee");
   }
 
   async function handleResend() {
-    await requestCode(email)
-  }
-
-  // An admin picks between the dashboard and the employee screen, right here.
-  if (step === "choose" && choice) {
-    return (
-      <div className="flex flex-col gap-3">
-        <p className="text-sm text-muted-foreground">
-          Signed in as <span className="font-medium">{choice.email}</span>.
-          Where do you want to go?
-        </p>
-
-        {choice.options.map((option) => (
-          <Button
-            key={option.view}
-            size="lg"
-            className="w-full"
-            variant={option.view === "admin" ? "default" : "outline"}
-            disabled={choosing !== null}
-            onClick={() => handleChoose(option.view)}
-          >
-            {choosing === option.view ? "Opening…" : option.label}
-          </Button>
-        ))}
-
-        {choiceError && (
-          <p className="text-sm text-destructive">{choiceError}</p>
-        )}
-
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={choosing !== null}
-          onClick={() => {
-            setChoice(null)
-            setChoiceError(null)
-            setStep("login")
-          }}
-        >
-          Use a different account
-        </Button>
-      </div>
-    )
+    await requestCode(email);
   }
 
   if (step === "otp") {
@@ -201,14 +104,14 @@ export default function LoginPage() {
       <OtpForm
         email={email}
         codeLength={OTP_LENGTH}
-        expiresInSeconds={expiresIn}
+        expiresInSeconds={OTP_LIFETIME_SECONDS}
         resendInSeconds={OTP_RESEND_SECONDS}
         onVerify={handleVerify}
         onResend={handleResend}
         onChangeEmail={() => setStep("login")}
       />
-    )
+    );
   }
 
-  return <LoginForm defaultEmail={email || DEMO_EMAIL} onSubmit={handleLogin} />
+  return <LoginForm defaultEmail={email || DEMO_EMAIL} onSubmit={handleLogin} />;
 }

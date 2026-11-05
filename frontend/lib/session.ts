@@ -2,19 +2,23 @@
 
 import { useSyncExternalStore } from "react";
 
-export const SESSION_ROLES = ["Employee", "Manager", "HR Admin"] as const;
-export type SessionRole = (typeof SESSION_ROLES)[number];
+import { parseRole, type Role } from "@/lib/roles";
 
 export type Session = {
   email: string;
   /** Bearer token the API expects. */
   token: string;
-  role: SessionRole;
+  /** Role from the token's claims, used to gate the admin screens. */
+  role: Role;
+  /** Employee the identity is linked to, or null for an unlinked account. */
+  employeeId: string | null;
   /** Unix seconds at which the token stops working. */
   expiresAt: number;
 };
 
-const STORAGE_KEY = "absences:signed-in:v2";
+// Bumped because the stored role strings changed with the gateway refactor:
+// an old session is dropped instead of being read as an unknown role.
+const STORAGE_KEY = "absences:signed-in:v3";
 
 let snapshot: Session | null = null;
 let loaded = false;
@@ -40,7 +44,9 @@ function read(): Session | null {
     const session: Session = {
       email: parsed.email,
       token: parsed.token,
-      role: (parsed.role as SessionRole) ?? "Employee",
+      role: parseRole(parsed.role),
+      employeeId:
+        typeof parsed.employeeId === "string" ? parsed.employeeId : null,
       expiresAt: typeof parsed.expiresAt === "number" ? parsed.expiresAt : 0,
     };
 
@@ -110,7 +116,7 @@ export function useSignedInEmail(): string | null {
   return useSession()?.email ?? null;
 }
 
-export function useSignedInRole(): SessionRole | null {
+export function useSignedInRole(): Role | null {
   return useSession()?.role ?? null;
 }
 
