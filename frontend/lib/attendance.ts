@@ -1,5 +1,43 @@
+import { formatIsoClock } from "@/lib/time";
 
-import { formatClockTime } from "@/lib/time";
+/**
+ * Attendance statuses as the API spells them. Mirrors
+ * `backend/shared/enums/roles.enum.ts` (`AttendanceStatus`).
+ *
+ * `NOT_CHECKED_IN` is what the server returns for someone who is expected to
+ * check in but has no row yet; the sweep turns those into `ABSENT` after the
+ * cut-off.
+ */
+export const ATTENDANCE_STATUSES = [
+  "ON_TIME",
+  "LATE",
+  "ABSENT",
+  "NOT_CHECKED_IN",
+  "ON_LEAVE",
+  "NOT_WORKING",
+] as const;
+
+export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
+
+/** One employee, one day. Mirrors `AttendanceView` in the shared contracts. */
+export type Attendance = {
+  id: string;
+  employeeId: string;
+  /** `YYYY-MM-DD` in the company timezone. */
+  attendanceDate: string;
+  /** ISO timestamp of the check-in, or null. */
+  checkInTime: string | null;
+  status: AttendanceStatus;
+  late: boolean;
+  lateMinutes: number;
+  /** Free-form position the browser reported, e.g. `-6.20000, 106.81667`. */
+  location: string | null;
+  proofKey: string | null;
+  /** Temporary presigned URL of the proof photo. */
+  proofUrl: string | null;
+  requiredCheckIn: string | null;
+  timezone: string | null;
+};
 
 /** Where the browser was when the check-in was sent. */
 /**
@@ -15,25 +53,6 @@ export type CheckInPosition = {
   accuracy: number | null;
 };
 
-export type AttendanceStatus =
-  | "checked-in"
-  | "late"
-  | "not-checked-in";
-
-type Attendance = {
-  status: AttendanceStatus;
-  /** Badge text, e.g. `Checked in` or `Late`. */
-  label: string;
-  /** Short explanation, e.g. `Checked in at 10:14`. */
-  detail: string;
-};
-
-const attendanceLabels: Record<AttendanceStatus, string> = {
-  "checked-in": "Checked in",
-  late: "Late",
-  "not-checked-in": "Not yet",
-};
-
 type AttendanceTone = {
   badge: string;
   card: string;
@@ -47,90 +66,135 @@ type AttendanceTone = {
   headerAccent: string;
 };
 
-export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
-  "checked-in": {
-    badge:
-      "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-    card: "border-emerald-500/25 bg-emerald-500/5",
-    icon: "text-emerald-600 dark:text-emerald-400",
-    value: "text-emerald-700 dark:text-emerald-400",
-    header: "bg-emerald-600 text-white",
-    headerMuted: "text-white/80",
-    headerAccent: "border-white/30 bg-white/10 text-white",
-  },
-
-  late: {
-    badge:
-      "border-rose-500/25 bg-rose-500/10 text-rose-700 dark:text-rose-400",
-    card: "border-rose-500/25 bg-rose-500/5",
-    icon: "text-rose-600 dark:text-rose-400",
-    value: "text-rose-700 dark:text-rose-400",
-    header: "bg-rose-600 text-white",
-    headerMuted: "text-white/80",
-    headerAccent: "border-white/30 bg-white/10 text-white",
-  },
-
-  "not-checked-in": {
-    badge: "border-border bg-background text-foreground",
-    card: "bg-background",
-    icon: "text-muted-foreground",
-    value: "text-foreground",
-    header: "bg-neutral-900 text-white",
-    headerMuted: "text-white/70",
-    headerAccent: "border-white/25 bg-white/10 text-white",
-  },
+const GREEN: AttendanceTone = {
+  badge:
+    "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  card: "border-emerald-500/25 bg-emerald-500/5",
+  icon: "text-emerald-600 dark:text-emerald-400",
+  value: "text-emerald-700 dark:text-emerald-400",
+  header: "bg-emerald-600 text-white",
+  headerMuted: "text-white/80",
+  headerAccent: "border-white/30 bg-white/10 text-white",
 };
 
-type AttendanceInput = {
-  clockInAt: string | null;
-  late?: boolean;
+const RED: AttendanceTone = {
+  badge: "border-rose-500/25 bg-rose-500/10 text-rose-700 dark:text-rose-400",
+  card: "border-rose-500/25 bg-rose-500/5",
+  icon: "text-rose-600 dark:text-rose-400",
+  value: "text-rose-700 dark:text-rose-400",
+  header: "bg-rose-600 text-white",
+  headerMuted: "text-white/80",
+  headerAccent: "border-white/30 bg-white/10 text-white",
+};
+
+const NEUTRAL: AttendanceTone = {
+  badge: "border-border bg-background text-foreground",
+  card: "bg-background",
+  icon: "text-muted-foreground",
+  value: "text-foreground",
+  header: "bg-neutral-900 text-white",
+  headerMuted: "text-white/70",
+  headerAccent: "border-white/25 bg-white/10 text-white",
+};
+
+const AMBER: AttendanceTone = {
+  badge:
+    "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  card: "border-amber-500/25 bg-amber-500/5",
+  icon: "text-amber-600 dark:text-amber-400",
+  value: "text-amber-700 dark:text-amber-400",
+  header: "bg-amber-600 text-white",
+  headerMuted: "text-white/80",
+  headerAccent: "border-white/30 bg-white/10 text-white",
 };
 
 /**
- * Attendance for today.
- *
- * - A late check-in: `late`.
- * - An on-time check-in: `checked-in`.
- * - No check-in yet: `not-checked-in`.
- *
- * The `late` property should come from the backend attendance record.
+ * On time is green; late and absent are red — the spec's "automatic red".
+ * Leave is amber, and the two "nothing was expected" states stay neutral.
  */
-export function getAttendance(employee: AttendanceInput): Attendance {
-  if (employee.clockInAt !== null) {
-    const status: AttendanceStatus = employee.late
-      ? "late"
-      : "checked-in";
+export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
+  ON_TIME: GREEN,
+  LATE: RED,
+  ABSENT: RED,
+  NOT_CHECKED_IN: NEUTRAL,
+  ON_LEAVE: AMBER,
+  NOT_WORKING: NEUTRAL,
+};
 
+const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = {
+  ON_TIME: "Checked in",
+  LATE: "Late",
+  ABSENT: "Absent",
+  NOT_CHECKED_IN: "Not yet",
+  ON_LEAVE: "On leave",
+  NOT_WORKING: "Not a work day",
+};
+
+export type AttendanceSummary = {
+  status: AttendanceStatus;
+  /** Badge text, e.g. `Checked in` or `Late`. */
+  label: string;
+  /** Short explanation, e.g. `Checked in at 9:14 AM · 14 min late`. */
+  detail: string;
+};
+
+function lateSuffix(lateMinutes: number): string {
+  if (lateMinutes <= 0) return "";
+
+  return lateMinutes === 1 ? " · 1 min late" : ` · ${lateMinutes} min late`;
+}
+
+/**
+ * Turns a day (or the absence of one) into what the screens render.
+ *
+ * A `null` record means "no row for this day yet", which is what the phone
+ * screen shows before the first check-in. The status itself always comes from
+ * the server: the browser never decides that someone was late.
+ */
+export function getAttendance(
+  attendance: Attendance | null,
+): AttendanceSummary {
+  if (!attendance) {
     return {
-      status,
-      label: attendanceLabels[status],
-      detail: employee.late
-        ? `Checked in late at ${formatClockTime(employee.clockInAt)}`
-        : `Checked in at ${formatClockTime(employee.clockInAt)}`,
+      status: "NOT_CHECKED_IN",
+      label: ATTENDANCE_LABELS.NOT_CHECKED_IN,
+      detail: "No check-in yet today",
     };
   }
 
-  return {
-    status: "not-checked-in",
-    label: attendanceLabels["not-checked-in"],
-    detail: "No check-in yet today",
-  };
-}
+  const status = attendance.status;
 
-type AttendanceSummary = Record<AttendanceStatus, number>;
+  let detail: string;
 
-export function summarizeAttendance(
-  employees: AttendanceInput[]
-): AttendanceSummary {
-  const summary: AttendanceSummary = {
-    "checked-in": 0,
-    late: 0,
-    "not-checked-in": 0,
-  };
+  if (attendance.checkInTime) {
+    const time = formatIsoClock(
+      attendance.checkInTime,
+      attendance.timezone ?? undefined,
+    );
 
-  for (const employee of employees) {
-    summary[getAttendance(employee).status] += 1;
+    detail = `Checked in at ${time}${lateSuffix(attendance.lateMinutes)}`;
+  } else {
+    switch (status) {
+      case "ABSENT":
+        detail = "No check-in recorded for the day";
+        break;
+      case "ON_LEAVE":
+        detail = "Recorded as on leave";
+        break;
+      case "NOT_WORKING":
+        detail = "Weekend or national holiday";
+        break;
+      case "NOT_CHECKED_IN":
+        detail = "No check-in yet today";
+        break;
+      default:
+        detail = "No check-in time recorded";
+    }
   }
 
-  return summary;
+  return {
+    status,
+    label: ATTENDANCE_LABELS[status] ?? status,
+    detail,
+  };
 }
