@@ -77,6 +77,12 @@ services:
       - /mnt/data
       - --license
       - /minio.license
+    # The storage service signs URLs against MINIO_ENDPOINT, and the browser
+    # then PUTs to that same host — the signature covers it, so both sides must
+    # resolve the same name. Compose gives "aistor" to the containers; add
+    #   127.0.0.1 aistor
+    # to the host's /etc/hosts so the browser agrees. (Point MINIO_ENDPOINT at a
+    # real domain in production instead.)
     environment:
       MINIO_ROOT_USER: ${AISTOR_ROOT_USER:-absences_admin}
       MINIO_ROOT_PASSWORD: ${AISTOR_ROOT_PASSWORD:?Set AISTOR_ROOT_PASSWORD in .env}
@@ -188,6 +194,7 @@ services:
       <<: [*backend-env, *auth-env]
       GATEWAY_HTTP_PORT: "3003"
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      OPENAPI_ENABLED: ${OPENAPI_ENABLED:-true}
       AUTH_TCP_HOST: auth
       AUTH_TCP_PORT: "4002"
       EMPLOYEE_TCP_HOST: employee
@@ -202,6 +209,28 @@ services:
       employee:
         condition: service_started
       attendance:
+        condition: service_started
+
+  # --------------------------------------------------
+  # Frontend (Next.js, the only other published port)
+  # --------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Baked into the build: every /api/* call is rewritten to the gateway
+        # from inside this container, so the browser never needs to know it.
+        GATEWAY_URL: http://gateway:3003
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      TZ: Asia/Jakarta
+    ports:
+      - "3000:3000"
+    depends_on:
+      gateway:
         condition: service_started
 
 volumes:
