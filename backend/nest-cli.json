@@ -10,20 +10,11 @@
   "monorepo": true,
   "root": "apps/backend",
   "projects": {
-    "admin": {
-      "type": "application",
-      "root": "apps/admin",
-      "entryFile": "main",
-      "sourceRoot": "apps/admin/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/admin/tsconfig.app.json"
-      }
-    },
     "auth": {
       "type": "application",
       "root": "apps/auth",
       "entryFile": "main",
-      "sourceRoot": "apps/auth/src",
+      "sourceRoot": "apps/auth",
       "compilerOptions": {
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
@@ -37,31 +28,31 @@
         "tsConfigPath": "apps/backend/tsconfig.app.json"
       }
     },
-    "database": {
-      "type": "library",
-      "root": "libs/database",
-      "entryFile": "index",
-      "sourceRoot": "libs/database/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/database/tsconfig.lib.json"
-      }
-    },
     "employee": {
       "type": "application",
       "root": "apps/employee",
       "entryFile": "main",
-      "sourceRoot": "apps/employee/src",
+      "sourceRoot": "apps/employee",
       "compilerOptions": {
         "tsConfigPath": "apps/employee/tsconfig.app.json"
       }
     },
-    "shared": {
-      "type": "library",
-      "root": "libs/shared",
-      "entryFile": "index",
-      "sourceRoot": "libs/shared/src",
+    "storage": {
+      "type": "application",
+      "root": "apps/storage",
+      "entryFile": "main",
+      "sourceRoot": "apps/storage",
       "compilerOptions": {
-        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+        "tsConfigPath": "apps/storage/tsconfig.app.json"
+      }
+    },
+    "attendance": {
+      "type": "application",
+      "root": "apps/attendance",
+      "entryFile": "main",
+      "sourceRoot": "apps/attendance",
+      "compilerOptions": {
+        "tsConfigPath": "apps/attendance/tsconfig.app.json"
       }
     }
   }

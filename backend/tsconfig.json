@@ -18,24 +18,7 @@
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "types": [
-      "vitest/globals",
-      "node"
-    ],
-    "paths": {
-      "@app/database": [
-        "./libs/database/src/index.ts"
-      ],
-      "@app/database/*": [
-        "./libs/database/src/*"
-      ],
-      "@app/shared": [
-        "./libs/shared/src/index.ts"
-      ],
-      "@app/shared/*": [
-        "./libs/shared/src/*"
-      ]
-    }
+    "types": ["vitest/globals", "node"]
   },
   "files": [],
   "references": [
@@ -49,7 +32,10 @@
       "path": "./apps/employee/tsconfig.app.json"
     },
     {
-      "path": "./apps/admin/tsconfig.app.json"
+      "path": "./apps/storage/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/attendance/tsconfig.app.json"
     }
   ]
 }
