@@ -59,6 +59,10 @@ export interface TodayItem {
   status: AttendanceStatus;
   checkInTime: string | null;
   lateMinutes: number;
+  /** Free-form position the employee's browser reported, or null. */
+  location: string | null;
+  /** Temporary presigned URL of the proof photo, or null. */
+  proofUrl: string | null;
 }
 
 export interface TodayReport {

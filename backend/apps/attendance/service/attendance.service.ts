@@ -226,22 +226,29 @@ export class AttendanceService {
       records.map((record) => [record.employeeId, record]),
     );
 
-    const items: TodayItem[] = employees.map((employee) => {
-      const record = byEmployee.get(employee.id);
+    const items: TodayItem[] = await Promise.all(
+      employees.map(async (employee) => {
+        const record = byEmployee.get(employee.id);
 
-      return {
-        employeeId: employee.id,
-        employeeNumber: employee.employeeNumber,
-        fullName: employee.fullName,
-        status:
-          record?.status ??
-          (workingDay
-            ? AttendanceStatus.NOT_CHECKED_IN
-            : AttendanceStatus.NOT_WORKING),
-        checkInTime: record?.checkInTime?.toISOString() ?? null,
-        lateMinutes: record?.lateMinutes ?? 0,
-      };
-    });
+        return {
+          employeeId: employee.id,
+          employeeNumber: employee.employeeNumber,
+          fullName: employee.fullName,
+          status:
+            record?.status ??
+            (workingDay
+              ? AttendanceStatus.NOT_CHECKED_IN
+              : AttendanceStatus.NOT_WORKING),
+          checkInTime: record?.checkInTime?.toISOString() ?? null,
+          lateMinutes: record?.lateMinutes ?? 0,
+          location: record?.location ?? null,
+          // The dashboard shows the photo, so the row carries a fresh URL.
+          proofUrl: record?.proofKey
+            ? await this.signedProofUrl(record.proofKey)
+            : null,
+        };
+      }),
+    );
 
     const count = (status: AttendanceStatus): number =>
       items.filter((item) => item.status === status).length;
