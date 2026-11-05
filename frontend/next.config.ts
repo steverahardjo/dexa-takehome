@@ -1,45 +1,27 @@
 import type { NextConfig } from "next";
 
 /**
- * The backend runs as three containers. The browser only talks to this origin;
- * these rewrites forward `/api/<domain>/*` to the service that owns it, so no
- * CORS setup is needed.
+ * The backend is one public process: the gateway. Every `/api/<domain>/*` call
+ * is forwarded to it, and the gateway routes to the internal services over TCP,
+ * so the browser only ever talks to this origin and no CORS is involved.
+ *
+ * The gateway also owns authentication, which is why there is no separate
+ * service URL for auth, employees or attendance any more.
  */
-const authServiceUrl = process.env.AUTH_SERVICE_URL ?? "http://localhost:3001";
-const employeeServiceUrl =
-  process.env.EMPLOYEE_SERVICE_URL ?? "http://localhost:3002";
-const adminServiceUrl =
-  process.env.ADMIN_SERVICE_URL ?? "http://localhost:3003";
+const gatewayUrl = process.env.GATEWAY_URL ?? "http://localhost:3003";
 
 const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/login", destination: "/", permanent: false }];
   },
   async rewrites() {
-    return {
-      afterFiles: [
-        {
-          source: "/api/auth/:path*",
-          destination: `${authServiceUrl}/auth/:path*`,
-        },
-        {
-          source: "/api/admin/:path*",
-          destination: `${adminServiceUrl}/admin/:path*`,
-        },
-        {
-          source: "/api/employee/:path*",
-          destination: `${employeeServiceUrl}/employee/:path*`,
-        },
-      ],
-      // `fallback` runs after the filesystem routes, so a route handler added
-      // under `app/api` later still wins over the proxy.
-      fallback: [
-        {
-          source: "/api/attendance/:path*",
-          destination: `${employeeServiceUrl}/attendance/:path*`,
-        },
-      ],
-    };
+    // Array form: a route handler under `app/api` still wins over the proxy.
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${gatewayUrl}/:path*`,
+      },
+    ];
   },
   experimental: {
     agentFeedback: true,

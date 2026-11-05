@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import type { CheckInPosition } from "@/lib/attendance";
 import { getSession, subscribeSession } from "@/lib/session";
 
@@ -259,24 +259,78 @@ type CheckInDetails = {
   position?: CheckInPosition | null;
 };
 
+type ProofUpload = {
+  /** Send this back as `proofKey`; the object is already in the bucket. */
+  key: string;
+  uploadUrl: string;
+  expiresInSeconds: number;
+  attendanceDate: string;
+};
+
+const EXTENSIONS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
 /**
- * Records today's check-in for the employee. The check-in time is the server's:
- * the request never carries a client clock.
+ * Uploads the photo straight to MinIO with a presigned URL: the bytes never
+ * pass through the API, which only hands out the URL and records the key.
  */
-export async function clockIn(
-  employeeId: string,
-  { evidence, position = null }: CheckInDetails = {}
-): Promise<Employee> {
-  const employee = await api<Employee>("/attendance/check-in", {
+async function uploadProof(dataUrl: string): Promise<string> {
+  const blob = await (await fetch(dataUrl)).blob();
+  const contentType = EXTENSIONS[blob.type] ? blob.type : "image/jpeg";
+
+  const upload = await api<ProofUpload>("/attendance/proof-url", {
     method: "POST",
     body: {
-      employeeId,
-      evidence,
-      position,
+      fileName: `proof.${EXTENSIONS[contentType]}`,
+      contentType,
+    },
+  });
+
+  const response = await fetch(upload.uploadUrl, {
+    method: "PUT",
+    body: blob,
+    headers: { "content-type": contentType },
+  });
+
+  if (!response.ok) {
+    throw new ApiError("The photo could not be uploaded.", response.status);
+  }
+
+  return upload.key;
+}
+
+/** Degrees × 1e6 on the wire -> a "lat, lng" pair the backend stores. */
+function coordinatesOf(position: CheckInPosition): string {
+  return `${(position.latitude / 1_000_000).toFixed(5)}, ${(
+    position.longitude / 1_000_000
+  ).toFixed(5)}`;
+}
+
+/**
+ * Records today's check-in: reserve a proof URL, PUT the photo to MinIO, then
+ * send the key. The employee and the check-in time both come from the token and
+ * the server clock — the request cannot name someone else or backdate itself.
+ */
+export async function clockIn({
+  evidence,
+  position = null,
+}: CheckInDetails = {}): Promise<void> {
+  if (!evidence) {
+    throw new Error("Take a photo before checking in.");
+  }
+
+  const proofKey = await uploadProof(evidence);
+
+  await api("/attendance/check-in", {
+    method: "POST",
+    body: {
+      proofKey,
+      ...(position ? { location: coordinatesOf(position) } : {}),
     },
   });
 
   await Promise.all([refreshEmployees(), refreshSignedInEmployee()]);
-
-  return employee;
 }

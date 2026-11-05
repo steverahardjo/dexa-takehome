@@ -58,7 +58,7 @@ export function CheckInPanel({ employee }: { employee: Employee }) {
     try {
       const position = await currentPosition();
 
-      await clockIn(employee.id, {
+      await clockIn({
         evidence: photo ?? undefined,
         position,
       });
