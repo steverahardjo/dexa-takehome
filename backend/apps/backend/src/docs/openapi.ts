@@ -70,6 +70,10 @@ export function buildOpenApiDocument(
       'Admin: employees',
       'Employee directory. Admin and master admin only.',
     )
+    .addTag(
+      'Admin: divisions',
+      'Divisions an employee can belong to. Admin and master admin only.',
+    )
     .addTag('Attendance', 'Check-in and attendance reporting.')
     .addTag('Health', 'Liveness probe.')
     .build();

@@ -9,6 +9,7 @@ import {
   AUTH_CLIENT,
   EMPLOYEE_CLIENT,
 } from './clients/tokens.js';
+import { AdminDivisionsController } from './controllers/admin-divisions.controller.js';
 import { AdminEmployeesController } from './controllers/admin-employees.controller.js';
 import { AttendanceController } from './controllers/attendance.controller.js';
 import { AuthController } from './controllers/auth.controller.js';
@@ -45,6 +46,7 @@ import { MeService } from './services/me.service.js';
     HealthController,
     AuthController,
     AdminEmployeesController,
+    AdminDivisionsController,
     EmployeeMeController,
     AttendanceController,
   ],

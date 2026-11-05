@@ -16,6 +16,7 @@ import type {
   TodayReport,
 } from '../../../../shared/contracts/attendance.contracts.js';
 import type {
+  DivisionView,
   EmployeeListResult,
   EmployeeView,
 } from '../../../../shared/contracts/employee.contracts.js';
@@ -167,6 +168,17 @@ export class EmployeeViewModel implements EmployeeView {
   updatedAt: string;
 }
 
+export class DivisionModel implements DivisionView {
+  @ApiProperty({ format: 'uuid' })
+  id: string;
+
+  @ApiProperty({ example: 'Engineering' })
+  name: string;
+
+  @ApiProperty({ type: String, nullable: true, example: null })
+  description: string | null;
+}
+
 export class EmployeeListModel implements EmployeeListResult {
   @ApiProperty({ type: () => EmployeeViewModel, isArray: true })
   items: EmployeeViewModel[];
@@ -288,6 +300,22 @@ export class TodayItemModel implements TodayItem {
 
   @ApiProperty({ example: 0 })
   lateMinutes: number;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: '-6.20000, 106.81667',
+    description: 'Position the employee\'s browser reported, unverified.',
+  })
+  location: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: 'uri',
+    nullable: true,
+    description: 'Temporary presigned URL of the proof photo, or `null`.',
+  })
+  proofUrl: string | null;
 }
 
 export class TodayReportModel implements TodayReport {

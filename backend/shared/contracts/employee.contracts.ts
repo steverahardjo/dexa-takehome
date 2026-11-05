@@ -14,6 +14,8 @@ export const EMPLOYEE_PATTERNS = {
   list: 'employee.list',
   /** Every ACTIVE employee, minimal fields (used by attendance). */
   listActive: 'employee.list-active',
+  /** Every division, for the picker that fills `divisionIds`. */
+  divisions: 'employee.divisions',
   /** Reserves a key + presigned PUT URL for an employee avatar. */
   avatarUploadUrl: 'employee.avatar-upload-url',
 } as const;
@@ -42,6 +44,16 @@ export interface EmployeeView {
   avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * A division an employee can belong to. The employee service owns the table;
+ * there are only a handful, so it is never paginated.
+ */
+export interface DivisionView {
+  id: string;
+  name: string;
+  description: string | null;
 }
 
 export interface EmployeeListResult {

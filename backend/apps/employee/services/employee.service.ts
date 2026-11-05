@@ -14,6 +14,7 @@ import { EMPLOYEE_DATA_SOURCE } from '../../../shared/database/data-sources.js';
 import type {
   ActiveEmployee,
   DeletedEmployee,
+  DivisionView,
   EmployeeListResult,
   EmployeeView,
 } from '../../../shared/contracts/employee.contracts.js';
@@ -275,6 +276,17 @@ export class EmployeeService {
       fullName: row.fullName,
       email: row.email,
       divisionIds: (row.divisions ?? []).map((division) => division.id),
+    }));
+  }
+
+  /** Every division, alphabetical: the source of the `divisionIds` picker. */
+  async listDivisions(): Promise<DivisionView[]> {
+    const rows = await this.divisions.find({ order: { name: 'ASC' } });
+
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
     }));
   }
 

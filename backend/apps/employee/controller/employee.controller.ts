@@ -5,6 +5,7 @@ import {
   EMPLOYEE_PATTERNS,
   type ActiveEmployee,
   type DeletedEmployee,
+  type DivisionView,
   type EmployeeListResult,
   type EmployeeView,
 } from '../../../shared/contracts/employee.contracts.js';
@@ -60,6 +61,11 @@ export class EmployeeController {
   @MessagePattern(EMPLOYEE_PATTERNS.listActive)
   listActive(): Promise<ActiveEmployee[]> {
     return this.employees.listActive();
+  }
+
+  @MessagePattern(EMPLOYEE_PATTERNS.divisions)
+  divisions(): Promise<DivisionView[]> {
+    return this.employees.listDivisions();
   }
 
   /** Reserves a key + presigned PUT URL; the browser uploads straight to MinIO. */
