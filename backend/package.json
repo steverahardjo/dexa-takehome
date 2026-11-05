@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "nest build",
+    "build:all": "nest build backend && nest build auth && nest build employee && nest build attendance && nest build storage",
     "deploy": "nest deploy",
     "format": "prettier --write \"apps/**/*.ts\" \"shared/**/*.ts\"",
     "start": "nest start backend",
