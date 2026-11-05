@@ -1,9 +1,8 @@
-import {
-  Injectable,
-  Logger,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { RpcException } from '@nestjs/microservices';
+
+import { RPC_ERRORS } from '../../../shared/rpc/errors.js';
 
 export type EmailProvider = 'log';
 
@@ -33,17 +32,21 @@ export class EmailService {
     expiresInSeconds: number,
   ): Promise<void> {
     if (this.provider !== 'log') {
-      throw new ServiceUnavailableException(
+      throw this.undeliverable(
         `Unsupported EMAIL_PROVIDER "${this.provider}"`,
       );
     }
 
     if (this.isProduction) {
-      throw new ServiceUnavailableException(
+      throw this.undeliverable(
         'Email delivery is not configured for production',
       );
     }
 
     this.logger.log(`OTP for ${to}: ${code} (valid for ${expiresInSeconds}s)`);
+  }
+
+  private undeliverable(message: string): RpcException {
+    return new RpcException({ code: RPC_ERRORS.unavailable, message });
   }
 }

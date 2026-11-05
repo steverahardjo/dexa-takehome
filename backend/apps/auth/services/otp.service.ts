@@ -1,14 +1,12 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RpcException } from '@nestjs/microservices';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import { IsNull, MoreThan, Repository } from 'typeorm';
 
+import { AUTH_DATA_SOURCE } from '../../../shared/database/data-sources.js';
+import { RPC_ERRORS } from '../../../shared/rpc/errors.js';
 import { EmailService } from './email.service.js';
 import { OtpVerification } from '../entity/otp.entity.js';
 
@@ -22,7 +20,7 @@ export class OtpService {
   private readonly secret: string;
 
   constructor(
-    @InjectRepository(OtpVerification)
+    @InjectRepository(OtpVerification, AUTH_DATA_SOURCE)
     private readonly otpRepository: Repository<OtpVerification>,
     private readonly emailService: EmailService,
     config: ConfigService,
@@ -82,19 +80,19 @@ export class OtpService {
     });
 
     if (!otp) {
-      throw new BadRequestException('OTP is invalid or expired');
+      throw this.rejected('OTP is invalid or expired');
     }
 
     if (otp.attempts >= MAX_ATTEMPTS) {
-      throw new HttpException(
-        'Too many incorrect OTP attempts',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
+      throw new RpcException({
+        code: RPC_ERRORS.rateLimited,
+        message: 'Too many incorrect OTP attempts',
+      });
     }
 
     if (!this.matches(otp.otpHash, this.hashOtp(identityId, code))) {
       await this.otpRepository.increment({ id: otp.id }, 'attempts', 1);
-      throw new BadRequestException('Incorrect OTP');
+      throw this.rejected('Incorrect OTP');
     }
 
     // Atomically consume the code so two concurrent requests cannot both win.
@@ -109,8 +107,19 @@ export class OtpService {
       .execute();
 
     if (result.affected !== 1) {
-      throw new BadRequestException('OTP is invalid or expired');
+      throw this.rejected('OTP is invalid or expired');
     }
+  }
+
+  /**
+   * Codes are rejected with the same code and message for every failure, so a
+   * caller cannot tell "expired" from "wrong" from "already used".
+   */
+  private rejected(message: string): RpcException {
+    return new RpcException({
+      code: RPC_ERRORS.invalidArgument,
+      message,
+    });
   }
 
   private hashOtp(identityId: string, code: string): string {
