@@ -4,10 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import {
   CalendarDays,
+  EllipsisVertical,
   ExternalLink,
   ImageIcon,
   MapPin,
+  Pencil,
   Phone,
+  Trash2,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,11 +25,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLinkItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DeleteEmployeeDialog } from "@/components/employees/delete-employee-dialog";
 import { EmployeeCalendar } from "@/components/employees/employee-calendar";
 import { attendanceTone, getAttendance } from "@/lib/attendance";
 import { divisionNames, type Division } from "@/lib/divisions";
 import { getInitials, type Employee } from "@/lib/employees";
 import { googleMapsUrl } from "@/lib/maps";
+import { isMasterAdmin } from "@/lib/roles";
+import { useSession } from "@/lib/session";
 import { formatDate, formatIsoClock } from "@/lib/time";
 import type { TodayItem } from "@/lib/today";
 
@@ -53,6 +67,11 @@ export function EmployeeCard({
   const attendance = getAttendance(today ?? null);
   const tone = attendanceTone[attendance.status];
   const [calendarOpen, setCalendarOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const session = useSession();
+
+  /** Deleting is master-admin only; the gateway answers 403 for a plain admin. */
+  const canDelete = isMasterAdmin(session?.role);
 
   const divisionNameList = divisionNames(divisions, employee.divisionIds);
 
@@ -114,19 +133,47 @@ export function EmployeeCard({
               {employee.employeeNumber}
             </Badge>
 
-            <Link
-              href={`/admin/dashboard/employees/${employee.id}`}
-              aria-label={`Ubah ${employee.fullName}`}
-              title="Ubah karyawan"
-              className={buttonVariants({
-                variant: "ghost",
-                size: "icon-sm",
-                className:
-                  "text-base font-semibold leading-none text-white/80 hover:bg-white/15 hover:text-white",
-              })}
-            >
-              :
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label={`Kelola ${employee.fullName}`}
+                title="Ubah atau hapus"
+                className={buttonVariants({
+                  variant: "ghost",
+                  size: "icon-sm",
+                  className:
+                    "text-white/80 hover:bg-white/15 hover:text-white aria-expanded:bg-white/15 aria-expanded:text-white",
+                })}
+              >
+                <EllipsisVertical className="size-4" />
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuLinkItem
+                  closeOnClick
+                  render={
+                    <Link
+                      href={`/admin/dashboard/employees/${employee.id}`}
+                    />
+                  }
+                >
+                  <Pencil />
+                  Ubah
+                </DropdownMenuLinkItem>
+
+                {canDelete && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => setDeleteOpen(true)}
+                    >
+                      <Trash2 />
+                      Hapus
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -192,6 +239,12 @@ export function EmployeeCard({
         employee={employee}
         open={calendarOpen}
         onOpenChange={setCalendarOpen}
+      />
+
+      <DeleteEmployeeDialog
+        employee={employee}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
       />
     </>
   );

@@ -26,7 +26,21 @@ export const ATTENDANCE_PATTERNS = {
   markAbsent: 'attendance.mark-absent',
   /** One employee, one local day; null when there is no record. */
   dayOf: 'attendance.day',
+  /**
+   * Purges every row of one employee, for the employee service's delete.
+   * Idempotent: a retry removes nothing and still succeeds.
+   */
+  deleteByEmployee: 'attendance.delete-by-employee',
 } as const;
+
+/**
+ * What a purge removed. `deleted: 0` is the normal answer for someone who never
+ * checked in, and the answer for a retried purge.
+ */
+export interface DeletedAttendance {
+  employeeId: string;
+  deleted: number;
+}
 
 export interface AttendanceView {
   id: string;

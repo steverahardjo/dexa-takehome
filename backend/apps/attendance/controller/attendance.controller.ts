@@ -5,6 +5,7 @@ import {
   ATTENDANCE_PATTERNS,
   type AttendanceSummary,
   type AttendanceView,
+  type DeletedAttendance,
   type LateDatesResult,
   type MarkAbsentResult,
   type ProofUpload,
@@ -14,6 +15,7 @@ import { rpcValidationPipe } from '../../../shared/rpc/rpc-validation.pipe.js';
 import {
   CheckInDto,
   DayQueryDto,
+  EmployeeIdDto,
   MarkAbsentDto,
   TodayQueryDto,
   YearQueryDto,
@@ -67,5 +69,11 @@ export class AttendanceController {
   @MessagePattern(ATTENDANCE_PATTERNS.markAbsent)
   markAbsent(@Payload() dto: MarkAbsentDto): Promise<MarkAbsentResult> {
     return this.attendance.markAbsent(dto);
+  }
+
+  /** Purges one employee's history; used by the employee service's delete. */
+  @MessagePattern(ATTENDANCE_PATTERNS.deleteByEmployee)
+  deleteByEmployee(@Payload() dto: EmployeeIdDto): Promise<DeletedAttendance> {
+    return this.attendance.deleteByEmployee(dto.employeeId);
   }
 }

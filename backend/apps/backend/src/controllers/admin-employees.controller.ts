@@ -37,7 +37,10 @@ import {
   UpdateEmployeeDto,
 } from '../../../employee/dto/employee.dto.js';
 import { ATTENDANCE_PATTERNS } from '../../../../shared/contracts/attendance.contracts.js';
-import type { LateDatesResult } from '../../../../shared/contracts/attendance.contracts.js';
+import type {
+  DeletedAttendance,
+  LateDatesResult,
+} from '../../../../shared/contracts/attendance.contracts.js';
 import {
   EMPLOYEE_PATTERNS,
   type DeletedEmployee,
@@ -198,13 +201,22 @@ export class AdminEmployeesController {
   @ApiOperation({
     summary: 'Delete an employee',
     description:
-      'Master admin only. Removes the login identity first, so a retry after a failure is safe.',
+      'Master admin only. Purges the attendance history first (attendance ids are a cross-service reference with no foreign key, so nothing cascades), then deletes the login identity and the employee, so a retry after a failure is safe.',
   })
   @ApiParam(ID_PARAM)
   @ApiNoContentResponse({ description: 'Deleted' })
   @ApiForbiddenResponse({ description: 'The caller is not a master admin' })
   @ApiNotFoundResponse({ description: 'No employee with that id' })
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    // Attendance first and idempotent: if the employee delete fails, the
+    // person is still there and a retry purges nothing and tries again.
+    await sendRpc<DeletedAttendance>(
+      this.attendance,
+      ATTENDANCE_PATTERNS.deleteByEmployee,
+      { employeeId: id },
+      'Could not delete the employee attendance',
+    );
+
     await sendRpc<DeletedEmployee>(
       this.employees,
       EMPLOYEE_PATTERNS.delete,

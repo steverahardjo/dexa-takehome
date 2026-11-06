@@ -8,6 +8,7 @@ import { Between, Repository } from 'typeorm';
 import type {
   AttendanceSummary,
   AttendanceView,
+  DeletedAttendance,
   LateDatesResult,
   MarkAbsentResult,
   ProofUpload,
@@ -275,6 +276,59 @@ export class AttendanceService {
     });
 
     return record ? this.toView(record) : null;
+  }
+
+  /**
+   * Removes one employee's whole history, called by the employee service when
+   * that employee is deleted. `employee_id` is a cross-service reference with
+   * no foreign key, so nothing else would ever cascade this.
+   *
+   * Idempotent by design: the delete is unconditional, so a retry after a
+   * failure further down the chain removes 0 rows and succeeds.
+   */
+  async deleteByEmployee(employeeId: string): Promise<DeletedAttendance> {
+    // Proof keys are read first: after the rows are gone there is no way to
+    // find the objects they point at.
+    const rows = await this.records.find({
+      where: { employeeId },
+      select: { proofKey: true },
+    });
+
+    const result = await this.records.delete({ employeeId });
+    const deleted = result.affected ?? 0;
+
+    if (deleted > 0) {
+      this.logger.log(
+        `Purged ${deleted} attendance row(s) for employee ${employeeId}`,
+      );
+    }
+
+    await Promise.all(
+      rows
+        .map((row) => row.proofKey)
+        .filter((key): key is string => Boolean(key))
+        .map((key) => this.deleteProof(key)),
+    );
+
+    return { employeeId, deleted };
+  }
+
+  private async deleteProof(key: string): Promise<void> {
+    try {
+      await sendRpc(
+        this.storage,
+        STORAGE_PATTERNS.deleteObject,
+        { key },
+        'Could not delete the proof photo',
+      );
+    } catch (error) {
+      // The rows are already gone; a leftover object is only garbage.
+      this.logger.warn(
+        `Could not delete proof photo "${key}": ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
   }
 
   /** Dates of a year on which the employee was late. */

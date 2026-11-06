@@ -41,6 +41,12 @@ export class DayQueryDto {
   date?: string;
 }
 
+/** Every pattern that addresses one employee by id. */
+export class EmployeeIdDto {
+  @IsUUID('4')
+  employeeId: string;
+}
+
 export class TodayQueryDto {
   @IsOptional()
   @Matches(DATE, { message: 'date must be a YYYY-MM-DD date' })
