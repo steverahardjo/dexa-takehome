@@ -185,8 +185,9 @@ Plan: 12 division(s), 50 employee(s)
    `NEXT_PUBLIC_DEMO_EMAIL`.
 2. Press **Continue**. The auth service calls Resend and emails a 6-digit code
    that stays valid for 5 minutes.
-3. Paste the code. An admin lands straight on `/admin/dashboard`; `/choose`
-   switches between the two workspaces if you want the employee view.
+3. Paste the code. An admin lands on `/choose` and picks a workspace (admin
+   dashboard or employee check-in); an employee skips the picker and goes
+   straight to `/employee`.
 
 What to try as the admin (`/admin/dashboard`):
 

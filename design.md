@@ -399,7 +399,16 @@ Two upload kinds share one mechanism: **avatars** (admin) and **proofs**
     button, photo and position, the recorded result.
   - `/admin/dashboard/**` is the laptop experience: counters, searchable list,
     employee detail, late-date calendar, create form.
-  - `/choose` switches workspaces; `/desktop-only` explains the mobile block.
+  - `/choose` is a real page, not a one-shot redirect hidden in the OTP
+    screen. Signing in routes by role: an admin lands on it and must pick a
+    workspace (dashboard or check-in), an employee never sees it and goes
+    straight to `/employee`. `/choose` also self-defends — a non-admin that
+    reaches it is replaced to `/employee`, so the rule holds in both
+    directions. `/desktop-only` explains the mobile block.
+  - The dashboard's attendance filter offers only the three states that call
+    for action — `ON_TIME`, `LATE`, `NOT_CHECKED_IN`. `ABSENT`, `ON_LEAVE` and
+    `NOT_WORKING` still exist in the shared enum and still render as statuses;
+    they are simply not filter targets, because nobody triages “on leave”.
 - **The admin block is server-side** (`proxy.ts`, matched on `/admin/**`):
   hand-held user agents are redirected to a notice page instead of rendering a
   table they cannot use. Detection uses `Sec-CH-UA-Mobile` /
@@ -503,7 +512,8 @@ Decisions taken knowingly, and what a production pass would add.
   frontend is `tsc --noEmit` + `eslint` + `next build`. The OpenAPI models
   `implements` the contracts, so a contract change is a compile error.
 - **Manual flow** (documented in the README, worth repeating here): OTP login →
-  `/auth/me` → dashboard counters → create an employee with an avatar → check in
+  `/auth/me` → `/choose` for an admin (`/employee` for everyone else) →
+  dashboard counters → create an employee with an avatar → check in
   with a photo → the card shows time, location and photo → the calendar shows
   late dates → a weekend check-in is a 403 → a second check-in is a 409 →
   `mark-absent` twice yields `created: 0` the second time.

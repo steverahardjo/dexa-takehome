@@ -92,7 +92,9 @@ export default function LoginPage() {
       expiresAt: expiresAtIn(token.expiresIn),
     });
 
-    router.push(isAdminRole(claims.role) ? "/admin/dashboard" : "/employee");
+    // Admins get the picker so they consciously choose a workspace; everyone
+    // else has exactly one place to be and is sent straight there.
+    router.push(isAdminRole(claims.role) ? "/choose" : "/employee");
   }
 
   async function handleResend() {
