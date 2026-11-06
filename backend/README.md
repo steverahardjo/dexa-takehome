@@ -75,12 +75,11 @@ comes from:
 }
 ```
 
-`identity` is optional and defaults to `EMPLOYEE`/`ACTIVE`. Signing in still
-needs a way to receive the OTP. The compose stack runs with
-`NODE_ENV=production` and `EMAIL_PROVIDER=resend`, so set `RESEND_API_KEY` (and
-a sender on a verified Resend domain, or `onboarding@resend.dev`) in the root
-`.env`. Only for local runs outside compose you can use `EMAIL_PROVIDER=log`
-with `NODE_ENV=development` and read the code from the process log.
+`identity` is optional and defaults to `EMPLOYEE`/`ACTIVE`. Signing in needs no
+mailbox: the auth service issues the OTP and returns it in the
+`POST /auth/otp/request` response, and the sign-in screen displays it. The
+`EMAIL_*` variables are not read by any running service; `EmailService` and
+`npm run email:smoke` are kept in the repo for when delivery is turned back on.
 
 ### Sample avatars
 

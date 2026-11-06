@@ -45,13 +45,13 @@ export class AuthController {
   @Post('otp/request')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({
-    summary: 'Mail a one-time code',
+    summary: 'Issue a one-time code',
     description:
-      'Always answers the same message, whether or not the address is registered. In development the code is written to the auth service log.',
+      'Issues a one-time code and returns it in `code`; no email is sent, so the sign-in screen shows the code itself. The message is the same whether or not the address is registered.',
   })
   @ApiAcceptedResponse({
     type: OtpRequestResultModel,
-    description: 'The request was accepted. Check the mailbox.',
+    description: 'The code was issued and is in the response. No email is sent.',
   })
   @ApiBadRequestResponse({ description: 'The address is not a valid email' })
   @ApiResponse({

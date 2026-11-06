@@ -10,7 +10,6 @@ import { IdentityController } from './controller/identity.controller.js';
 import { Identity } from './entity/identity.entity.js';
 import { OtpVerification } from './entity/otp.entity.js';
 import { AuthFlowService } from './services/auth-flow.service.js';
-import { EmailService } from './services/email.service.js';
 import { IdentityService } from './services/identity.service.js';
 import { JwtLocalService } from './services/jwt.service.js';
 import { OtpService } from './services/otp.service.js';
@@ -26,10 +25,11 @@ import { OtpService } from './services/otp.service.js';
  *   JWT_ACCESS_TTL_SECONDS  access token lifetime, default 900
  *   OTP_HASH_SECRET         HMAC key for stored codes (required)
  *   OTP_EXPIRY_SECONDS      code lifetime, default 300
- *   EMAIL_PROVIDER          "log" (default) or "resend"
- *   RESEND_API_KEY          Resend API key, required for the resend provider
- *   EMAIL_FROM              sender, must be on a domain verified in Resend
  *   DB_SYNCHRONIZE          "false" to disable schema sync, default true
+ *
+ * Email delivery is disabled: `requestOtp` answers with the code itself.
+ * `EmailService`, `EMAIL_PROVIDER`, `RESEND_API_KEY` and `EMAIL_FROM` are kept
+ * in the repo (`npm run email:smoke`) but nothing injects the service.
  */
 @Module({
   imports: [
@@ -52,7 +52,6 @@ import { OtpService } from './services/otp.service.js';
   providers: [
     JwtLocalService,
     OtpService,
-    EmailService,
     IdentityService,
     AuthFlowService,
   ],

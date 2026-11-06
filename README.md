@@ -1,7 +1,7 @@
 # Absences
 
-Employee work-absence system for WFH days: sign in with an emailed one-time
-code, check in from the browser with an optional photo, and let HR admin manage
+Employee work-absence system for WFH days: sign in with a one-time code,
+check in from the browser with an optional photo, and let HR admin manage
 employees and watch today's attendance.
 
 ```
@@ -41,8 +41,9 @@ There is no CORS setup for the API.
 | `mysql`      | `localhost:3306`             | the database                                  |
 | `rustfs`     | `localhost:9000` / `:9001`   | S3 API (browser photo uploads) and console    |
 
-Sign-in is passwordless, so **the stack needs an inbox you can read and a Resend
-API key before it is usable**. Nothing else has to be configured.
+Sign-in is passwordless: **the code is returned by the API and shown on the
+sign-in screen, so no mail provider is needed**. Nothing has to be configured
+before the stack is usable.
 
 ---
 
@@ -53,33 +54,9 @@ cp .env.example .env
 ```
 
 The defaults in `.env.example` match `docker-compose.yml`, so this file is the
-one place you edit. Three values matter:
+one place you edit. Two values matter.
 
-### 1.1 A Resend API key (required)
-
-1. Sign up at <https://resend.com> (free tier is enough).
-2. **API Keys → Create API key**, permission **Sending access**, copy the
-   `re_...` value.
-3. Put it in `.env`:
-
-```dotenv
-EMAIL_PROVIDER=resend
-RESEND_API_KEY=re_your_key_here
-EMAIL_FROM="Absence Management <onboarding@resend.dev>"
-```
-
-Notes:
-
-- Keep `EMAIL_PROVIDER=resend`. The containers run with `NODE_ENV=production`,
-  and the auth service deliberately refuses to boot with the `log` provider
-  there, because it would print codes into a container log.
-- Keep the sender as `onboarding@resend.dev` **unless you verified your own
-  domain in Resend** (Domains → Add domain → add the DNS records). A sender on
-  an unverified domain is rejected by the API.
-- With `onboarding@resend.dev`, Resend only delivers to the address that owns
-  the API key. That is why the next step points the seed at your own inbox.
-
-### 1.2 Your email in the seed
+### 1.1 Your email in the seed
 
 The first admin only exists because `backend/seed.json` creates them. Open it
 and replace the first employee's address — and, if you like, the name:
@@ -101,9 +78,17 @@ Only the `email` (and optionally `fullName`) needs to change — keep the
 `identity` as `MASTER_ADMIN`, or you will sign in without access to the admin
 dashboard.
 
-Use **the same address you signed up to Resend with**, otherwise the OTP email
-is refused. Unknown addresses are ignored on purpose (no account enumeration),
-so a wrong seed email looks exactly like "the mail never arrived".
+The seed decides which address may sign in: an address with no active identity
+gets no code at all. Nothing is emailed, so the address only has to exist in
+`seed.json`.
+
+> **Email delivery is disabled.** `POST /auth/otp/request` issues the code and
+> returns it in the response (`code`); the sign-in screen shows it with an
+> **Isi otomatis** button. There is nothing to configure and no Resend key to
+> create — `EMAIL_PROVIDER` / `RESEND_API_KEY` / `EMAIL_FROM` are ignored by the
+> running services and kept only for `npm run email:smoke` and for restoring
+> delivery later. Because of that, the code is visible to anyone who can reach
+> the gateway: re-enable email before exposing this anywhere real.
 
 The other 49 seeded people (`maya.kusuma@company.com`, `yoga.pratama@company.com`, …)
 are ordinary employees across 12 divisions; you can leave them, change them, or
@@ -111,14 +96,14 @@ delete them. They also give the demo its attendance history: the seeder
 backfills this year's check-ins, late arrivals and absences for active staff,
 from January 1st through today.
 
-### 1.3 Prefill the sign-in form (optional but handy)
+### 1.2 Prefill the sign-in form (optional but handy)
 
 ```dotenv
 NEXT_PUBLIC_DEMO_EMAIL=you@example.com
 ```
 
 This is only the address prefilled on the sign-in form; it does not create
-anything. Set it to the same address as step 1.2.
+anything. Set it to the same address as step 1.1.
 
 ---
 
@@ -188,8 +173,9 @@ Plan: 12 division(s), 50 employee(s)
 
 1. Open <http://localhost:3000> — the sign-in form is prefilled with
    `NEXT_PUBLIC_DEMO_EMAIL`.
-2. Press **Continue**. The auth service calls Resend and emails a 6-digit code
-   that stays valid for 5 minutes.
+2. Press **Continue**. The auth service issues a 6-digit code valid for 5
+   minutes and returns it in the response; the next screen shows it, with
+   **Isi otomatis** filling it in for you. No email is sent.
 3. Paste the code. An admin lands on `/choose` and picks a workspace (admin
    dashboard or employee check-in); an employee skips the picker and goes
    straight to `/employee`.
@@ -210,20 +196,10 @@ employee and sign in with it):
 - the check-in writes a row for the day; the report shows it immediately,
 - the 15:00 company-time cron marks everyone still missing as `ABSENT`.
 
-### If the email does not arrive
+### If no code appears
 
-```bash
-docker compose logs --tail=50 auth
-```
-
-- `RESEND_API_KEY is required` → the variable is empty or `.env` was not
-  re-read; run `docker compose up -d` again after editing `.env`.
-- `Resend delivery failed: ...` → read the message. The common ones are an
-  invalid key, a `from` address on an unverified domain, and Resend's testing
-  restriction: *"You can only send testing emails to your own email address"* —
-  which means the seed email is not the Resend account owner's address.
-- Nothing logged at all → the address is not in the database (unknown emails are
-  silently ignored). Check with:
+There is no mailbox to check: the code is in the response, so an empty code
+panel means the address has no active identity. Confirm with:
 
 ```bash
 docker compose exec db mysql -uattendance -pattend1234 absences -e \

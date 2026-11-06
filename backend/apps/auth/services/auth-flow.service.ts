@@ -36,7 +36,11 @@ export class AuthFlowService {
     const identity = await this.identities.findOne({ where: { email } });
 
     if (identity && identity.status === IdentityStatus.ACTIVE) {
-      await this.otp.generate(identity.id, identity.email);
+      // Email delivery is disabled: the code is issued and handed straight
+      // back, so the sign-in screen can display it.
+      const code = await this.otp.generate(identity.id);
+
+      return { message: OTP_SENT_MESSAGE, code };
     }
 
     return { message: OTP_SENT_MESSAGE };

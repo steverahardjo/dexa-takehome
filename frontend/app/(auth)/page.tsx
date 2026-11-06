@@ -21,6 +21,8 @@ type Step = "login" | "otp";
 
 type OtpRequested = {
   message: string;
+  /** The issued code. Email is disabled, so the API returns it directly. */
+  code?: string;
 };
 
 type AccessTokenResponse = {
@@ -49,15 +51,18 @@ export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = React.useState<Step>("login");
   const [email, setEmail] = React.useState("");
+  /** The code the API issued for this address, shown on the code step. */
+  const [issuedCode, setIssuedCode] = React.useState<string | null>(null);
 
   /** Asks the auth service for a code and moves to the code step. */
   async function requestCode(address: string) {
-    await api<OtpRequested>("/auth/otp/request", {
+    const result = await api<OtpRequested>("/auth/otp/request", {
       method: "POST",
       body: { email: address },
       auth: false,
     });
 
+    setIssuedCode(result.code ?? null);
     setEmail(address);
     setStep("otp");
   }
@@ -105,6 +110,7 @@ export default function LoginPage() {
     return (
       <OtpForm
         email={email}
+        issuedCode={issuedCode}
         codeLength={OTP_LENGTH}
         expiresInSeconds={OTP_LIFETIME_SECONDS}
         resendInSeconds={OTP_RESEND_SECONDS}

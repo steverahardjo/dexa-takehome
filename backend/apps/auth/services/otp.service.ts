@@ -7,7 +7,6 @@ import { IsNull, MoreThan, Repository } from 'typeorm';
 
 import { AUTH_DATA_SOURCE } from '../../../shared/database/data-sources.js';
 import { RPC_ERRORS } from '../../../shared/rpc/errors.js';
-import { EmailService } from './email.service.js';
 import { OtpVerification } from '../entity/otp.entity.js';
 
 const MAX_ATTEMPTS = 5;
@@ -22,7 +21,6 @@ export class OtpService {
   constructor(
     @InjectRepository(OtpVerification, AUTH_DATA_SOURCE)
     private readonly otpRepository: Repository<OtpVerification>,
-    private readonly emailService: EmailService,
     config: ConfigService,
   ) {
     this.expirySeconds = Number(
@@ -37,8 +35,13 @@ export class OtpService {
     this.secret = config.getOrThrow<string>('OTP_HASH_SECRET');
   }
 
-  /** Issues a new code and delivers it, invalidating every previous one. */
-  async generate(identityId: string, email: string): Promise<void> {
+  /**
+   * Issues a new code, invalidating every previous one, and returns it.
+   *
+   * Email delivery is disabled: the code travels back in the login response so
+   * the sign-in screen can show it, and no `EmailService` is involved.
+   */
+  async generate(identityId: string): Promise<string> {
     await this.otpRepository.update(
       { identityId, consumedAt: IsNull() },
       { consumedAt: new Date() },
@@ -54,15 +57,9 @@ export class OtpService {
       consumedAt: null,
     });
 
-    const saved = await this.otpRepository.save(otp);
+    await this.otpRepository.save(otp);
 
-    try {
-      await this.emailService.sendOtp(email, code, this.expirySeconds);
-    } catch (error) {
-      // Never leave behind a code the user did not receive.
-      await this.otpRepository.delete(saved.id);
-      throw error;
-    }
+    return code;
   }
 
   /**

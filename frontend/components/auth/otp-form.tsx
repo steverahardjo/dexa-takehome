@@ -33,8 +33,13 @@ import { formatCountdown, useCountdown } from "@/hooks/use-countdown"
 import { cn } from "cn"
 
 export type OtpFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
-  /** Address the code was sent to. Rendered above the input. */
+  /** Address the code was issued for. Rendered above the input. */
   email: string
+  /**
+   * The code the API returned with the login request (no email is sent).
+   * Shown on the screen, with a button that fills the input.
+   */
+  issuedCode?: string | null
   /** Number of digits in the code. */
   codeLength?: number
   /** Lifetime of a code in seconds, drives the resend timer. */
@@ -52,6 +57,7 @@ export type OtpFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
 export function OtpForm({
   className,
   email,
+  issuedCode = null,
   codeLength = 6,
   expiresInSeconds = 60,
   resendInSeconds = 60,
@@ -86,7 +92,7 @@ export function OtpForm({
     setNotice(null)
 
     if (!isComplete) {
-      setError(`Masukkan kode ${codeLength} digit dari email Anda.`);
+      setError(`Masukkan kode ${codeLength} digit untuk melanjutkan.`);
       return
     }
 
@@ -116,7 +122,9 @@ export function OtpForm({
       setCode("")
       start(expiresInSeconds)
       resend.start(resendInSeconds)
-      setNotice(`Kode ${codeLength} digit baru telah dikirim ke ${email}.`);
+      setNotice(
+        `Kode ${codeLength} digit baru diterbitkan. Lihat kode di atas.`
+      );
     } catch (resendError) {
       setError(
         resendError instanceof Error
@@ -132,13 +140,40 @@ export function OtpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Periksa email Anda</CardTitle>
+          <CardTitle>Masukkan kode</CardTitle>
           <CardDescription>
-            Kami mengirim kode konfirmasi {codeLength} digit ke kotak masuk
-            Anda. Masukkan di bawah untuk melanjutkan.
+            {issuedCode
+              ? `Kode konfirmasi ${codeLength} digit untuk ${email} tampil di bawah ini. Email tidak dikirim.`
+              : `Kode tidak diterbitkan untuk ${email}. Periksa kembali alamatnya, atau masuk dengan akun lain.`}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
+          {issuedCode && (
+            <div
+              className="rounded-lg border border-dashed border-amber-500/60 bg-amber-500/10 p-3"
+              role="status"
+            >
+              <p className="text-sm font-medium">Kode konfirmasi Anda</p>
+              <div className="mt-2 flex items-center gap-3">
+                <span className="font-mono text-2xl font-semibold tracking-[0.3em]">
+                  {issuedCode}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto shrink-0"
+                  onClick={() => {
+                    setCode(issuedCode)
+                    setError(null)
+                  }}
+                  disabled={isVerifying}
+                >
+                  Isi otomatis
+                </Button>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSubmit} noValidate>
             <FieldGroup>
               <Field>
@@ -210,8 +245,8 @@ export function OtpForm({
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm text-muted-foreground tabular-nums">
                     {resend.isActive
-                      ? `Kirim ulang tersedia dalam ${formatCountdown(resend.secondsLeft)}`
-                      : "Tidak menerima kode?"}
+                      ? `Kode baru tersedia dalam ${formatCountdown(resend.secondsLeft)}`
+                      : "Butuh kode baru?"}
                   </p>
                   <Button
                     type="button"
@@ -225,7 +260,7 @@ export function OtpForm({
                     ) : (
                       <RotateCwIcon />
                     )}
-                    {isResending ? "Mengirim…" : "Kirim ulang kode"}
+                    {isResending ? "Menerbitkan…" : "Terbitkan kode baru"}
                   </Button>
                 </div>
                 <p aria-live="polite" className="text-sm text-muted-foreground">

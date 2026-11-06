@@ -48,6 +48,13 @@ export class OtpRequestResultModel implements OtpRequestResult {
       'Identical for a known and an unknown address: the endpoint never reveals whether an account exists.',
   })
   message: string;
+
+  @ApiPropertyOptional({
+    example: '123456',
+    description:
+      'The issued one-time code. Email delivery is disabled, so the code is returned here and the client shows it. Absent when the address has no active identity.',
+  })
+  code?: string;
 }
 
 export class AccessTokenResponseModel implements AccessTokenResponse {

@@ -23,6 +23,11 @@ export const AUTH_PATTERNS = {
 export interface OtpRequestResult {
   /** Identical for a known and an unknown address. */
   message: string;
+  /**
+   * The issued one-time code, returned instead of being emailed so the sign-in
+   * screen can display it. Absent when the address has no active identity.
+   */
+  code?: string;
 }
 
 export interface IdentitySummary {

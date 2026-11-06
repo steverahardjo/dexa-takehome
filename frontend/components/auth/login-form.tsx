@@ -23,7 +23,7 @@ import { cn } from "cn"
 export type LoginFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
   /** Prefills the email field, e.g. when returning from the code step. */
   defaultEmail?: string
-  /** Called with the email; resolves when the code has been emailed. */
+  /** Called with the email; resolves once a code has been issued. */
   onSubmit?: (email: string) => void | Promise<void>
 }
 
@@ -61,8 +61,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Masuk</CardTitle>
           <CardDescription>
-            Masukkan email Anda. Kami akan mengirim kode sekali pakai untuk
-            memastikan itu Anda.
+            Masukkan email Anda untuk mendapatkan kode konfirmasi sekali pakai.
           </CardDescription>
         </CardHeader>
         <CardContent>

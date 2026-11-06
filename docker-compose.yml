@@ -17,11 +17,10 @@ x-auth-env: &auth-env
   JWT_ACCESS_TTL_SECONDS: "900"
   OTP_HASH_SECRET: ${OTP_HASH_SECRET:-dev-only-otp-secret}
   OTP_EXPIRY_SECONDS: "300"
-  # Real mail delivery. The auth service refuses to boot with "log" while
-  # NODE_ENV=production, so RESEND_API_KEY must be set in .env.
-  EMAIL_PROVIDER: ${EMAIL_PROVIDER:-resend}
-  EMAIL_FROM: ${EMAIL_FROM:-Absence Management <no-reply@example.com>}
-  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  # Email delivery is disabled: the auth service returns the code in the OTP
+  # response. EMAIL_PROVIDER / RESEND_API_KEY / EMAIL_FROM are not read by any
+  # running service; `npm run email:smoke` can still use them from the root
+  # .env if delivery is turned back on.
 
 # Object storage access, shared by the storage service only. RustFS speaks S3
 # and the backend talks to it through the MinIO client, so the variable names
