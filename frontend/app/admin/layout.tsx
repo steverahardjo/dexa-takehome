@@ -1,7 +1,7 @@
 import { DesktopOnly } from "@/components/layout/desktop-only";
 
 export const metadata = {
-  title: "Admin dashboard — Absences",
+  title: "Dasbor admin — Absensi",
 };
 
 /**

@@ -63,7 +63,7 @@ export function EmployeeCard({
         className="cursor-pointer gap-0 overflow-hidden py-0 transition hover:ring-foreground/20"
         role="button"
         tabIndex={0}
-        title={`Open ${employee.fullName}'s late-day calendar`}
+        title={`Buka kalender keterlambatan ${employee.fullName}`}
         onClick={openCalendar}
         onKeyDown={(event) => {
           if (
@@ -83,7 +83,7 @@ export function EmployeeCard({
             <Avatar size="lg">
               <AvatarImage
                 src={employee.avatarUrl ?? undefined}
-                alt={`${employee.fullName} avatar`}
+                alt={`Avatar ${employee.fullName}`}
               />
               <AvatarFallback className="bg-white/15 text-white">
                 {getInitials(employee.fullName)}
@@ -107,8 +107,8 @@ export function EmployeeCard({
 
             <Link
               href={`/admin/dashboard/employees/${employee.id}`}
-              aria-label={`Change ${employee.fullName}`}
-              title="Change employee"
+              aria-label={`Ubah ${employee.fullName}`}
+              title="Ubah karyawan"
               className={buttonVariants({
                 variant: "ghost",
                 size: "icon-sm",
@@ -137,8 +137,8 @@ export function EmployeeCard({
             <CalendarDays className="size-4 text-muted-foreground" />
             <span className="tabular-nums">
               {today?.checkInTime
-                ? `Checked in ${formatIsoClock(today.checkInTime)}`
-                : "No check-in yet today"}
+                ? `Absen ${formatIsoClock(today.checkInTime)}`
+                : "Belum absen hari ini"}
             </span>
           </div>
 
@@ -146,20 +146,20 @@ export function EmployeeCard({
           <p className="text-muted-foreground">
             {divisionNameList.length > 0
               ? divisionNameList.join(", ")
-              : "No division"}
-            {` · Joined ${formatDate(employee.joinedAt)}`}
+              : "Tidak ada divisi"}
+            {` · Bergabung ${formatDate(employee.joinedAt)}`}
           </p>
 
           {/* Check-in location and proof photo */}
           <div className="space-y-3 border-t pt-3">
             <div className="space-y-1">
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Check-in location
+                Lokasi absen
               </p>
 
               <LocationLink
                 location={today?.location}
-                emptyLabel="No check-in coordinates recorded"
+                emptyLabel="Koordinat absen tidak tercatat"
               />
             </div>
 
@@ -205,7 +205,7 @@ function LocationLink({
       href={googleMapsUrl(location)}
       target="_blank"
       rel="noreferrer"
-      title={`Open ${location} in Google Maps`}
+      title={`Buka ${location} di Google Maps`}
       className="group inline-flex max-w-full items-center gap-1.5 text-sm font-medium underline-offset-4 hover:text-foreground hover:underline"
     >
       <MapPin className="size-4 shrink-0 text-muted-foreground" />
@@ -232,7 +232,7 @@ function EvidenceButton({
     return (
       <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
         <ImageIcon className="size-4" />
-        No photo
+        Tidak ada foto
       </span>
     );
   }
@@ -240,8 +240,8 @@ function EvidenceButton({
   return (
     <Dialog>
       <DialogTrigger
-        aria-label={`View check-in photo for ${name}`}
-        title="View check-in photo"
+        aria-label={`Lihat foto absen ${name}`}
+        title="Lihat foto absen"
         className={buttonVariants({
           variant: "outline",
           size: "sm",
@@ -249,15 +249,15 @@ function EvidenceButton({
         })}
       >
         <ImageIcon className="size-4" />
-        View photo
+        Lihat foto
       </DialogTrigger>
 
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Check-in evidence</DialogTitle>
+          <DialogTitle>Bukti absen</DialogTitle>
           <DialogDescription>
             {name}
-            {checkInTime ? ` · checked in ${formatIsoClock(checkInTime)}` : ""}
+            {checkInTime ? ` · absen ${formatIsoClock(checkInTime)}` : ""}
           </DialogDescription>
         </DialogHeader>
 
@@ -265,7 +265,7 @@ function EvidenceButton({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={proofUrl}
-          alt={`${name} check-in evidence`}
+          alt={`Bukti absen ${name}`}
           className="max-h-[65vh] w-full rounded-lg bg-muted object-contain"
         />
       </DialogContent>

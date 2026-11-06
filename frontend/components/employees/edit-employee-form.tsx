@@ -23,25 +23,25 @@ export function EditEmployeeForm({ employeeId }: { employeeId: string }) {
         <CardContent className="flex flex-col items-center gap-2 p-10 text-center">
           {isLoading ? (
             <>
-              <p className="font-medium">Loading employee…</p>
+              <p className="font-medium">Memuat karyawan…</p>
               <p className="text-sm text-muted-foreground">
-                Reading the saved data from the API.
+                Membaca data tersimpan dari API.
               </p>
             </>
           ) : (
             <>
               <UserRoundX className="h-8 w-8 text-muted-foreground" />
-              <p className="font-medium">Employee not found</p>
+              <p className="font-medium">Karyawan tidak ditemukan</p>
               <p className="text-sm text-muted-foreground">
                 {status === "error" && error
                   ? error
-                  : "It may have been removed by another admin."}
+                  : "Mungkin sudah dihapus oleh admin lain."}
               </p>
               <Link
                 href="/admin/dashboard"
                 className="text-sm underline underline-offset-4"
               >
-                Back to dashboard
+                Kembali ke dasbor
               </Link>
             </>
           )}

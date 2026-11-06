@@ -48,7 +48,7 @@ export function LoginForm({
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "We could not sign you in. Please try again."
+          : "Kami tidak dapat memproses masuk Anda. Silakan coba lagi."
       )
     } finally {
       setIsSubmitting(false)
@@ -59,10 +59,10 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
+          <CardTitle>Masuk</CardTitle>
           <CardDescription>
-            Enter your email. We&apos;ll send a one-time code to confirm
-            it&apos;s you.
+            Masukkan email Anda. Kami akan mengirim kode sekali pakai untuk
+            memastikan itu Anda.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -73,7 +73,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="nama@contoh.com"
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -87,7 +87,7 @@ export function LoginForm({
                   {isSubmitting && (
                     <LoaderCircleIcon className="animate-spin" />
                   )}
-                  {isSubmitting ? "Sending code…" : "Continue"}
+                  {isSubmitting ? "Mengirim kode…" : "Lanjutkan"}
                 </Button>
               </Field>
             </FieldGroup>

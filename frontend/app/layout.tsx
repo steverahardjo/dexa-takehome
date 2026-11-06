@@ -15,14 +15,14 @@ const jakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Absences — Sign in",
-  description: "Employee absence tracking for WFH teams.",
+  title: "Absensi — Masuk",
+  description: "Pelacakan absensi karyawan untuk tim WFH.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
+      lang="id"
       className={`${inter.variable} ${jakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

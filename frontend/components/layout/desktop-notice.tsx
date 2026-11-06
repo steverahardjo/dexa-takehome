@@ -23,11 +23,11 @@ export function DesktopNotice() {
             <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-muted">
               <LaptopIcon className="size-5 text-muted-foreground" />
             </div>
-            <CardTitle>Open the dashboard on a laptop</CardTitle>
+            <CardTitle>Buka dasbor di laptop</CardTitle>
             <CardDescription>
-              The dashboard is built for a wide screen: employee lists,
-              attendance tables and the QR check-in panel need the room. Your
-              check-in photo still works from the phone.
+              Dasbor dirancang untuk layar lebar: daftar karyawan, tabel
+              kehadiran, dan panel absen QR memerlukan ruang. Foto absen Anda
+              tetap berfungsi dari ponsel.
             </CardDescription>
           </CardHeader>
 
@@ -36,7 +36,7 @@ export function DesktopNotice() {
               href="/employee"
               className={buttonVariants({ size: "lg", className: "w-full" })}
             >
-              Go to my employee screen
+              Buka layar karyawan saya
             </Link>
             <Link
               href="/"
@@ -46,7 +46,7 @@ export function DesktopNotice() {
                 className: "w-full",
               })}
             >
-              Back to sign in
+              Kembali ke halaman masuk
             </Link>
           </CardContent>
         </Card>

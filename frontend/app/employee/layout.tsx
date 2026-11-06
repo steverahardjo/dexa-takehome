@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Employee check-in — Absences",
-  description: "Clock in with your phone camera and share your location.",
+  title: "Absen karyawan — Absensi",
+  description: "Absen dengan kamera ponsel dan bagikan lokasi Anda.",
 };
 
 export default function EmployeeLayout({

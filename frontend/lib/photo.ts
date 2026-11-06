@@ -27,12 +27,12 @@ export function readPhotoFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onerror = () => reject(new Error("The photo could not be read."));
+    reader.onerror = () => reject(new Error("Foto tidak dapat dibaca."));
 
     reader.onload = () => {
       const image = new Image();
 
-      image.onerror = () => reject(new Error("The photo could not be decoded."));
+      image.onerror = () => reject(new Error("Foto tidak dapat didekode."));
 
       image.onload = () => {
         const dataUrl = toScaledJpegDataUrl(
@@ -42,7 +42,7 @@ export function readPhotoFile(file: File): Promise<string> {
         );
 
         if (!dataUrl) {
-          reject(new Error("The photo could not be processed."));
+          reject(new Error("Foto tidak dapat diproses."));
           return;
         }
 

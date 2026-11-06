@@ -9,12 +9,12 @@ export const ROLES = ["EMPLOYEE", "ADMIN", "MASTER_ADMIN"] as const;
 export type Role = (typeof ROLES)[number];
 
 const ROLE_LABELS: Record<Role, string> = {
-  EMPLOYEE: "Employee",
-  ADMIN: "HR Admin",
-  MASTER_ADMIN: "Master admin",
+  EMPLOYEE: "Karyawan",
+  ADMIN: "Admin HR",
+  MASTER_ADMIN: "Master Admin",
 };
 
-/** Reads "HR Admin" where the API says `ADMIN`. */
+/** Reads "Admin HR" where the API says `ADMIN`. */
 export function roleLabel(role: Role): string {
   return ROLE_LABELS[role] ?? role;
 }

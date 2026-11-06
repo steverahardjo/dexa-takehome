@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { ChooseWorkspace } from "@/components/auth/choose-workspace";
 
 export const metadata: Metadata = {
-  title: "Choose your workspace — Absences",
+  title: "Pilih ruang kerja Anda — Absensi",
   description:
-    "Pick the admin dashboard on a laptop or the employee check-in on a phone.",
+    "Pilih dasbor admin di laptop atau absen karyawan di ponsel.",
 };
 
 /** The go-between between signing in and either workspace. */

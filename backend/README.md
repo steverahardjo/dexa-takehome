@@ -43,15 +43,21 @@ create the tables.
 $ npm run seed                      # build the runner, then ingest ./seed.json
 $ npm run seed -- --dry-run         # validate the file, print the plan, no writes
 $ npm run seed -- --file other.json # ingest another file
+$ npm run seed -- --no-avatars      # skip the generated sample avatars
+$ npm run seed -- --force-avatars   # regenerate every avatar
 $ npm run seed:docker               # same, inside the compose network (DB_HOST=db)
 ```
 
 Connection settings come from the usual `DB_*` variables (defaults match
 docker-compose: `127.0.0.1:3306`, `attendance`/`attend1234`, database
-`absences`). Every write is an upsert keyed by `employee_number`, `email` and the
-division `name`, so re-running converges instead of duplicating; a run is one
-transaction, and a conflicting file is rejected with every problem listed at
-once.
+`absences`). Avatars go straight to object storage, so the runner also needs
+the storage service's `MINIO_*` variables (`MINIO_ACCESS_KEY` and
+`MINIO_SECRET_KEY` are required; the rest default to
+`127.0.0.1:9000`/`absences`/`us-east-1`). In compose that means running it in
+the storage container, which is what `seed:docker` does. Every write is an
+upsert keyed by `employee_number`, `email` and the division `name`, so
+re-running converges instead of duplicating; a run is one transaction, and a
+conflicting file is rejected with every problem listed at once.
 
 An entry creates its identity too, so the file is also where the first admin
 comes from:
@@ -73,6 +79,81 @@ needs a way to receive the OTP. The compose stack runs with
 a sender on a verified Resend domain, or `onboarding@resend.dev`) in the root
 `.env`. Only for local runs outside compose you can use `EMAIL_PROVIDER=log`
 with `NODE_ENV=development` and read the code from the process log.
+
+### Sample avatars
+
+The optional `avatars` block gives every seeded employee a demo profile
+picture without anyone uploading one:
+
+```json
+"avatars": {
+  "enabled": true,
+  "size": 512
+}
+```
+
+| field | default | meaning |
+| --- | --- | --- |
+| `enabled` | `true` | generate and upload pictures; `--no-avatars` overrides it |
+| `size` | `512` | square edge in pixels, between 64 and 1024 |
+| `overwrite` | `false` | also replace employees that already have a picture |
+
+The runner draws the employee's initials on a colour picked from a fixed
+palette by hashing the full name, encodes a real PNG locally (no image
+dependency), and uploads it as `avatars/<year>/<month>/<uuid>.png` — the key
+shape the storage service hands out, so presigned downloads and
+`confirmUpload` accept it. Like attendance history this is additive: an
+employee that already has an `avatar_key` is left alone, so a rerun resumes a
+partially failed upload and never replaces a picture someone uploaded. Only
+`--force-avatars` (or `"overwrite": true`) replaces existing pictures, and the
+previous object is removed after the new one is stored. The upload happens
+after the database transaction commits, so a storage outage cannot roll back
+the employees that were seeded successfully.
+
+### Attendance history
+
+The shipped `seed.json` is a full demo company: 12 divisions and 50 people
+(active, inactive and terminated, one disabled identity, several multi-division
+assignments). Its optional `history` block backfills weekday attendance for
+every seeded `ACTIVE` employee, and for terminated staff up to `terminatedAt`,
+from January 1st of the current year through **today** (inclusive), so the
+admin dashboard and the yearly summary have data the day you seed:
+
+```json
+"history": {
+  "seed": 20260101,
+  "absentRate": 0.05,
+  "lateRate": 0.22,
+  "locations": ["HQ Office", "HQ Office", "Remote", "Client Site"],
+  "holidays": ["01-01", "08-17", "12-25"]
+}
+```
+
+| field | default | meaning |
+| --- | --- | --- |
+| `days` | — (year to date) | optional sliding window of that many calendar days ending today |
+| `seed` | `42` | PRNG seed; the same value always produces the same history |
+| `absentRate` | `0.05` | share of working days written as `ABSENT` |
+| `lateRate` | `0.22` | base share of check-ins after `REQUIRED_CHECK_IN` |
+| `locations` | `["HQ Office", "Remote"]` | values picked for `location` |
+| `holidays` | `["01-01", "08-17", "12-25"]` | `MM-DD` (yearly) or `YYYY-MM-DD` (once) days skipped |
+
+Each employee gets an individual tempo derived from `seed ^ hash(employeeNumber)`,
+so the 22% company late rate is not applied uniformly. Check-in instants are
+written in UTC for the company timezone (`COMPANY_TIMEZONE`, falling back to
+`TZ`, default `Asia/Jakarta`) with the same `requiredCheckIn`/`timezone` audit
+columns the attendance service writes.
+
+Today is treated as a day in progress: nobody is written as `ABSENT` (the
+absent sweep has not run yet) and no check-in is later than the moment the seed
+ran, so the data never claims a future arrival. Because today is included, a
+seeded demo account already has a row for today and the check-in endpoint
+answers `409` for it — delete that row (or add a fresh employee) if you want to
+demo a live check-in after seeding.
+
+History is an additive backfill: a rerun only inserts days that have no row, so
+real check-ins and absent sweeps are never overwritten. `INACTIVE` employees get
+no history, and days outside `joinedAt`..`terminatedAt` are skipped.
 
 ## Compile and run the project
 

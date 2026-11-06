@@ -459,7 +459,10 @@ Two upload kinds share one mechanism: **avatars** (admin) and **proofs**
   division name, it converges on rerun and prints `+`, `~`, `=` per row. The
   first admin exists only because `seed.json` creates them — there is no
   bootstrap endpoint, because a public "create the first admin" route is a
-  permanently open door.
+  permanently open door. The optional `history` block additionally backfills
+  deterministic weekday attendance for the current year through today (today
+  included, never absent, never a future check-in) and only inserts days without
+  a row, so re-seeding cannot erase real check-ins.
 - **Frontend in compose runs `bun run dev`** for a fast demo loop; the
   `Dockerfile` builds a production image for anything real.
 

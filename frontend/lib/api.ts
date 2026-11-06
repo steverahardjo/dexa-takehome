@@ -65,7 +65,7 @@ export async function api<T>(
     const payload = await response.json().catch(() => null);
 
     throw new ApiError(
-      errorMessage(payload, response.statusText || "The request failed."),
+      errorMessage(payload, response.statusText || "Permintaan gagal."),
       response.status,
     );
   }

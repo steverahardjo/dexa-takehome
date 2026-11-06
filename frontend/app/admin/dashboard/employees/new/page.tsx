@@ -4,8 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { EmployeeForm } from "@/components/employees/employee-form";
 
 export const metadata = {
-  title: "Add employee — Absences",
-  description: "Add a new employee to the attendance dashboard.",
+  title: "Tambah karyawan — Absensi",
+  description: "Tambahkan karyawan baru ke dasbor kehadiran.",
 };
 
 export default function NewEmployeePage() {
@@ -17,13 +17,12 @@ export default function NewEmployeePage() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to dashboard
+          Kembali ke dasbor
         </Link>
 
-        <h1 className="text-2xl font-semibold tracking-tight">Add employee</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Tambah karyawan</h1>
         <p className="text-sm text-muted-foreground">
-          Enter the employee data once, then track their check-ins on the
-          dashboard.
+          Masukkan data karyawan sekali, lalu pantau absen mereka di dasbor.
         </p>
       </div>
 

@@ -39,17 +39,17 @@ import {
 import { useTodayLabel } from "@/lib/clock";
 import { useDivisionsState } from "@/lib/divisions";
 import { useEmployeesState } from "@/lib/employees";
-import { isAdminRole } from "@/lib/roles";
+import { isAdminRole, roleLabel } from "@/lib/roles";
 import { signOut, useSession } from "@/lib/session";
 import { useTodayReport } from "@/lib/today";
 
 const STATUS_LABELS: Record<AttendanceStatus, string> = {
-  ON_TIME: "Checked in",
-  LATE: "Late",
-  ABSENT: "Absent",
-  NOT_CHECKED_IN: "Not yet",
-  ON_LEAVE: "On leave",
-  NOT_WORKING: "Not a work day",
+  ON_TIME: "Sudah absen",
+  LATE: "Terlambat",
+  ABSENT: "Tidak hadir",
+  NOT_CHECKED_IN: "Belum absen",
+  ON_LEAVE: "Cuti",
+  NOT_WORKING: "Bukan hari kerja",
 };
 
 type StatusFilter = "all" | AttendanceStatus;
@@ -103,12 +103,12 @@ export default function EmployeeDashboard() {
     return (
       <main className="flex min-h-svh items-center justify-center p-6">
         <div className="space-y-2 text-center">
-          <p className="font-medium">Sign in to open the dashboard</p>
+          <p className="font-medium">Masuk untuk membuka dasbor</p>
           <p className="text-sm text-muted-foreground">
-            The dashboard reads the employee directory from the gateway.
+            Dasbor membaca direktori karyawan dari gateway.
           </p>
           <Link href="/" className="text-sm underline underline-offset-4">
-            Go to sign in
+            Buka halaman masuk
           </Link>
         </div>
       </main>
@@ -119,17 +119,17 @@ export default function EmployeeDashboard() {
     return (
       <main className="flex min-h-svh items-center justify-center p-6">
         <div className="space-y-3 text-center">
-          <p className="font-medium">This dashboard needs an admin account</p>
+          <p className="font-medium">Dasbor ini memerlukan akun admin</p>
           <p className="text-sm text-muted-foreground">
-            You are signed in as {session.email} ({session.role}).
+            Anda masuk sebagai {session.email} ({roleLabel(session.role)}).
           </p>
           <div className="flex items-center justify-center gap-2">
             <Link href="/employee" className="text-sm underline underline-offset-4">
-              Go to my check-in
+              Buka absen saya
             </Link>
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut />
-              Sign out
+              Keluar
             </Button>
           </div>
         </div>
@@ -143,10 +143,10 @@ export default function EmployeeDashboard() {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Absences &amp; WFH
+            Absensi &amp; WFH
           </h1>
           <p className="text-sm text-muted-foreground">
-            Everyone is working from home — track who checked in today.
+            Semua bekerja dari rumah — pantau siapa yang sudah absen hari ini.
           </p>
         </div>
 
@@ -158,11 +158,11 @@ export default function EmployeeDashboard() {
 
           <Link
             href="/admin/dashboard/employees/new"
-            aria-label="Add employee"
+            aria-label="Tambah karyawan"
             className={buttonVariants({ size: "lg", className: "gap-1.5" })}
           >
             <Plus className="size-4" />
-            Add employee
+            Tambah karyawan
           </Link>
 
           <Link
@@ -173,7 +173,7 @@ export default function EmployeeDashboard() {
               className: "gap-1.5",
             })}
           >
-            Switch workspace
+            Ganti ruang kerja
           </Link>
 
           <Button
@@ -183,7 +183,7 @@ export default function EmployeeDashboard() {
             onClick={signOut}
           >
             <LogOut className="size-4" />
-            Sign out
+            Keluar
           </Button>
         </div>
       </header>
@@ -200,10 +200,10 @@ export default function EmployeeDashboard() {
       {report && report.dayType !== "WORKING_DAY" && (
         <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
           {report.dayType === "HOLIDAY"
-            ? `Today is a national holiday${report.holidayName ? ` (${report.holidayName})` : ""}, so no check-in is expected.`
+            ? `Hari ini hari libur nasional${report.holidayName ? ` (${report.holidayName})` : ""}, jadi tidak ada absen yang diharapkan.`
             : report.dayType === "WEEKEND"
-              ? "Today is a weekend, so no check-in is expected."
-              : "The holiday calendar is unavailable, so today's status is unknown."}
+              ? "Hari ini akhir pekan, jadi tidak ada absen yang diharapkan."
+              : "Kalender hari libur tidak tersedia, jadi status hari ini tidak diketahui."}
         </div>
       )}
 
@@ -215,7 +215,7 @@ export default function EmployeeDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Filter className="h-4 w-4" />
-            Employee Filters
+            Filter Karyawan
           </CardTitle>
         </CardHeader>
 
@@ -224,7 +224,7 @@ export default function EmployeeDashboard() {
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name, email or number..."
+                placeholder="Cari berdasarkan nama, email, atau nomor..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -238,10 +238,10 @@ export default function EmployeeDashboard() {
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by attendance" />
+                <SelectValue placeholder="Filter berdasarkan kehadiran" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Any attendance</SelectItem>
+                <SelectItem value="all">Semua kehadiran</SelectItem>
                 {ATTENDANCE_STATUSES.map((option) => (
                   <SelectItem key={option} value={option}>
                     {STATUS_LABELS[option]}
@@ -255,10 +255,10 @@ export default function EmployeeDashboard() {
               onValueChange={(value) => setDivisionId(value ?? "all")}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by division" />
+                <SelectValue placeholder="Filter berdasarkan divisi" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All divisions</SelectItem>
+                <SelectItem value="all">Semua divisi</SelectItem>
                 {divisions.map((division) => (
                   <SelectItem key={division.id} value={division.id}>
                     {division.name}
@@ -278,7 +278,7 @@ export default function EmployeeDashboard() {
                 setDivisionId("all");
               }}
             >
-              Clear filters
+              Hapus filter
             </Button>
           </div>
         </CardContent>
@@ -286,12 +286,12 @@ export default function EmployeeDashboard() {
 
       {/* Employee List */}
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="font-semibold">Employees</h2>
+        <h2 className="font-semibold">Karyawan</h2>
         <Badge variant="secondary">
-          {filteredEmployees.length} results
+          {filteredEmployees.length} hasil
         </Badge>
         {report && (
-          <Badge variant="outline">{report.totalEmployees} expected</Badge>
+          <Badge variant="outline">{report.totalEmployees} diharapkan</Badge>
         )}
       </div>
 
@@ -307,15 +307,15 @@ export default function EmployeeDashboard() {
 
         {(status === "idle" || status === "loading") && (
           <div className="col-span-full rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
-            Loading employees…
+            Memuat karyawan…
           </div>
         )}
 
         {status === "ready" && filteredEmployees.length === 0 && (
           <div className="col-span-full rounded-lg border border-dashed p-10 text-center">
-            <p className="font-medium">No employees found</p>
+            <p className="font-medium">Karyawan tidak ditemukan</p>
             <p className="text-sm text-muted-foreground">
-              Try changing your search or filters.
+              Coba ubah pencarian atau filter Anda.
             </p>
           </div>
         )}
@@ -337,29 +337,29 @@ function AttendanceStats({
   const stats = [
     {
       status: "ON_TIME" as const,
-      label: "Checked in",
-      hint: "Submitted a check-in today",
+      label: "Sudah absen",
+      hint: "Sudah melakukan absen hari ini",
       value: report?.onTime ?? 0,
       Icon: CheckCircle2,
     },
     {
       status: "LATE" as const,
-      label: "Late",
-      hint: "Checked in after the cut-off",
+      label: "Terlambat",
+      hint: "Absen melewati batas waktu",
       value: report?.late ?? 0,
       Icon: Clock,
     },
     {
       status: "NOT_CHECKED_IN" as const,
-      label: "Not yet",
-      hint: "Expected, but no check-in yet",
+      label: "Belum absen",
+      hint: "Diharapkan hadir, tetapi belum absen",
       value: report?.notCheckedIn ?? 0,
       Icon: Hourglass,
     },
     {
       status: "ABSENT" as const,
-      label: "Absent",
-      hint: "Marked absent by the sweep",
+      label: "Tidak hadir",
+      hint: "Ditandai tidak hadir oleh sistem",
       value: report?.absent ?? 0,
       Icon: UserRoundX,
     },

@@ -1,8 +1,8 @@
 import { DesktopNotice } from "@/components/layout/desktop-notice";
 
 export const metadata = {
-  title: "Open on a laptop — Absences",
-  description: "The admin dashboard needs a laptop-sized screen.",
+  title: "Buka di laptop — Absensi",
+  description: "Dasbor admin memerlukan layar seukuran laptop.",
 };
 
 /** Where `proxy.ts` sends a phone or tablet that asked for `/admin`. */

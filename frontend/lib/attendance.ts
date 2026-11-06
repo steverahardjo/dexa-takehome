@@ -122,12 +122,12 @@ export const attendanceTone: Record<AttendanceStatus, AttendanceTone> = {
 };
 
 const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = {
-  ON_TIME: "Checked in",
-  LATE: "Late",
-  ABSENT: "Absent",
-  NOT_CHECKED_IN: "Not yet",
-  ON_LEAVE: "On leave",
-  NOT_WORKING: "Not a work day",
+  ON_TIME: "Sudah absen",
+  LATE: "Terlambat",
+  ABSENT: "Tidak hadir",
+  NOT_CHECKED_IN: "Belum absen",
+  ON_LEAVE: "Cuti",
+  NOT_WORKING: "Bukan hari kerja",
 };
 
 export type AttendanceSummary = {
@@ -152,7 +152,9 @@ export type AttendanceLike = {
 function lateSuffix(lateMinutes: number): string {
   if (lateMinutes <= 0) return "";
 
-  return lateMinutes === 1 ? " · 1 min late" : ` · ${lateMinutes} min late`;
+  return lateMinutes === 1
+    ? " · terlambat 1 menit"
+    : ` · terlambat ${lateMinutes} menit`;
 }
 
 /**
@@ -169,7 +171,7 @@ export function getAttendance(
     return {
       status: "NOT_CHECKED_IN",
       label: ATTENDANCE_LABELS.NOT_CHECKED_IN,
-      detail: "No check-in yet today",
+      detail: "Belum absen hari ini",
     };
   }
 
@@ -183,23 +185,23 @@ export function getAttendance(
       attendance.timezone ?? undefined,
     );
 
-    detail = `Checked in at ${time}${lateSuffix(attendance.lateMinutes ?? 0)}`;
+    detail = `Absen pada ${time}${lateSuffix(attendance.lateMinutes ?? 0)}`;
   } else {
     switch (status) {
       case "ABSENT":
-        detail = "No check-in recorded for the day";
+        detail = "Tidak ada catatan absen untuk hari ini";
         break;
       case "ON_LEAVE":
-        detail = "Recorded as on leave";
+        detail = "Tercatat sedang cuti";
         break;
       case "NOT_WORKING":
-        detail = "Weekend or national holiday";
+        detail = "Akhir pekan atau hari libur nasional";
         break;
       case "NOT_CHECKED_IN":
-        detail = "No check-in yet today";
+        detail = "Belum absen hari ini";
         break;
       default:
-        detail = "No check-in time recorded";
+        detail = "Waktu absen tidak tercatat";
     }
   }
 

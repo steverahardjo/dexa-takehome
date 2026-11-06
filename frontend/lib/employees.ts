@@ -100,7 +100,7 @@ const employeeListeners = new Set<() => void>();
 const signedInListeners = new Set<() => void>();
 
 function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : "The request failed.";
+  return error instanceof Error ? error.message : "Permintaan gagal.";
 }
 
 function emit(listeners: Set<() => void>) {
@@ -311,7 +311,7 @@ async function uploadFile(
   });
 
   if (!response.ok) {
-    throw new ApiError("The file could not be uploaded.", response.status);
+    throw new ApiError("File tidak dapat diunggah.", response.status);
   }
 
   return upload.key;
@@ -328,7 +328,7 @@ export async function uploadAvatar(file: File): Promise<string> {
   const extension = AVATAR_TYPES[file.type];
 
   if (!extension) {
-    throw new Error("The avatar must be a JPG, PNG or WebP image.");
+    throw new Error("Avatar harus berupa gambar JPG, PNG, atau WebP.");
   }
 
   return uploadFile(
@@ -371,7 +371,7 @@ async function uploadProof(dataUrl: string): Promise<string> {
   });
 
   if (!response.ok) {
-    throw new ApiError("The photo could not be uploaded.", response.status);
+    throw new ApiError("Foto tidak dapat diunggah.", response.status);
   }
 
   return upload.key;

@@ -48,10 +48,10 @@ export function ChooseWorkspace() {
       <Shell>
         <Card>
           <CardHeader>
-            <CardTitle>Choose your workspace</CardTitle>
+            <CardTitle>Pilih ruang kerja Anda</CardTitle>
             <CardDescription>
-              Sign in first — then pick the admin dashboard or the employee
-              check-in screen.
+              Masuk terlebih dahulu — lalu pilih dasbor admin atau layar absen
+              karyawan.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
@@ -59,7 +59,7 @@ export function ChooseWorkspace() {
               href="/"
               className={buttonVariants({ size: "lg", className: "w-full" })}
             >
-              Go to sign in
+              Buka halaman masuk
             </Link>
           </CardContent>
         </Card>
@@ -73,9 +73,9 @@ export function ChooseWorkspace() {
         <Card>
           <CardContent className="flex flex-col items-center gap-2 py-8 text-center">
             <LoaderCircleIcon className="size-6 animate-spin text-muted-foreground" />
-            <p className="font-medium">Taking you to your check-in…</p>
+            <p className="font-medium">Mengarahkan Anda ke halaman absen…</p>
             <p className="text-sm text-muted-foreground">
-              The admin dashboard is only available to admins.
+              Dasbor admin hanya tersedia untuk admin.
             </p>
           </CardContent>
         </Card>
@@ -87,13 +87,13 @@ export function ChooseWorkspace() {
     <Shell>
       <header className="space-y-1 text-center">
         <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          Signed in as {session.email} · {roleLabel(session.role)}
+          Masuk sebagai {session.email} · {roleLabel(session.role)}
         </p>
         <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Choose your workspace
+          Pilih ruang kerja Anda
         </h1>
         <p className="text-sm text-muted-foreground">
-          The dashboard needs a laptop. Checking in needs your phone camera.
+          Dasbor memerlukan laptop. Absen memerlukan kamera ponsel Anda.
         </p>
       </header>
 
@@ -101,35 +101,35 @@ export function ChooseWorkspace() {
         <WorkspaceOption
           href="/admin/dashboard"
           icon={LaptopIcon}
-          title="Admin dashboard"
-          description="Employees, schedules and attendance reports on a wide screen."
-          actionLabel="Open the dashboard"
+          title="Dasbor admin"
+          description="Karyawan, jadwal, dan laporan kehadiran di layar lebar."
+          actionLabel="Buka dasbor"
           deviceLabel="Laptop"
           available={isDesktop}
-          unavailableLabel="Needs a laptop"
-          unavailableHint="Open this page on a computer to use the dashboard."
+          unavailableLabel="Perlu laptop"
+          unavailableHint="Buka halaman ini di komputer untuk menggunakan dasbor."
         />
 
         <WorkspaceOption
           href="/employee"
           icon={SmartphoneIcon}
-          title="Employee check-in"
-          description="Clock in with your phone camera and share your location."
-          actionLabel="Open the check-in"
-          deviceLabel="Phone"
+          title="Absen karyawan"
+          description="Absen dengan kamera ponsel dan bagikan lokasi Anda."
+          actionLabel="Buka absen"
+          deviceLabel="Ponsel"
           available={!isDesktop}
-          unavailableLabel="Needs a phone"
-          unavailableHint="Open this page on your phone to check in."
+          unavailableLabel="Perlu ponsel"
+          unavailableHint="Buka halaman ini di ponsel Anda untuk absen."
         />
       </div>
 
       <div className="flex flex-col items-center gap-2">
         <Button variant="ghost" size="sm" className="gap-1.5" onClick={signOut}>
           <LogOutIcon className="size-4" />
-          Sign out
+          Keluar
         </Button>
         <p className="text-xs text-muted-foreground">
-          You can come back here with “Switch workspace”.
+          Anda dapat kembali ke sini dengan “Ganti ruang kerja”.
         </p>
       </div>
     </Shell>

@@ -6,8 +6,8 @@ import { EditEmployeeForm } from "@/components/employees/edit-employee-form";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Change employee — Absences",
-  description: "Load an employee's current details and update them.",
+  title: "Ubah karyawan — Absensi",
+  description: "Muat detail karyawan saat ini dan perbarui.",
 };
 
 /**
@@ -27,13 +27,13 @@ export default function EditEmployeePage({
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to dashboard
+          Kembali ke dasbor
         </Link>
 
-        <h1 className="text-2xl font-semibold tracking-tight">Change employee</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Ubah karyawan</h1>
         <p className="text-sm text-muted-foreground">
-          The current card is loaded below — adjust anything and save to update
-          the dashboard.
+          Kartu saat ini dimuat di bawah — sesuaikan apa pun dan simpan untuk
+          memperbarui dasbor.
         </p>
       </div>
 
@@ -54,9 +54,9 @@ function EmployeeFormSkeleton() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center gap-2 p-10 text-center">
-        <p className="font-medium">Loading employee…</p>
+        <p className="font-medium">Memuat karyawan…</p>
         <p className="text-sm text-muted-foreground">
-          Reading the saved data from the API.
+          Membaca data tersimpan dari API.
         </p>
       </CardContent>
     </Card>

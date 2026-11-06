@@ -50,7 +50,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
       setPhoto(await readPhotoFile(file));
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "That photo could not be read.",
+        cause instanceof Error ? cause.message : "Foto tidak dapat dibaca.",
       );
     }
   }
@@ -73,7 +73,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
       setError(
         cause instanceof Error
           ? cause.message
-          : "The check-in could not be saved.",
+          : "Absen tidak dapat disimpan.",
       );
     } finally {
       setIsSending(false);
@@ -86,7 +86,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
         <Avatar size="lg">
           <AvatarImage
             src={employee.avatarUrl ?? undefined}
-            alt={`${employee.fullName} avatar`}
+            alt={`Avatar ${employee.fullName}`}
           />
           <AvatarFallback>{getInitials(employee.fullName)}</AvatarFallback>
         </Avatar>
@@ -111,7 +111,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={attendance.proofUrl}
-                alt={`Check-in photo for ${employee.fullName}`}
+                alt={`Foto absen ${employee.fullName}`}
                 className="max-h-[38vh] w-full rounded-lg bg-muted object-contain"
               />
             )}
@@ -119,13 +119,13 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
             <div className="space-y-1">
               <p className="flex items-center gap-1.5">
                 <CheckCircle2 className="size-4 text-emerald-600" />
-                Checked in at{" "}
+                Absen pada{" "}
                 {attendance?.checkInTime
                   ? formatIsoClock(
                       attendance.checkInTime,
                       attendance.timezone ?? undefined,
                     )
-                  : "an unknown time"}
+                  : "waktu yang tidak diketahui"}
               </p>
 
               {attendance?.location ? (
@@ -141,7 +141,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
               ) : (
                 <p className="flex items-center gap-1.5 text-muted-foreground">
                   <MapPin className="size-4" />
-                  Location not shared
+                  Lokasi tidak dibagikan
                 </p>
               )}
             </div>
@@ -154,13 +154,13 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photo}
-                  alt="Check-in photo preview"
+                  alt="Pratinjau foto absen"
                   className="aspect-3/4 w-full rounded-lg bg-muted object-cover"
                 />
 
                 <label className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-input text-sm font-medium transition-colors hover:bg-muted">
                   <RefreshCw className="size-4" />
-                  Retake photo
+                  Ambil ulang foto
                   <input
                     type="file"
                     accept="image/*"
@@ -173,8 +173,8 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
             ) : (
               <label className="flex aspect-3/4 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:bg-muted">
                 <Camera className="size-8" />
-                <span className="font-medium">Take a check-in photo</span>
-                <span className="text-xs">Required — opens your camera</span>
+                <span className="font-medium">Ambil foto absen</span>
+                <span className="text-xs">Wajib — membuka kamera Anda</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -197,7 +197,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
               ) : (
                 <CheckCircle2 />
               )}
-              {isSending ? "Checking in…" : "Check in now"}
+              {isSending ? "Mengirim absen…" : "Absen sekarang"}
             </Button>
           </>
         )}
@@ -205,7 +205,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
         {saved && !error && (
           <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-600">
             <CheckCircle2 className="size-4" />
-            Check-in saved.
+            Absen tersimpan.
           </p>
         )}
 
@@ -216,7 +216,7 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
         )}
 
         <p className="text-center text-xs text-muted-foreground">
-          The time is recorded by the server when you check in.
+          Waktu dicatat oleh server saat Anda absen.
         </p>
       </div>
     </div>

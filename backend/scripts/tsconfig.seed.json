@@ -12,6 +12,7 @@
     "./seed.ts",
     "../apps/auth/entity/**/*.ts",
     "../apps/employee/entity/**/*.ts",
+    "../apps/attendance/entity/**/*.ts",
     "../shared/enums/**/*.ts"
   ],
   "exclude": ["../node_modules", "../dist"]

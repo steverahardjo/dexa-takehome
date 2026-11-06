@@ -1,11 +1,71 @@
 {
   "divisions": [
-    { "name": "Engineering", "description": "Product engineering and platform" },
-    { "name": "Product", "description": "Product management and design" },
-    { "name": "Human Resources", "description": "People operations" },
-    { "name": "Finance", "description": "Accounting and payroll" },
-    { "name": "Operations", "description": "Facilities and office operations" }
+    {
+      "name": "Engineering",
+      "description": "Product engineering and platform"
+    },
+    {
+      "name": "Product",
+      "description": "Product management and design"
+    },
+    {
+      "name": "Design",
+      "description": "UX, UI and brand design"
+    },
+    {
+      "name": "People Operations",
+      "description": "Hiring, onboarding and employee experience"
+    },
+    {
+      "name": "Finance",
+      "description": "Accounting, payroll and reporting"
+    },
+    {
+      "name": "Operations",
+      "description": "Facilities and office operations"
+    },
+    {
+      "name": "Sales",
+      "description": "New business and account management"
+    },
+    {
+      "name": "Marketing",
+      "description": "Growth, content and communications"
+    },
+    {
+      "name": "Customer Success",
+      "description": "Customer onboarding and support"
+    },
+    {
+      "name": "Data & Analytics",
+      "description": "Metrics, reporting and the data platform"
+    },
+    {
+      "name": "Legal & Compliance",
+      "description": "Contracts, policy and regulatory affairs"
+    },
+    {
+      "name": "IT Support",
+      "description": "Devices, access and internal tooling"
+    }
   ],
+  "avatars": {
+    "enabled": true,
+    "size": 512
+  },
+  "history": {
+    "seed": 20260101,
+    "absentRate": 0.05,
+    "lateRate": 0.22,
+    "locations": [
+      "HQ Office",
+      "HQ Office",
+      "HQ Office",
+      "Remote",
+      "Client Site"
+    ],
+    "holidays": ["01-01", "08-17", "12-25"]
+  },
   "employees": [
     {
       "employeeNumber": "EMP-0001",
@@ -14,54 +74,595 @@
       "phone": "+62 812 1000 0001",
       "joinedAt": "2024-01-02",
       "employmentStatus": "ACTIVE",
-      "divisions": ["Engineering"],
-      "identity": { "role": "MASTER_ADMIN", "status": "ACTIVE" }
+      "divisions": [
+        "Engineering"
+      ],
+      "identity": {
+        "role": "MASTER_ADMIN",
+        "status": "ACTIVE"
+      }
     },
     {
       "employeeNumber": "EMP-0002",
       "fullName": "Maya Kusuma",
-      "email": "maya@company.com",
-      "phone": "+62 812 1000 0010",
-      "joinedAt": "2024-02-19",
+      "email": "maya.kusuma@company.com",
+      "phone": "+62 812 1000 0002",
+      "joinedAt": "2023-04-03",
       "employmentStatus": "ACTIVE",
-      "divisions": ["Human Resources"],
-      "identity": { "role": "ADMIN", "status": "ACTIVE" }
+      "divisions": [
+        "People Operations"
+      ],
+      "identity": {
+        "role": "ADMIN",
+        "status": "ACTIVE"
+      }
     },
     {
       "employeeNumber": "EMP-0003",
       "fullName": "Yoga Pratama",
-      "email": "yoga@company.com",
-      "phone": "+62 812 1000 0013",
-      "joinedAt": "2024-03-04",
+      "email": "yoga.pratama@company.com",
+      "phone": "+62 812 1000 0003",
+      "joinedAt": "2022-08-15",
       "employmentStatus": "ACTIVE",
-      "divisions": ["Engineering"]
+      "divisions": [
+        "Engineering"
+      ],
+      "identity": {
+        "role": "ADMIN",
+        "status": "ACTIVE"
+      }
     },
     {
       "employeeNumber": "EMP-0004",
       "fullName": "Lina Halim",
-      "email": "lina@company.com",
-      "phone": "+62 812 1000 0016",
-      "joinedAt": "2024-05-13",
+      "email": "lina.halim@company.com",
+      "phone": "+62 812 1000 0004",
+      "joinedAt": "2021-11-01",
       "employmentStatus": "ACTIVE",
-      "divisions": ["Finance", "Operations"]
+      "divisions": [
+        "Finance",
+        "Operations"
+      ],
+      "identity": {
+        "role": "ADMIN",
+        "status": "ACTIVE"
+      }
     },
     {
       "employeeNumber": "EMP-0005",
-      "fullName": "Budi Santoso",
-      "email": "budi@company.com",
-      "phone": "+62 812 1000 0019",
-      "joinedAt": "2024-07-01",
+      "fullName": "Aditya Nugroho",
+      "email": "aditya.nugroho@company.com",
+      "phone": "+62 812 1000 0005",
+      "joinedAt": "2021-02-08",
       "employmentStatus": "ACTIVE",
-      "divisions": ["Operations"]
+      "divisions": [
+        "Engineering"
+      ]
     },
     {
       "employeeNumber": "EMP-0006",
-      "fullName": "Citra Dewi",
-      "email": "citra@company.com",
-      "phone": "+62 812 1000 0022",
+      "fullName": "Rizky Hidayat",
+      "email": "rizky.hidayat@company.com",
+      "phone": "+62 812 1000 0006",
+      "joinedAt": "2022-01-10",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering",
+        "Data & Analytics"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0007",
+      "fullName": "Sari Wulandari",
+      "email": "sari.wulandari@company.com",
+      "phone": "+62 812 1000 0007",
+      "joinedAt": "2022-05-23",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0008",
+      "fullName": "Bima Saputra",
+      "email": "bima.saputra@company.com",
+      "phone": "+62 812 1000 0008",
+      "joinedAt": "2023-02-13",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0009",
+      "fullName": "Nadia Prameswari",
+      "email": "nadia.prameswari@company.com",
+      "phone": "+62 812 1000 0009",
+      "joinedAt": "2023-07-03",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0010",
+      "fullName": "Fajar Setiawan",
+      "email": "fajar.setiawan@company.com",
+      "phone": "+62 812 1000 0010",
+      "joinedAt": "2024-02-19",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0011",
+      "fullName": "Kevin Tanuwijaya",
+      "email": "kevin.tanuwijaya@company.com",
+      "phone": "+62 812 1000 0011",
+      "joinedAt": "2024-06-03",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0012",
+      "fullName": "Putri Anggraini",
+      "email": "putri.anggraini@company.com",
+      "phone": "+62 812 1000 0012",
       "joinedAt": "2024-09-16",
       "employmentStatus": "ACTIVE",
-      "divisions": ["Product"]
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0013",
+      "fullName": "Dimas Prasetyo",
+      "email": "dimas.prasetyo@company.com",
+      "phone": "+62 812 1000 0013",
+      "joinedAt": "2025-01-06",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0014",
+      "fullName": "Anisa Rahmawati",
+      "email": "anisa.rahmawati@company.com",
+      "phone": "+62 812 1000 0014",
+      "joinedAt": "2025-03-03",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0015",
+      "fullName": "Hendra Gunawan",
+      "email": "hendra.gunawan@company.com",
+      "phone": "+62 812 1000 0015",
+      "joinedAt": "2025-07-14",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Engineering"
+      ],
+      "identity": {
+        "role": "EMPLOYEE",
+        "status": "DISABLED"
+      }
+    },
+    {
+      "employeeNumber": "EMP-0016",
+      "fullName": "Citra Dewi",
+      "email": "citra.dewi@company.com",
+      "phone": "+62 812 1000 0016",
+      "joinedAt": "2023-03-06",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Product"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0017",
+      "fullName": "Ari Wibowo",
+      "email": "ari.wibowo@company.com",
+      "phone": "+62 812 1000 0017",
+      "joinedAt": "2023-10-02",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Product"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0018",
+      "fullName": "Melati Sari",
+      "email": "melati.sari@company.com",
+      "phone": "+62 812 1000 0018",
+      "joinedAt": "2024-04-15",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Product"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0019",
+      "fullName": "Reza Maulana",
+      "email": "reza.maulana@company.com",
+      "phone": "+62 812 1000 0019",
+      "joinedAt": "2022-09-05",
+      "terminatedAt": "2026-08-14",
+      "employmentStatus": "TERMINATED",
+      "divisions": [
+        "Product"
+      ],
+      "identity": {
+        "role": "EMPLOYEE",
+        "status": "DISABLED"
+      }
+    },
+    {
+      "employeeNumber": "EMP-0020",
+      "fullName": "Jessica Lim",
+      "email": "jessica.lim@company.com",
+      "phone": "+62 812 1000 0020",
+      "joinedAt": "2025-05-05",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Product"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0021",
+      "fullName": "Intan Permata",
+      "email": "intan.permata@company.com",
+      "phone": "+62 812 1000 0021",
+      "joinedAt": "2022-11-21",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Design"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0022",
+      "fullName": "Bayu Kurniawan",
+      "email": "bayu.kurniawan@company.com",
+      "phone": "+62 812 1000 0022",
+      "joinedAt": "2023-06-12",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Design"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0023",
+      "fullName": "Clara Wijaya",
+      "email": "clara.wijaya@company.com",
+      "phone": "+62 812 1000 0023",
+      "joinedAt": "2024-01-08",
+      "terminatedAt": "2026-09-30",
+      "employmentStatus": "TERMINATED",
+      "divisions": [
+        "Design"
+      ],
+      "identity": {
+        "role": "EMPLOYEE",
+        "status": "DISABLED"
+      }
+    },
+    {
+      "employeeNumber": "EMP-0024",
+      "fullName": "Rangga Aditya",
+      "email": "rangga.aditya@company.com",
+      "phone": "+62 812 1000 0024",
+      "joinedAt": "2025-02-17",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Design"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0025",
+      "fullName": "Indah Puspita",
+      "email": "indah.puspita@company.com",
+      "phone": "+62 812 1000 0025",
+      "joinedAt": "2021-07-19",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "People Operations"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0026",
+      "fullName": "Taufik Hidayat",
+      "email": "taufik.hidayat@company.com",
+      "phone": "+62 812 1000 0026",
+      "joinedAt": "2022-03-14",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "People Operations"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0027",
+      "fullName": "Sinta Maharani",
+      "email": "sinta.maharani@company.com",
+      "phone": "+62 812 1000 0027",
+      "joinedAt": "2024-10-07",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "People Operations"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0028",
+      "fullName": "Eko Prasetyo",
+      "email": "eko.prasetyo@company.com",
+      "phone": "+62 812 1000 0028",
+      "joinedAt": "2021-05-03",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Finance"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0029",
+      "fullName": "Ratna Dewi",
+      "email": "ratna.dewi@company.com",
+      "phone": "+62 812 1000 0029",
+      "joinedAt": "2022-07-11",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Finance"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0030",
+      "fullName": "Andi Kurniawan",
+      "email": "andi.kurniawan@company.com",
+      "phone": "+62 812 1000 0030",
+      "joinedAt": "2024-03-18",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Finance"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0031",
+      "fullName": "Grace Sutanto",
+      "email": "grace.sutanto@company.com",
+      "phone": "+62 812 1000 0031",
+      "joinedAt": "2025-08-04",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Finance"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0032",
+      "fullName": "Budi Santoso",
+      "email": "budi.santoso@company.com",
+      "phone": "+62 812 1000 0032",
+      "joinedAt": "2021-09-06",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Operations"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0033",
+      "fullName": "Slamet Riyadi",
+      "email": "slamet.riyadi@company.com",
+      "phone": "+62 812 1000 0033",
+      "joinedAt": "2022-02-14",
+      "employmentStatus": "INACTIVE",
+      "divisions": [
+        "Operations"
+      ],
+      "identity": {
+        "role": "EMPLOYEE",
+        "status": "DISABLED"
+      }
+    },
+    {
+      "employeeNumber": "EMP-0034",
+      "fullName": "Wulan Sari",
+      "email": "wulan.sari@company.com",
+      "phone": "+62 812 1000 0034",
+      "joinedAt": "2023-01-16",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Operations"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0035",
+      "fullName": "Joko Susilo",
+      "email": "joko.susilo@company.com",
+      "phone": "+62 812 1000 0035",
+      "joinedAt": "2022-06-13",
+      "terminatedAt": "2026-10-16",
+      "employmentStatus": "TERMINATED",
+      "divisions": [
+        "Operations"
+      ],
+      "identity": {
+        "role": "EMPLOYEE",
+        "status": "DISABLED"
+      }
+    },
+    {
+      "employeeNumber": "EMP-0036",
+      "fullName": "Fitri Handayani",
+      "email": "fitri.handayani@company.com",
+      "phone": "+62 812 1000 0036",
+      "joinedAt": "2025-04-07",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Operations"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0037",
+      "fullName": "Dian Saputra",
+      "email": "dian.saputra@company.com",
+      "phone": "+62 812 1000 0037",
+      "joinedAt": "2022-04-04",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Sales"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0038",
+      "fullName": "Michael Chandra",
+      "email": "michael.chandra@company.com",
+      "phone": "+62 812 1000 0038",
+      "joinedAt": "2023-08-07",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Sales",
+        "Marketing"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0039",
+      "fullName": "Yuni Astuti",
+      "email": "yuni.astuti@company.com",
+      "phone": "+62 812 1000 0039",
+      "joinedAt": "2024-05-20",
+      "employmentStatus": "INACTIVE",
+      "divisions": [
+        "Sales"
+      ],
+      "identity": {
+        "role": "EMPLOYEE",
+        "status": "DISABLED"
+      }
+    },
+    {
+      "employeeNumber": "EMP-0040",
+      "fullName": "Bagus Firmansyah",
+      "email": "bagus.firmansyah@company.com",
+      "phone": "+62 812 1000 0040",
+      "joinedAt": "2025-09-01",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Sales"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0041",
+      "fullName": "Ayu Lestari",
+      "email": "ayu.lestari@company.com",
+      "phone": "+62 812 1000 0041",
+      "joinedAt": "2023-05-08",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Marketing"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0042",
+      "fullName": "Rio Febrian",
+      "email": "rio.febrian@company.com",
+      "phone": "+62 812 1000 0042",
+      "joinedAt": "2024-08-12",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Marketing"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0043",
+      "fullName": "Nadine Halim",
+      "email": "nadine.halim@company.com",
+      "phone": "+62 812 1000 0043",
+      "joinedAt": "2025-06-02",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Marketing"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0044",
+      "fullName": "Dewi Anggraeni",
+      "email": "dewi.anggraeni@company.com",
+      "phone": "+62 812 1000 0044",
+      "joinedAt": "2022-12-05",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Customer Success"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0045",
+      "fullName": "Anton Wijaya",
+      "email": "anton.wijaya@company.com",
+      "phone": "+62 812 1000 0045",
+      "joinedAt": "2023-09-11",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Customer Success"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0046",
+      "fullName": "Putra Mahendra",
+      "email": "putra.mahendra@company.com",
+      "phone": "+62 812 1000 0046",
+      "joinedAt": "2025-10-06",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Customer Success"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0047",
+      "fullName": "Gilang Ramadhan",
+      "email": "gilang.ramadhan@company.com",
+      "phone": "+62 812 1000 0047",
+      "joinedAt": "2022-10-17",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Data & Analytics"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0048",
+      "fullName": "Sarah Tan",
+      "email": "sarah.tan@company.com",
+      "phone": "+62 812 1000 0048",
+      "joinedAt": "2023-12-04",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Data & Analytics"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0049",
+      "fullName": "Patricia Halim",
+      "email": "patricia.halim@company.com",
+      "phone": "+62 812 1000 0049",
+      "joinedAt": "2024-07-15",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "Legal & Compliance"
+      ]
+    },
+    {
+      "employeeNumber": "EMP-0050",
+      "fullName": "Wahyu Santoso",
+      "email": "wahyu.santoso@company.com",
+      "phone": "+62 812 1000 0050",
+      "joinedAt": "2021-12-06",
+      "employmentStatus": "ACTIVE",
+      "divisions": [
+        "IT Support",
+        "Operations"
+      ]
     }
   ]
 }

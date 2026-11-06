@@ -151,19 +151,19 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
   function validate(): boolean {
     const nextErrors: typeof errors = {};
 
-    if (!form.fullName.trim()) nextErrors.fullName = "Full name is required.";
+    if (!form.fullName.trim()) nextErrors.fullName = "Nama lengkap wajib diisi.";
 
     if (!form.email.trim()) {
-      nextErrors.email = "Email is required.";
+      nextErrors.email = "Email wajib diisi.";
     } else if (!EMAIL.test(form.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
+      nextErrors.email = "Masukkan alamat email yang valid.";
     }
 
-    if (!form.joinedAt) nextErrors.joinedAt = "Joined date is required.";
+    if (!form.joinedAt) nextErrors.joinedAt = "Tanggal bergabung wajib diisi.";
 
     // The employee service requires an avatar key on create.
     if (!isEditing && !avatarFile) {
-      nextErrors.avatar = "Add a profile picture before saving.";
+      nextErrors.avatar = "Tambahkan foto profil sebelum menyimpan.";
     }
 
     setErrors(nextErrors);
@@ -196,7 +196,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       } else {
         if (!avatarKey) {
           // validate() already requires one; this keeps the type honest.
-          throw new Error("Add a profile picture before saving.");
+          throw new Error("Tambahkan foto profil sebelum menyimpan.");
         }
 
         await addEmployee({
@@ -217,7 +217,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       router.push("/admin/dashboard");
     } catch (error) {
       setSubmitError(
-        error instanceof Error ? error.message : "Could not save the employee.",
+        error instanceof Error ? error.message : "Karyawan tidak dapat disimpan.",
       );
       setIsSubmitting(false);
     }
@@ -231,13 +231,13 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {isEditing ? "Edit employee" : "Employee details"}
+            {isEditing ? "Ubah karyawan" : "Detail karyawan"}
           </CardTitle>
 
           <CardDescription>
             {isEditing
-              ? "The card on the dashboard updates as soon as you save."
-              : "The email becomes the employee's login identity. They can sign in with a one-time code straight away."}
+              ? "Kartu di dasbor diperbarui segera setelah Anda menyimpan."
+              : "Email menjadi identitas masuk karyawan. Mereka dapat langsung masuk dengan kode sekali pakai."}
           </CardDescription>
         </CardHeader>
 
@@ -253,11 +253,11 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
 
             <div className="min-w-0 space-y-1">
               <p className="truncate font-medium">
-                {form.fullName.trim() || (isEditing ? "Employee" : "New employee")}
+                {form.fullName.trim() || (isEditing ? "Karyawan" : "Karyawan baru")}
               </p>
 
               <p className="truncate text-sm text-muted-foreground">
-                {form.email.trim() || "employee@company.com"}
+                {form.email.trim() || "karyawan@perusahaan.com"}
               </p>
             </div>
 
@@ -271,11 +271,11 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field data-invalid={Boolean(errors.fullName)}>
-              <FieldLabel htmlFor="fullName">Full name</FieldLabel>
+              <FieldLabel htmlFor="fullName">Nama lengkap</FieldLabel>
               <Input
                 id="fullName"
                 autoComplete="name"
-                placeholder="Jane Smith"
+                placeholder="Budi Santoso"
                 value={form.fullName}
                 onChange={(event) => update("fullName", event.target.value)}
                 aria-invalid={Boolean(errors.fullName)}
@@ -289,19 +289,19 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                 id="email"
                 type="email"
                 autoComplete="email"
-                placeholder="jane@company.com"
+                placeholder="budi@perusahaan.com"
                 value={form.email}
                 onChange={(event) => update("email", event.target.value)}
                 aria-invalid={Boolean(errors.email)}
               />
               {errors.email && <FieldError>{errors.email}</FieldError>}
               <FieldDescription>
-                Changing this also changes the login identity.
+                Mengubah ini juga mengubah identitas masuk.
               </FieldDescription>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="phone">Phone</FieldLabel>
+              <FieldLabel htmlFor="phone">Telepon</FieldLabel>
               <Input
                 id="phone"
                 type="tel"
@@ -313,7 +313,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
             </Field>
 
             <Field data-invalid={Boolean(errors.joinedAt)}>
-              <FieldLabel htmlFor="joinedAt">Joined</FieldLabel>
+              <FieldLabel htmlFor="joinedAt">Bergabung</FieldLabel>
               <Input
                 id="joinedAt"
                 type="date"
@@ -327,11 +327,11 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
             {!isEditing && (
               <Field>
                 <FieldLabel htmlFor="employeeNumber">
-                  Employee number
+                  Nomor karyawan
                 </FieldLabel>
                 <Input
                   id="employeeNumber"
-                  placeholder="Generated when left empty"
+                  placeholder="Dibuat otomatis jika kosong"
                   value={form.employeeNumber}
                   onChange={(event) =>
                     update("employeeNumber", event.target.value)
@@ -342,7 +342,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
 
             {!isEditing && isMasterAdmin(session?.role) && (
               <Field>
-                <FieldLabel htmlFor="role">Role</FieldLabel>
+                <FieldLabel htmlFor="role">Peran</FieldLabel>
                 <Select
                   value={form.role}
                   onValueChange={(value) =>
@@ -362,7 +362,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                   </SelectContent>
                 </Select>
                 <FieldDescription>
-                  Only a master admin can assign a role.
+                  Hanya master admin yang dapat menetapkan peran.
                 </FieldDescription>
               </Field>
             )}
@@ -371,10 +371,10 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
               className="sm:col-span-2"
               data-invalid={Boolean(errors.avatar)}
             >
-              <FieldLabel htmlFor="avatar">Profile picture</FieldLabel>
+              <FieldLabel htmlFor="avatar">Foto profil</FieldLabel>
               <label className="inline-flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg border border-input px-2.5 text-sm transition-colors hover:bg-muted">
                 <Upload className="size-4" />
-                {avatarFile ? avatarFile.name : "Choose a JPG, PNG or WebP"}
+                {avatarFile ? avatarFile.name : "Pilih JPG, PNG, atau WebP"}
                 <input
                   id="avatar"
                   type="file"
@@ -387,18 +387,18 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
                 <FieldError>{errors.avatar}</FieldError>
               ) : (
                 <FieldDescription>
-                  Uploaded straight to storage when you save.
+                  Diunggah langsung ke penyimpanan saat Anda menyimpan.
                 </FieldDescription>
               )}
             </Field>
 
             <Field className="sm:col-span-2">
-              <FieldLabel id="division-label">Divisions</FieldLabel>
+              <FieldLabel id="division-label">Divisi</FieldLabel>
 
               {divisions.length === 0 ? (
                 <FieldDescription>
-                  No divisions exist yet. Save an employee without one, or add
-                  divisions to the database.
+                  Belum ada divisi. Simpan karyawan tanpa divisi, atau tambahkan
+                  divisi ke basis data.
                 </FieldDescription>
               ) : (
                 <div
@@ -449,7 +449,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
           disabled={isSubmitting}
         >
           <ArrowLeft />
-          Cancel
+          Batal
         </Button>
 
         <Button type="submit" size="lg" disabled={isSubmitting}>
@@ -461,7 +461,7 @@ export function EmployeeForm({ employee }: { employee?: Employee }) {
             <UserPlus />
           )}
 
-          {isEditing ? "Save changes" : "Save employee"}
+          {isEditing ? "Simpan perubahan" : "Simpan karyawan"}
         </Button>
       </div>
     </form>

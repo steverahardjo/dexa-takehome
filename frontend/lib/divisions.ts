@@ -62,7 +62,7 @@ export function refreshDivisions(): Promise<void> {
       setState({
         status: "error",
         error:
-          cause instanceof Error ? cause.message : "The request failed.",
+          cause instanceof Error ? cause.message : "Permintaan gagal.",
       });
     })
     .finally(() => {

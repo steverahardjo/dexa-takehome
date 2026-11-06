@@ -28,7 +28,7 @@ export function useNowSeconds(): number | null {
 const noopSubscribe = () => () => {};
 
 function formatToday() {
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("id-ID", {
     weekday: "long",
     day: "numeric",
     month: "long",

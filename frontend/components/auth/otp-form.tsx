@@ -86,7 +86,7 @@ export function OtpForm({
     setNotice(null)
 
     if (!isComplete) {
-      setError(`Enter the ${codeLength}-digit code from your email.`)
+      setError(`Masukkan kode ${codeLength} digit dari email Anda.`);
       return
     }
 
@@ -99,7 +99,7 @@ export function OtpForm({
       setError(
         verifyError instanceof Error
           ? verifyError.message
-          : "That code could not be verified. Please try again."
+          : "Kode tersebut tidak dapat diverifikasi. Silakan coba lagi."
       )
     } finally {
       setIsVerifying(false)
@@ -116,12 +116,12 @@ export function OtpForm({
       setCode("")
       start(expiresInSeconds)
       resend.start(resendInSeconds)
-      setNotice(`A new ${codeLength}-digit code was sent to ${email}.`)
+      setNotice(`Kode ${codeLength} digit baru telah dikirim ke ${email}.`);
     } catch (resendError) {
       setError(
         resendError instanceof Error
           ? resendError.message
-          : "We could not send a new code. Please try again."
+          : "Kami tidak dapat mengirim kode baru. Silakan coba lagi."
       )
     } finally {
       setIsResending(false)
@@ -132,10 +132,10 @@ export function OtpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Check your email</CardTitle>
+          <CardTitle>Periksa email Anda</CardTitle>
           <CardDescription>
-            We sent a {codeLength}-digit confirmation code to your inbox.
-            Enter it below to continue.
+            Kami mengirim kode konfirmasi {codeLength} digit ke kotak masuk
+            Anda. Masukkan di bawah untuk melanjutkan.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -160,14 +160,14 @@ export function OtpForm({
                       disabled={isVerifying}
                     >
                       <PencilIcon />
-                      Change
+                      Ubah
                     </Button>
                   )}
                 </div>
               </Field>
 
               <Field data-invalid={Boolean(error)}>
-                <FieldLabel htmlFor="otp-code">Confirmation code</FieldLabel>
+                <FieldLabel htmlFor="otp-code">Kode konfirmasi</FieldLabel>
                 <InputOTP
                   id="otp-code"
                   value={code}
@@ -194,8 +194,8 @@ export function OtpForm({
                 </InputOTP>
                 <FieldDescription id={hintId}>
                   {isActive
-                    ? `The code expires in ${formatCountdown(secondsLeft)}.`
-                    : "This code has expired. Request a new one to continue."}
+                    ? `Kode kedaluwarsa dalam ${formatCountdown(secondsLeft)}.`
+                    : "Kode ini telah kedaluwarsa. Minta kode baru untuk melanjutkan."}
                 </FieldDescription>
                 <FieldError id={errorId}>{error}</FieldError>
               </Field>
@@ -205,13 +205,13 @@ export function OtpForm({
                   {isVerifying && (
                     <LoaderCircleIcon className="animate-spin" />
                   )}
-                  {isVerifying ? "Verifying…" : "Verify code"}
+                  {isVerifying ? "Memverifikasi…" : "Verifikasi kode"}
                 </Button>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm text-muted-foreground tabular-nums">
                     {resend.isActive
-                      ? `Resend available in ${formatCountdown(resend.secondsLeft)}`
-                      : "Didn't get the code?"}
+                      ? `Kirim ulang tersedia dalam ${formatCountdown(resend.secondsLeft)}`
+                      : "Tidak menerima kode?"}
                   </p>
                   <Button
                     type="button"
@@ -225,7 +225,7 @@ export function OtpForm({
                     ) : (
                       <RotateCwIcon />
                     )}
-                    {isResending ? "Sending…" : "Resend code"}
+                    {isResending ? "Mengirim…" : "Kirim ulang kode"}
                   </Button>
                 </div>
                 <p aria-live="polite" className="text-sm text-muted-foreground">

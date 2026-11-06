@@ -11,22 +11,20 @@ export function timeToMinutes(value: string): number | null {
   return hours * 60 + minutes;
 }
 
-/** `"09:00"` -> `"9:00 AM"`; invalid input is returned untouched. */
+/** `"09:00"` -> `"09.00"`; invalid input is returned untouched. */
 export function formatClockTime(value: string): string {
   const totalMinutes = timeToMinutes(value);
 
   if (totalMinutes === null) return value;
 
-  const hours24 = Math.floor(totalMinutes / 60);
+  const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  const period = hours24 >= 12 ? "PM" : "AM";
-  const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
 
-  return `${hours12}:${String(minutes).padStart(2, "0")} ${period}`;
+  return `${String(hours).padStart(2, "0")}.${String(minutes).padStart(2, "0")}`;
 }
 
 /**
- * An ISO timestamp -> `"9:05 AM"` in the company timezone.
+ * An ISO timestamp -> `"09.05"` in the company timezone.
  *
  * Check-in times come back as `date-time` strings, not `HH:mm`, and they are
  * recorded in `COMPANY_TIMEZONE`, so the browser's own zone is only a fallback
@@ -41,9 +39,10 @@ export function formatIsoClock(
   if (Number.isNaN(date.getTime())) return value;
 
   const format = (zone?: string) =>
-    new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
+    new Intl.DateTimeFormat("id-ID", {
+      hour: "2-digit",
       minute: "2-digit",
+      hour12: false,
       ...(zone ? { timeZone: zone } : {}),
     }).format(date);
 
@@ -65,7 +64,7 @@ export function formatDate(value: string | null | undefined): string {
 
   if (!match) return value;
 
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -73,14 +72,14 @@ export function formatDate(value: string | null | undefined): string {
   }).format(new Date(Date.UTC(+match[1], +match[2] - 1, +match[3])));
 }
 
-/** `5432` -> `"1h 30m"` */
+/** `5432` -> `"1j 30m"` */
 export function formatDurationShort(totalSeconds: number): string {
   const safe = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(safe / 3600);
   const minutes = Math.floor((safe % 3600) / 60);
 
-  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}j ${minutes}m`;
   if (minutes > 0) return `${minutes}m`;
 
-  return "under a minute";
+  return "kurang dari semenit";
 }

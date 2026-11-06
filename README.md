@@ -105,8 +105,11 @@ Use **the same address you signed up to Resend with**, otherwise the OTP email
 is refused. Unknown addresses are ignored on purpose (no account enumeration),
 so a wrong seed email looks exactly like "the mail never arrived".
 
-The other five seeded people (`maya@company.com`, `yoga@company.com`, …) are
-ordinary employees; you can leave them, change them, or delete them.
+The other 49 seeded people (`maya.kusuma@company.com`, `yoga.pratama@company.com`, …)
+are ordinary employees across 12 divisions; you can leave them, change them, or
+delete them. They also give the demo its attendance history: the seeder
+backfills this year's check-ins, late arrivals and absences for active staff,
+from January 1st through today.
 
 ### 1.3 Prefill the sign-in form (optional but handy)
 
@@ -138,8 +141,8 @@ Then load the UI: <http://localhost:3000>.
 building, copy the new file into the running container and re-seed:
 
 ```bash
-docker compose cp backend/seed.json employee:/app/seed.json
-docker compose exec employee node dist/seed/scripts/seed.js
+docker compose cp backend/seed.json storage:/app/seed.json
+docker compose exec storage node dist/seed/scripts/seed.js
 ```
 
 ## 3. Seed the database
@@ -148,18 +151,29 @@ The schema is created by the services on boot (`DB_SYNCHRONIZE=true`), but the
 rows come from the seeder — run it once, after the stack is healthy:
 
 ```bash
-docker compose exec employee node dist/seed/scripts/seed.js
+docker compose exec storage node dist/seed/scripts/seed.js
 ```
 
-From `backend/` the equivalent is `npm run seed:docker`. The seed is an upsert
+From `backend/` the equivalent is `npm run seed:docker`. The seeder needs both
+the database and object storage, so it runs in the storage container, which is
+the one compose service holding both sets of credentials.
+
+The seed is an upsert
 keyed by employee number, email and division name, so re-running it converges
 instead of duplicating; it also prints what it created (`+`), updated (`~`) or
-left alone (`=`).
+left alone (`=`). The same run backfills weekday attendance history for the
+demo roster, from January 1st through today, and uploads a generated sample
+avatar for every employee without one; both parts are additive, so real
+check-ins, absent sweeps and uploaded pictures survive a re-seed
+(`backend/README.md` documents the `avatars` and `history` blocks).
 
 You should see:
 
 ```
-Plan: 5 division(s), 6 employee(s)
+Plan: 12 division(s), 50 employee(s)
+  history   2026-01-01 → 2026-11-06 (this year, today included): 22% late, 5% absent, ~10459 row(s)
+  holidays  01-01, 08-17, 12-25
+  avatars   512px initials PNGs for every employee without a picture
 + division  Engineering
 ...
 + employee  EMP-0001  you@example.com  MASTER_ADMIN  [Engineering]
@@ -215,7 +229,7 @@ docker compose exec db mysql -uattendance -pattend1234 absences -e \
 ```bash
 docker compose down -v      # stops everything and drops the MySQL and RustFS volumes
 docker compose up -d --build
-docker compose exec employee node dist/seed/scripts/seed.js
+docker compose exec storage node dist/seed/scripts/seed.js
 ```
 
 ---

@@ -66,7 +66,7 @@ export default function LoginPage() {
     const trimmed = address.trim();
 
     if (!trimmed) {
-      throw new Error("Enter your email address to continue.");
+      throw new Error("Masukkan alamat email Anda untuk melanjutkan.");
     }
 
     await requestCode(trimmed);

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { id as indonesian } from "date-fns/locale";
 import { LoaderCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -54,10 +55,10 @@ export function EmployeeCalendar({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{employee.fullName}: late days</DialogTitle>
+          <DialogTitle>{employee.fullName}: hari terlambat</DialogTitle>
           <DialogDescription>
-            Red dates indicate late attendance in {YEAR}. Select one to
-            highlight the day.
+            Tanggal merah menunjukkan keterlambatan pada {YEAR}. Pilih satu
+            untuk menyorot hari tersebut.
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +103,7 @@ function LateYear({ employeeId, year }: LateYearProps) {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "The late days could not be loaded.",
+            : "Hari terlambat tidak dapat dimuat.",
         );
       }
     }
@@ -149,7 +150,7 @@ function LateYear({ employeeId, year }: LateYearProps) {
         <p className="text-sm text-destructive">{error}</p>
 
         <Button variant="outline" size="sm" onClick={retry}>
-          Try again
+          Coba lagi
         </Button>
       </div>
     );
@@ -159,6 +160,7 @@ function LateYear({ employeeId, year }: LateYearProps) {
     <div className="flex flex-col items-center gap-3">
       <Calendar
         mode="single"
+        locale={indonesian}
         month={month}
         onMonthChange={setMonth}
         selected={selected}
@@ -186,26 +188,24 @@ function LateYear({ employeeId, year }: LateYearProps) {
         <div className="flex items-center justify-between text-sm">
           <span className="flex items-center gap-2 text-muted-foreground">
             <span className="size-2.5 rounded-sm bg-rose-500" />
-            Late attendance
+            Keterlambatan
           </span>
 
           <span className="text-muted-foreground">
             {lateDays === null
-              ? "Loading…"
-              : `${lateDays.length} late ${
-                  lateDays.length === 1 ? "day" : "days"
-                }`}
+              ? "Memuat…"
+              : `${lateDays.length} hari terlambat`}
           </span>
         </div>
 
         {lateDays === null ? (
           <p className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground">
             <LoaderCircleIcon className="size-4 animate-spin" />
-            Loading {year}…
+            Memuat {year}…
           </p>
         ) : lateDays.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground">
-            No late attendance in {year}.
+            Tidak ada keterlambatan pada {year}.
           </p>
         ) : null}
       </div>
