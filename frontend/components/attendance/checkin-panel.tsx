@@ -171,18 +171,20 @@ export function CheckInPanel({ employee }: { employee: MeView }) {
                 </label>
               </div>
             ) : (
-              <label className="flex aspect-3/4 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:bg-muted">
-                <Camera className="size-8" />
-                <span className="font-medium">Ambil foto absen</span>
-                <span className="text-xs">Wajib — membuka kamera Anda</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="sr-only"
-                  onChange={handlePhotoChange}
-                />
-              </label>
+            <label className="flex aspect-3/4 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-muted-foreground transition-colors hover:bg-muted">
+  <Camera className="size-8" />
+
+  <span className="font-medium">Ambil foto absen</span>
+  <span className="text-xs">Wajib — membuka kamera Anda</span>
+
+  <input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    className="absolute h-px w-px opacity-0"
+    onChange={handlePhotoChange}
+  />
+</label>
             )}
 
             <Button
