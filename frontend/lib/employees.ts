@@ -236,6 +236,17 @@ export function getInitials(name: string) {
     .join("");
 }
 
+/**
+ * One employee, read straight from the API.
+ *
+ * The shared list store holds ACTIVE people only — that is what the directory
+ * returns — so an edit screen opened for an inactive or terminated person has to
+ * ask for them by id instead of looking them up in the store.
+ */
+export async function getEmployee(employeeId: string): Promise<Employee> {
+  return api<Employee>(`/admin/employees/${employeeId}`);
+}
+
 export async function addEmployee(input: NewEmployee): Promise<Employee> {
   const employee = await api<Employee>("/admin/employees", {
     method: "POST",

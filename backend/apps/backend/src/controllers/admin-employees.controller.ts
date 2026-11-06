@@ -119,7 +119,7 @@ export class AdminEmployeesController {
   @ApiOperation({
     summary: 'List employees',
     description:
-      'Paginated, newest first. `avatarUrl` is a presigned URL that expires, so it should not be cached.',
+      'Paginated, newest first. ACTIVE employees only unless `status` asks for another employment status. `avatarUrl` is a presigned URL that expires, so it should not be cached.',
   })
   @ApiOkResponse({
     type: EmployeeListModel,

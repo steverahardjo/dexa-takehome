@@ -44,7 +44,12 @@ export class EmployeeQueryDto {
   @IsUUID()
   divisionId?: string;
 
-  @ApiPropertyOptional({ enum: EmploymentStatus })
+  @ApiPropertyOptional({
+    enum: EmploymentStatus,
+    default: EmploymentStatus.ACTIVE,
+    description:
+      'Employment status to list. Defaults to ACTIVE: the directory only shows the people who are expected to check in, and the others have to be asked for by name.',
+  })
   @IsOptional()
   @IsEnum(EmploymentStatus)
   status?: EmploymentStatus;

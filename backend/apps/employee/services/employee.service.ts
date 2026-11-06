@@ -224,22 +224,29 @@ export class EmployeeService {
     return this.toView(await this.findEntity(id));
   }
 
+  /**
+   * A page of the directory, ACTIVE employees only unless another status is
+   * asked for.
+   *
+   * Defaulting to ACTIVE keeps the list and the attendance report in agreement:
+   * only active people are expected to check in, so an INACTIVE or TERMINATED
+   * person in a dashboard grid would look like someone who forgot to check in.
+   * Their record is still reachable through `GET /admin/employees/:id`, and
+   * `?status=` reaches the others on purpose (e.g. for rehiring).
+   */
   async list(query: EmployeeQueryDto): Promise<EmployeeListResult> {
+    const status = query.status ?? EmploymentStatus.ACTIVE;
+
     const builder = this.employees
       .createQueryBuilder('employee')
-      .leftJoinAndSelect('employee.divisions', 'division');
+      .leftJoinAndSelect('employee.divisions', 'division')
+      .andWhere('employee.employmentStatus = :status', { status });
 
     if (query.search) {
       builder.andWhere(
         '(employee.fullName LIKE :search OR employee.email LIKE :search OR employee.employeeNumber LIKE :search)',
         { search: `%${query.search}%` },
       );
-    }
-
-    if (query.status) {
-      builder.andWhere('employee.employmentStatus = :status', {
-        status: query.status,
-      });
     }
 
     if (query.divisionId) {

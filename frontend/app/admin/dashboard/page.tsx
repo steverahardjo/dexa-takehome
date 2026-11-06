@@ -88,6 +88,17 @@ export default function EmployeeDashboard() {
     const needle = search.trim().toLowerCase();
 
     return employees.filter((employee) => {
+      /**
+       * Only people who are expected to check in.
+       *
+       * `GET /admin/employees` already lists ACTIVE employees only, and
+       * `GET /attendance/today` builds its rows from the same set. Repeating the
+       * rule here keeps the grid honest if the shared store ever holds an
+       * INACTIVE or TERMINATED person: their card would have no report row and
+       * would read "Belum absen hari ini" although nothing was expected.
+       */
+      if (employee.employmentStatus !== "ACTIVE") return false;
+
       const matchesSearch =
         !needle ||
         employee.fullName.toLowerCase().includes(needle) ||
@@ -293,13 +304,16 @@ export default function EmployeeDashboard() {
 
       {/* Employee List */}
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="font-semibold">Karyawan</h2>
+        <h2 className="font-semibold">Karyawan aktif</h2>
         <Badge variant="secondary">
           {filteredEmployees.length} hasil
         </Badge>
         {report && (
           <Badge variant="outline">{report.totalEmployees} diharapkan</Badge>
         )}
+        <span className="text-xs text-muted-foreground">
+          Karyawan tidak aktif dan berhenti tidak dihitung.
+        </span>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

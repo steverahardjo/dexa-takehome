@@ -262,7 +262,7 @@ Admin (`ADMIN` or `MASTER_ADMIN` token):
 | Method   | Path                              | Notes                          |
 | -------- | --------------------------------- | ------------------------------ |
 | `GET`    | `/admin/divisions`                | Unpaginated list of divisions  |
-| `GET`    | `/admin/employees`                | Paged and searchable           |
+| `GET`    | `/admin/employees`                | Paged and searchable; active employees only (`?status=` for the others) |
 | `POST`   | `/admin/employees`                | Add an employee (and their identity) |
 | `POST`   | `/admin/employees/avatar/upload-url` | Presigned avatar upload     |
 | `GET`    | `/admin/employees/:id`            | One employee                   |
