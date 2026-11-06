@@ -278,6 +278,8 @@ services:
       # Every /api/* call is rewritten to the gateway from inside this
       # container, so the browser never needs to know it exists.
       GATEWAY_URL: http://gateway:3003
+      # Prefills the sign-in form; must match the seed's admin address.
+      NEXT_PUBLIC_DEMO_EMAIL: ${NEXT_PUBLIC_DEMO_EMAIL:-}
     volumes:
       - ./frontend:/app
       # Keep the image's install and the dev build cache: mounting ./frontend

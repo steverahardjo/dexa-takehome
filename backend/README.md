@@ -68,9 +68,11 @@ comes from:
 ```
 
 `identity` is optional and defaults to `EMPLOYEE`/`ACTIVE`. Signing in still
-needs a way to receive the OTP: the `log` email provider refuses to run under
-`NODE_ENV=production`, so set `NODE_ENV=development` (see `.env.example`) and
-read the code from `docker compose logs auth`.
+needs a way to receive the OTP. The compose stack runs with
+`NODE_ENV=production` and `EMAIL_PROVIDER=resend`, so set `RESEND_API_KEY` (and
+a sender on a verified Resend domain, or `onboarding@resend.dev`) in the root
+`.env`. Only for local runs outside compose you can use `EMAIL_PROVIDER=log`
+with `NODE_ENV=development` and read the code from the process log.
 
 ## Compile and run the project
 
