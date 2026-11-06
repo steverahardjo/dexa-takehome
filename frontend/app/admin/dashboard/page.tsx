@@ -31,11 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EmployeeCard } from "@/components/employees/employee-card";
-import {
-  ATTENDANCE_STATUSES,
-  attendanceTone,
-  type AttendanceStatus,
-} from "@/lib/attendance";
+import { attendanceTone, type AttendanceStatus } from "@/lib/attendance";
 import { useTodayLabel } from "@/lib/clock";
 import { useDivisionsState } from "@/lib/divisions";
 import { useEmployeesState } from "@/lib/employees";
@@ -53,6 +49,17 @@ const STATUS_LABELS: Record<AttendanceStatus, string> = {
 };
 
 type StatusFilter = "all" | AttendanceStatus;
+
+/**
+ * The only statuses worth filtering on from this screen: who is late, who has
+ * not checked in yet, and who is already done. `ABSENT`, `ON_LEAVE` and
+ * `NOT_WORKING` still exist on the wire, they are just not offered here.
+ */
+const FILTER_STATUSES = [
+  "ON_TIME",
+  "LATE",
+  "NOT_CHECKED_IN",
+] as const satisfies readonly AttendanceStatus[];
 
 /**
  * The HR view: everyone, today's counters and each person's day.
@@ -242,7 +249,7 @@ export default function EmployeeDashboard() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua kehadiran</SelectItem>
-                {ATTENDANCE_STATUSES.map((option) => (
+                {FILTER_STATUSES.map((option) => (
                   <SelectItem key={option} value={option}>
                     {STATUS_LABELS[option]}
                   </SelectItem>
