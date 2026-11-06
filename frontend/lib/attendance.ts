@@ -138,6 +138,17 @@ export type AttendanceSummary = {
   detail: string;
 };
 
+/**
+ * Everything `getAttendance` needs. `AttendanceView` and a `TodayItem` both
+ * fit, which keeps the card and the phone screen on one set of labels.
+ */
+export type AttendanceLike = {
+  status: AttendanceStatus;
+  checkInTime: string | null;
+  lateMinutes?: number;
+  timezone?: string | null;
+};
+
 function lateSuffix(lateMinutes: number): string {
   if (lateMinutes <= 0) return "";
 
@@ -152,7 +163,7 @@ function lateSuffix(lateMinutes: number): string {
  * the server: the browser never decides that someone was late.
  */
 export function getAttendance(
-  attendance: Attendance | null,
+  attendance: AttendanceLike | null | undefined,
 ): AttendanceSummary {
   if (!attendance) {
     return {
@@ -172,7 +183,7 @@ export function getAttendance(
       attendance.timezone ?? undefined,
     );
 
-    detail = `Checked in at ${time}${lateSuffix(attendance.lateMinutes)}`;
+    detail = `Checked in at ${time}${lateSuffix(attendance.lateMinutes ?? 0)}`;
   } else {
     switch (status) {
       case "ABSENT":

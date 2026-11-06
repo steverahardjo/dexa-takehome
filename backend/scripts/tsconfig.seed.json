@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../dist/seed",
+    "composite": false,
+    "declaration": false,
+    "incremental": false,
+    "types": ["node"]
+  },
+  "include": [
+    "./seed.ts",
+    "../apps/auth/entity/**/*.ts",
+    "../apps/employee/entity/**/*.ts",
+    "../shared/enums/**/*.ts"
+  ],
+  "exclude": ["../node_modules", "../dist"]
+}

@@ -1,0 +1,67 @@
+{
+  "divisions": [
+    { "name": "Engineering", "description": "Product engineering and platform" },
+    { "name": "Product", "description": "Product management and design" },
+    { "name": "Human Resources", "description": "People operations" },
+    { "name": "Finance", "description": "Accounting and payroll" },
+    { "name": "Operations", "description": "Facilities and office operations" }
+  ],
+  "employees": [
+    {
+      "employeeNumber": "EMP-0001",
+      "fullName": "Steve Jevon",
+      "email": "steve.jevon.r@gmail.com",
+      "phone": "+62 812 1000 0001",
+      "joinedAt": "2024-01-02",
+      "employmentStatus": "ACTIVE",
+      "divisions": ["Engineering"],
+      "identity": { "role": "MASTER_ADMIN", "status": "ACTIVE" }
+    },
+    {
+      "employeeNumber": "EMP-0002",
+      "fullName": "Maya Kusuma",
+      "email": "maya@company.com",
+      "phone": "+62 812 1000 0010",
+      "joinedAt": "2024-02-19",
+      "employmentStatus": "ACTIVE",
+      "divisions": ["Human Resources"],
+      "identity": { "role": "ADMIN", "status": "ACTIVE" }
+    },
+    {
+      "employeeNumber": "EMP-0003",
+      "fullName": "Yoga Pratama",
+      "email": "yoga@company.com",
+      "phone": "+62 812 1000 0013",
+      "joinedAt": "2024-03-04",
+      "employmentStatus": "ACTIVE",
+      "divisions": ["Engineering"]
+    },
+    {
+      "employeeNumber": "EMP-0004",
+      "fullName": "Lina Halim",
+      "email": "lina@company.com",
+      "phone": "+62 812 1000 0016",
+      "joinedAt": "2024-05-13",
+      "employmentStatus": "ACTIVE",
+      "divisions": ["Finance", "Operations"]
+    },
+    {
+      "employeeNumber": "EMP-0005",
+      "fullName": "Budi Santoso",
+      "email": "budi@company.com",
+      "phone": "+62 812 1000 0019",
+      "joinedAt": "2024-07-01",
+      "employmentStatus": "ACTIVE",
+      "divisions": ["Operations"]
+    },
+    {
+      "employeeNumber": "EMP-0006",
+      "fullName": "Citra Dewi",
+      "email": "citra@company.com",
+      "phone": "+62 812 1000 0022",
+      "joinedAt": "2024-09-16",
+      "employmentStatus": "ACTIVE",
+      "divisions": ["Product"]
+    }
+  ]
+}

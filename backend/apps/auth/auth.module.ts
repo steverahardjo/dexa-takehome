@@ -26,7 +26,9 @@ import { OtpService } from './services/otp.service.js';
  *   JWT_ACCESS_TTL_SECONDS  access token lifetime, default 900
  *   OTP_HASH_SECRET         HMAC key for stored codes (required)
  *   OTP_EXPIRY_SECONDS      code lifetime, default 300
- *   EMAIL_PROVIDER          email delivery provider, default "log"
+ *   EMAIL_PROVIDER          "log" (default) or "resend"
+ *   RESEND_API_KEY          Resend API key, required for the resend provider
+ *   EMAIL_FROM              sender, must be on a domain verified in Resend
  *   DB_SYNCHRONIZE          "false" to disable schema sync, default true
  */
 @Module({

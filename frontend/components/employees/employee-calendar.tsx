@@ -1,47 +1,49 @@
+"use client";
 
-"use client"
+import * as React from "react";
+import { LoaderCircleIcon } from "lucide-react";
 
-import * as React from "react"
-import { LoaderCircleIcon } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Calendar, CalendarDayButton } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button";
+import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { api } from "@/lib/api"
-import type { Employee } from "@/lib/employees"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dialog";
+import { api } from "@/lib/api";
+import type { Employee } from "@/lib/employees";
+import { cn } from "@/lib/utils";
 
-const YEAR = new Date().getFullYear()
+const YEAR = new Date().getFullYear();
 
-type LateDay = {
-  date: string
-  late: number
-}
+/** Mirrors `LateDatesResult` in the shared attendance contracts. */
+type LateDatesResult = {
+  employeeId: string;
+  year: number;
+  lateCount: number;
+  lateDates: string[];
+};
 
 function dayKey(date: Date) {
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
-  return `${date.getFullYear()}-${month}-${day}`
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 function parseDay(value: string) {
-  const [year, month, day] = value.slice(0, 10).split("-").map(Number)
+  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
 
-  return new Date(year, month - 1, day)
+  return new Date(year, month - 1, day);
 }
 
 export type EmployeeCalendarProps = {
-  employee: Employee
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
+  employee: Employee;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
 
 export function EmployeeCalendar({
   employee,
@@ -52,7 +54,7 @@ export function EmployeeCalendar({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{employee.name}: late days</DialogTitle>
+          <DialogTitle>{employee.fullName}: late days</DialogTitle>
           <DialogDescription>
             Red dates indicate late attendance in {YEAR}. Select one to
             highlight the day.
@@ -61,86 +63,84 @@ export function EmployeeCalendar({
 
         <LateYear
           key={`${employee.id}-${open}`}
-          employee={employee}
+          employeeId={employee.id}
           year={YEAR}
         />
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 type LateYearProps = {
-  employee: Employee
-  year: number
-}
+  employeeId: string;
+  year: number;
+};
 
-function LateYear({ employee, year }: LateYearProps) {
-  const [lateDays, setLateDays] = React.useState<LateDay[] | null>(null)
-  const [error, setError] = React.useState<string | null>(null)
-  const [attempt, setAttempt] = React.useState(0)
-  const [selected, setSelected] = React.useState<Date>()
-  const [month, setMonth] = React.useState(
-    () => new Date(year, 0, 1)
-  )
+function LateYear({ employeeId, year }: LateYearProps) {
+  const [lateDays, setLateDays] = React.useState<string[] | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [attempt, setAttempt] = React.useState(0);
+  const [selected, setSelected] = React.useState<Date>();
+  const [month, setMonth] = React.useState(() => new Date(year, 0, 1));
 
   React.useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function load() {
       try {
-        const result = await api<LateDay[]>(
-          `/admin/employees/${employee.id}/late-days?year=${year}`
-        )
+        const result = await api<LateDatesResult>(
+          `/admin/employees/${employeeId}/late-days?year=${year}`,
+        );
 
-        if (cancelled) return
+        if (cancelled) return;
 
-        setLateDays(result)
-        setError(null)
+        setLateDays(result.lateDates);
+        setError(null);
       } catch (loadError) {
-        if (cancelled) return
+        if (cancelled) return;
 
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "The late days could not be loaded."
-        )
+            : "The late days could not be loaded.",
+        );
       }
     }
 
-    void load()
+    void load();
 
     return () => {
-      cancelled = true
-    }
-  }, [employee.id, year, attempt])
+      cancelled = true;
+    };
+  }, [employeeId, year, attempt]);
 
   function retry() {
-    setLateDays(null)
-    setError(null)
-    setAttempt((current) => current + 1)
+    setLateDays(null);
+    setError(null);
+    setAttempt((current) => current + 1);
   }
 
   const late = React.useMemo(
-    () => (lateDays ?? []).map((day) => parseDay(day.date)),
-    [lateDays]
-  )
+    () => (lateDays ?? []).map((day) => parseDay(day)),
+    [lateDays],
+  );
 
   const lateDateKeys = React.useMemo(
-    () => new Set((lateDays ?? []).map((day) => day.date.slice(0, 10))),
-    [lateDays]
-  )
+    () => new Set((lateDays ?? []).map((day) => day.slice(0, 10))),
+    [lateDays],
+  );
 
   function handleSelect(date: Date | undefined) {
-    if (!date) return
+    if (!date) return;
 
-    const dateKey = dayKey(date)
+    const dateKey = dayKey(date);
 
     // Only late dates can be selected.
-    if (!lateDateKeys.has(dateKey)) return
+    if (!lateDateKeys.has(dateKey)) return;
 
     // Client-side state only. No API request.
-    setSelected(date)
-    setMonth(new Date(date.getFullYear(), date.getMonth(), 1))
+    setSelected(date);
+    setMonth(new Date(date.getFullYear(), date.getMonth(), 1));
   }
 
   if (error) {
@@ -152,7 +152,7 @@ function LateYear({ employee, year }: LateYearProps) {
           Try again
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -174,7 +174,7 @@ function LateYear({ employee, year }: LateYearProps) {
               className={cn(
                 props.className,
                 props.modifiers.late &&
-                  "cursor-pointer bg-rose-500 font-semibold text-white hover:bg-rose-600 focus-visible:ring-rose-500/50 data-[selected-single=true]:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500"
+                  "cursor-pointer bg-rose-500 font-semibold text-white hover:bg-rose-600 focus-visible:ring-rose-500/50 data-[selected-single=true]:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500",
               )}
             />
           ),
@@ -207,8 +207,8 @@ function LateYear({ employee, year }: LateYearProps) {
           <p className="text-center text-sm text-muted-foreground">
             No late attendance in {year}.
           </p>
-        ) : null }
+        ) : null}
       </div>
     </div>
-  )
+  );
 }

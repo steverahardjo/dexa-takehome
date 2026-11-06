@@ -31,6 +31,47 @@
 $ npm install
 ```
 
+## Seed data
+
+`seed.json` holds the divisions and the employees the stack starts with, and
+`scripts/seed.ts` is the runner that ingests it. It compiles with the repo's own
+`tsc` (no extra dependency) and writes through the same entities the services
+own; it never synchronizes the schema, so start the services first and let them
+create the tables.
+
+```bash
+$ npm run seed                      # build the runner, then ingest ./seed.json
+$ npm run seed -- --dry-run         # validate the file, print the plan, no writes
+$ npm run seed -- --file other.json # ingest another file
+$ npm run seed:docker               # same, inside the compose network (DB_HOST=db)
+```
+
+Connection settings come from the usual `DB_*` variables (defaults match
+docker-compose: `127.0.0.1:3306`, `attendance`/`attend1234`, database
+`absences`). Every write is an upsert keyed by `employee_number`, `email` and the
+division `name`, so re-running converges instead of duplicating; a run is one
+transaction, and a conflicting file is rejected with every problem listed at
+once.
+
+An entry creates its identity too, so the file is also where the first admin
+comes from:
+
+```json
+{
+  "employeeNumber": "EMP-0001",
+  "fullName": "Steve Jevon",
+  "email": "steve.jevon.r@gmail.com",
+  "joinedAt": "2024-01-02",
+  "divisions": ["Engineering"],
+  "identity": { "role": "MASTER_ADMIN", "status": "ACTIVE" }
+}
+```
+
+`identity` is optional and defaults to `EMPLOYEE`/`ACTIVE`. Signing in still
+needs a way to receive the OTP: the `log` email provider refuses to run under
+`NODE_ENV=production`, so set `NODE_ENV=development` (see `.env.example`) and
+read the code from `docker compose logs auth`.
+
 ## Compile and run the project
 
 ```bash

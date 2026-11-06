@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../dist/email-smoke",
+    "composite": false,
+    "declaration": false,
+    "incremental": false,
+    "types": ["node"]
+  },
+  "include": [
+    "./email-smoke.ts",
+    "../apps/auth/services/email.service.ts",
+    "../shared/rpc/**/*.ts"
+  ],
+  "exclude": ["../node_modules", "../dist"]
+}

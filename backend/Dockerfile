@@ -13,9 +13,13 @@ RUN npm ci
 COPY tsconfig.json tsconfig.build.json nest-cli.json ./
 COPY apps ./apps
 COPY shared ./shared
+COPY scripts ./scripts
+COPY seed.json ./
 
 # Every app is a separate rspack project, so each one is built explicitly.
-RUN npm run build:all
+# The seed runner is a plain tsc project that lands next to them in dist/seed,
+# so `node dist/seed/scripts/seed.js` works inside the runtime image too.
+RUN npm run build:all && npm run seed:build
 
 FROM node:22-alpine AS runtime
 WORKDIR /app
@@ -27,6 +31,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
+# Compose runs the seeder from /app, so the data file has to sit next to it:
+#   docker compose run --rm employee node dist/seed/scripts/seed.js
+COPY seed.json ./seed.json
 
 # The gateway is the only process that publishes a port; the others are started
 # with `command: node dist/apps/<service>/main.js`.

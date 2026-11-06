@@ -25,12 +25,17 @@
     "start:attendance:dev": "nest start attendance --watch",
     "start:storage": "nest start storage",
     "start:storage:dev": "nest start storage --watch",
-    "lint": "oxlint --type-aware apps/ shared/",
+    "lint": "oxlint --type-aware apps/ shared/ scripts/",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.ts"
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "seed:build": "tsc -p scripts/tsconfig.seed.json",
+    "seed": "npm run seed:build && node dist/seed/scripts/seed.js",
+    "seed:docker": "docker compose -f ../docker-compose.yml run --rm employee node dist/seed/scripts/seed.js",
+    "email:smoke:build": "tsc -p scripts/tsconfig.email-smoke.json",
+    "email:smoke": "npm run email:smoke:build && node dist/email-smoke/scripts/email-smoke.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -51,6 +56,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
+    "resend": "^6.37.0",
     "rxjs": "^7.8.1",
     "typeorm": "^1.1.2"
   },

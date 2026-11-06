@@ -1,9 +1,8 @@
-
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
-import { Clock, ExternalLink, ImageIcon, MapPin } from "lucide-react";
+import { CalendarDays, ExternalLink, ImageIcon, MapPin } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -19,19 +18,34 @@ import {
 } from "@/components/ui/dialog";
 import { EmployeeCalendar } from "@/components/employees/employee-calendar";
 import { attendanceTone, getAttendance } from "@/lib/attendance";
+import { divisionNames, type Division } from "@/lib/divisions";
 import { getInitials, type Employee } from "@/lib/employees";
-import { formatCoordinates, googleMapsUrl } from "@/lib/maps";
-import { formatClockTime } from "@/lib/time";
+import { googleMapsUrl } from "@/lib/maps";
+import { formatDate, formatIsoClock } from "@/lib/time";
+import type { TodayItem } from "@/lib/today";
 
 /**
- * Employee info card.
- * The header band is green when the employee checked in today
- * and dark while there is no check-in yet.
+ * One employee in the dashboard grid.
+ *
+ * The status, the check-in time, the location and the proof photo all come from
+ * today's report row (`TodayItem`), because they live in the attendance
+ * database, not on the employee. `today` is undefined when the report has no
+ * row for this person — which is what "not checked in yet" looks like.
  */
-export function EmployeeCard({ employee }: { employee: Employee }) {
-  const attendance = getAttendance(employee);
+export function EmployeeCard({
+  employee,
+  today,
+  divisions,
+}: {
+  employee: Employee;
+  today?: TodayItem;
+  divisions: Division[];
+}) {
+  const attendance = getAttendance(today ?? null);
   const tone = attendanceTone[attendance.status];
   const [calendarOpen, setCalendarOpen] = React.useState(false);
+
+  const divisionNameList = divisionNames(divisions, employee.divisionIds);
 
   /**
    * Clicking the card opens the employee's late-day calendar.
@@ -49,7 +63,7 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
         className="cursor-pointer gap-0 overflow-hidden py-0 transition hover:ring-foreground/20"
         role="button"
         tabIndex={0}
-        title={`Open ${employee.name}'s late-day calendar`}
+        title={`Open ${employee.fullName}'s late-day calendar`}
         onClick={openCalendar}
         onKeyDown={(event) => {
           if (
@@ -68,17 +82,17 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
           <div className="flex min-w-0 items-center gap-3">
             <Avatar size="lg">
               <AvatarImage
-                src={employee.avatar}
-                alt={`${employee.name} avatar`}
+                src={employee.avatarUrl ?? undefined}
+                alt={`${employee.fullName} avatar`}
               />
               <AvatarFallback className="bg-white/15 text-white">
-                {getInitials(employee.name)}
+                {getInitials(employee.fullName)}
               </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0">
               <CardTitle className="truncate text-base text-white">
-                {employee.name}
+                {employee.fullName}
               </CardTitle>
               <p className={`truncate text-sm ${tone.headerMuted}`}>
                 {employee.email}
@@ -87,11 +101,13 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
           </div>
 
           <div className="flex shrink-0 items-center gap-1">
-            <Badge className={tone.headerAccent}>{employee.role}</Badge>
+            <Badge className={tone.headerAccent}>
+              {employee.employeeNumber}
+            </Badge>
 
             <Link
               href={`/admin/dashboard/employees/${employee.id}`}
-              aria-label={`Change ${employee.name}`}
+              aria-label={`Change ${employee.fullName}`}
               title="Change employee"
               className={buttonVariants({
                 variant: "ghost",
@@ -118,35 +134,23 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
 
           {/* Check-in time */}
           <div className="flex items-center gap-3">
-            <Clock className="size-4 text-muted-foreground" />
+            <CalendarDays className="size-4 text-muted-foreground" />
             <span className="tabular-nums">
-              {employee.clockInAt
-                ? `Checked in ${formatClockTime(employee.clockInAt)}`
+              {today?.checkInTime
+                ? `Checked in ${formatIsoClock(today.checkInTime)}`
                 : "No check-in yet today"}
             </span>
           </div>
 
           {/* Employee details */}
           <p className="text-muted-foreground">
-            {employee.division}
-            {employee.contractExpiry
-              ? ` · Contract expiry: ${employee.contractExpiry}`
-              : ""}
+            {divisionNameList.length > 0
+              ? divisionNameList.join(", ")
+              : "No division"}
+            {` · Joined ${formatDate(employee.joinedAt)}`}
           </p>
 
-          <div className="space-y-1">
-            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Home address
-            </p>
-
-            <LocationLink
-              location={employee.address}
-              emptyLabel="No home address on file"
-            />
-          </div>
-
-
-          {/* Home address and actual check-in location */}
+          {/* Check-in location and proof photo */}
           <div className="space-y-3 border-t pt-3">
             <div className="space-y-1">
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -154,17 +158,17 @@ export function EmployeeCard({ employee }: { employee: Employee }) {
               </p>
 
               <LocationLink
-                location={
-                  employee.checkInPosition
-                    ? formatCoordinates(employee.checkInPosition)
-                    : undefined
-                }
+                location={today?.location}
                 emptyLabel="No check-in coordinates recorded"
               />
             </div>
 
             <div className="flex justify-end">
-              <EvidenceButton employee={employee} />
+              <EvidenceButton
+                name={employee.fullName}
+                proofUrl={today?.proofUrl}
+                checkInTime={today?.checkInTime ?? null}
+              />
             </div>
           </div>
         </CardContent>
@@ -213,10 +217,18 @@ function LocationLink({
 
 /**
  * Check-in photo.
- * The button opens the photo in an overlay.
+ * The button opens the presigned photo in an overlay.
  */
-function EvidenceButton({ employee }: { employee: Employee }) {
-  if (!employee.evidence) {
+function EvidenceButton({
+  name,
+  proofUrl,
+  checkInTime,
+}: {
+  name: string;
+  proofUrl?: string | null;
+  checkInTime: string | null;
+}) {
+  if (!proofUrl) {
     return (
       <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
         <ImageIcon className="size-4" />
@@ -228,7 +240,7 @@ function EvidenceButton({ employee }: { employee: Employee }) {
   return (
     <Dialog>
       <DialogTrigger
-        aria-label={`View check-in photo for ${employee.name}`}
+        aria-label={`View check-in photo for ${name}`}
         title="View check-in photo"
         className={buttonVariants({
           variant: "outline",
@@ -244,18 +256,16 @@ function EvidenceButton({ employee }: { employee: Employee }) {
         <DialogHeader>
           <DialogTitle>Check-in evidence</DialogTitle>
           <DialogDescription>
-            {employee.name}
-            {employee.clockInAt
-              ? ` · checked in ${formatClockTime(employee.clockInAt)}`
-              : ""}
+            {name}
+            {checkInTime ? ` · checked in ${formatIsoClock(checkInTime)}` : ""}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Data URL stored with the check-in — next/image has nothing to optimise. */}
+        {/* Presigned MinIO URL with a short lifetime — next/image would cache a dead link. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={employee.evidence}
-          alt={`${employee.name} check-in evidence`}
+          src={proofUrl}
+          alt={`${name} check-in evidence`}
           className="max-h-[65vh] w-full rounded-lg bg-muted object-contain"
         />
       </DialogContent>
