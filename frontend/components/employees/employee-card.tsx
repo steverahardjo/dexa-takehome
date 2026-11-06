@@ -6,6 +6,7 @@ import {
   CalendarDays,
   EllipsisVertical,
   ExternalLink,
+  Eye,
   ImageIcon,
   MapPin,
   Pencil,
@@ -54,6 +55,10 @@ import type { TodayItem } from "@/lib/today";
  *
  * The phone is the person's own field, not today's: it is shown next to the
  * division/join date so the card keeps its height.
+ *
+ * The card itself is not a button: the eye in its header opens the late-day
+ * calendar, and the overflow menu holds the write actions. Making the whole card
+ * clickable meant every click had to guess whether it was aimed at a link.
  */
 export function EmployeeCard({
   employee,
@@ -75,34 +80,9 @@ export function EmployeeCard({
 
   const divisionNameList = divisionNames(divisions, employee.divisionIds);
 
-  /**
-   * Clicking the card opens the employee's late-day calendar.
-   * Links and buttons retain their own click behavior.
-   */
-  function openCalendar(event: React.SyntheticEvent) {
-    if ((event.target as HTMLElement).closest("a,button")) return;
-
-    setCalendarOpen(true);
-  }
-
   return (
     <>
-      <Card
-        className="cursor-pointer gap-0 overflow-hidden py-0 transition hover:ring-foreground/20"
-        role="button"
-        tabIndex={0}
-        title={`Buka kalender keterlambatan ${employee.fullName}`}
-        onClick={openCalendar}
-        onKeyDown={(event) => {
-          if (
-            event.target === event.currentTarget &&
-            (event.key === "Enter" || event.key === " ")
-          ) {
-            event.preventDefault();
-            setCalendarOpen(true);
-          }
-        }}
-      >
+      <Card className="gap-0 overflow-hidden py-0">
         {/* Employee header */}
         <div
           className={`flex items-start justify-between gap-2 px-4 py-4 ${tone.header}`}
@@ -132,6 +112,21 @@ export function EmployeeCard({
             <Badge className={tone.headerAccent}>
               {employee.employeeNumber}
             </Badge>
+
+            {/* The read-only detail of the card: this person's late days. */}
+            <button
+              type="button"
+              aria-label={`Lihat detail ${employee.fullName}`}
+              title="Lihat kalender keterlambatan"
+              onClick={() => setCalendarOpen(true)}
+              className={buttonVariants({
+                variant: "ghost",
+                size: "icon-sm",
+                className: "text-white/80 hover:bg-white/15 hover:text-white",
+              })}
+            >
+              <Eye className="size-4" />
+            </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger
