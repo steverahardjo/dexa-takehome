@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CalendarDays, ExternalLink, ImageIcon, MapPin } from "lucide-react";
+import {
+  CalendarDays,
+  ExternalLink,
+  ImageIcon,
+  MapPin,
+  Phone,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +37,9 @@ import type { TodayItem } from "@/lib/today";
  * today's report row (`TodayItem`), because they live in the attendance
  * database, not on the employee. `today` is undefined when the report has no
  * row for this person — which is what "not checked in yet" looks like.
+ *
+ * The phone is the person's own field, not today's: it is shown next to the
+ * division/join date so the card keeps its height.
  */
 export function EmployeeCard({
   employee,
@@ -142,13 +151,18 @@ export function EmployeeCard({
             </span>
           </div>
 
-          {/* Employee details */}
-          <p className="text-muted-foreground">
-            {divisionNameList.length > 0
-              ? divisionNameList.join(", ")
-              : "Tidak ada divisi"}
-            {` · Bergabung ${formatDate(employee.joinedAt)}`}
-          </p>
+          {/* Employee details, with the phone kept on the same row so the grid
+              card does not grow a line for it. */}
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="min-w-0 truncate text-muted-foreground">
+              {divisionNameList.length > 0
+                ? divisionNameList.join(", ")
+                : "Tidak ada divisi"}
+              {` · Bergabung ${formatDate(employee.joinedAt)}`}
+            </p>
+
+            {employee.phone && <PhoneLink phone={employee.phone} />}
+          </div>
 
           {/* Check-in location and proof photo */}
           <div className="space-y-3 border-t pt-3">
@@ -180,6 +194,20 @@ export function EmployeeCard({
         onOpenChange={setCalendarOpen}
       />
     </>
+  );
+}
+
+/** The employee's phone, as a `tel:` link. Absent for people without one. */
+function PhoneLink({ phone }: { phone: string }) {
+  return (
+    <a
+      href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+      title={`Telepon ${phone}`}
+      className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+    >
+      <Phone className="size-3.5 shrink-0" />
+      <span className="tabular-nums">{phone}</span>
+    </a>
   );
 }
 
