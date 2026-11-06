@@ -527,7 +527,10 @@ One app, two experiences, shaped by role and device.
   `node_modules`/`.next`, so a rebuild does not re-download the world and
   `docker compose down -v` is the documented reset.
 - **Seeding is an upsert, not an insert**: keyed by employee number, email and
-  division name, it converges on rerun. The first admin exists only because
+  division name, it converges on rerun. Compose runs it as a one-shot `seed`
+  service after MySQL, RustFS and the three table-owning services are healthy;
+  the frontend waits for it, so a fresh stack never serves a login screen with
+  no identities. The first admin exists only because
   `seed.json` creates them — there is no bootstrap endpoint, because a public
   "create the first admin" route is a permanently open door. The optional
   `history` block backfills deterministic weekday attendance for the current

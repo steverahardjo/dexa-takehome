@@ -40,6 +40,7 @@ There is no CORS setup for the API.
 | `storage`    | internal TCP only            | presigned URLs for RustFS                     |
 | `mysql`      | `localhost:3306`             | the database                                  |
 | `rustfs`     | `localhost:9000` / `:9001`   | S3 API (browser photo uploads) and console    |
+| `seed`       | one-shot, no port            | ingests `seed.json` on `up`, then exits       |
 
 Sign-in is passwordless: **the code is returned by the API and shown on the
 sign-in screen, so no mail provider is needed**. Nothing has to be configured
@@ -120,28 +121,78 @@ minutes. Wait until the gateway answers:
 curl localhost:3003/health
 ```
 
-Then load the UI: <http://localhost:3000>.
-
-`backend/seed.json` is baked into the backend image. If you edit it **after**
-building, copy the new file into the running container and re-seed:
+The stack also **seeds itself**: a one-shot `seed` container waits for MySQL,
+RustFS and the services that own the tables, ingests `backend/seed.json`, then
+exits. On a fresh database the frontend is only served after that finishes, so
+the demo accounts exist by the time you open the page:
 
 ```bash
-docker compose cp backend/seed.json storage:/app/seed.json
-docker compose exec storage node dist/seed/scripts/seed.js
+docker compose ps seed      # STATUS should be "Exited (0)"
+docker compose logs seed    # what it created (+, ~ or =)
 ```
+
+Then load the UI: <http://localhost:3000>.
+
+`backend/seed.json` is baked into the backend image. If you edit it and want the
+automatic run to pick it up, rebuild the image (see below). To re-seed without a
+rebuild, mount the edited file into the one-shot service:
+
+```bash
+docker compose run --rm \
+  -v "$PWD/backend/seed.json:/app/seed.json:ro" \
+  seed
+```
+
+### Rebuild the images and rerun the containers
+
+After changing the code, rebuild the images and replace the running containers:
+
+```bash
+docker compose up -d --build --force-recreate
+```
+
+Run it with no service name: the five backend services (`storage`, `auth`,
+`employee`, `attendance`, `gateway`) share one image built from `./backend` with
+the compiled `dist/` baked in, so one rebuild picks up every backend change at
+once. Your data survives — the named volumes are not touched, so a re-seed is
+not needed.
+
+To rebuild and restart a single service (for example the frontend):
+
+```bash
+docker compose up -d --build --force-recreate frontend
+```
+
+The frontend is the exception to rebuild: its container runs `next dev` with the
+source bind-mounted from `./frontend`, so code edits hot-reload without a
+rebuild. Rebuild its image only after changing `package.json`, the `Dockerfile`
+or the lockfile — those live in the image, not in the mount.
+
+For a from-scratch state (volumes included), see [§5. Reset](#5-reset).
 
 ## 3. Seed the database
 
-The schema is created by the services on boot (`DB_SYNCHRONIZE=true`), but the
-rows come from the seeder — run it once, after the stack is healthy:
+The schema is created by the services on boot (`DB_SYNCHRONIZE=true`), and the
+rows are seeded automatically: `docker compose up` starts the one-shot `seed`
+service after MySQL, RustFS, `auth`, `employee` and `attendance` are healthy (by
+then their tables exist), runs the seeder once and exits. The frontend waits for
+that successful exit, so a fresh stack opens on a populated login screen. Watch
+it with:
 
 ```bash
-docker compose exec storage node dist/seed/scripts/seed.js
+docker compose logs -f seed
 ```
 
-From `backend/` the equivalent is `npm run seed:docker`. The seeder needs both
-the database and object storage, so it runs in the storage container, which is
-the one compose service holding both sets of credentials.
+Run it again at any time — it is an idempotent upsert, so nothing is duplicated:
+
+```bash
+docker compose run --rm seed
+```
+
+From `backend/` the equivalent is `npm run seed:docker`. The service builds the
+same backend image and gets both sets of credentials — the shared `DB_*` and the
+storage service's `MINIO_*` — because it writes attendance rows and the sample
+avatars/proofs.
 
 The seed is an upsert
 keyed by employee number, email and division name, so re-running it converges
@@ -199,7 +250,17 @@ employee and sign in with it):
 ### If no code appears
 
 There is no mailbox to check: the code is in the response, so an empty code
-panel means the address has no active identity. Confirm with:
+panel means the address has no active identity. First confirm the seeder ran —
+it should be `Exited (0)`, and its log ends with the admins it created:
+
+```bash
+docker compose ps seed
+docker compose logs seed
+```
+
+Then make sure the address is actually in `seed.json` (for example the seed has
+`kevin.tanuwijaya@company.com`, not `vincent…`). The database can also be
+checked directly:
 
 ```bash
 docker compose exec db mysql -uattendance -pattend1234 absences -e \
@@ -210,8 +271,7 @@ docker compose exec db mysql -uattendance -pattend1234 absences -e \
 
 ```bash
 docker compose down -v      # stops everything and drops the MySQL and RustFS volumes
-docker compose up -d --build
-docker compose exec storage node dist/seed/scripts/seed.js
+docker compose up -d --build  # rebuilds, then seeds automatically
 ```
 
 ---

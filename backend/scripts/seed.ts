@@ -338,9 +338,9 @@ Avatars and proof photos are written straight to object storage, so the seeder
 also needs the storage service's MINIO_* variables (MINIO_ACCESS_KEY and
 MINIO_SECRET_KEY are required; the rest default to
 127.0.0.1:9000/absences/us-east-1). Proof photos are downloaded with the
-network access the seeder itself has. In compose, run the seeder through the
-storage container:
-  docker compose run --rm storage node dist/seed/scripts/seed.js
+network access the seeder itself has. Compose runs it automatically as the
+one-shot seed service after the schema exists; to run it again by hand:
+  docker compose run --rm seed
 
 Attendance history uses the company clock the attendance service uses:
   COMPANY_TIMEZONE (TZ fallback, default Asia/Jakarta), REQUIRED_CHECK_IN (09:00).`);

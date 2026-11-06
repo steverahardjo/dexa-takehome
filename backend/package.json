@@ -33,7 +33,7 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "seed:build": "tsc -p scripts/tsconfig.seed.json",
     "seed": "npm run seed:build && node dist/seed/scripts/seed.js",
-    "seed:docker": "docker compose -f ../docker-compose.yml exec storage node dist/seed/scripts/seed.js",
+    "seed:docker": "docker compose -f ../docker-compose.yml run --rm seed",
     "email:smoke:build": "tsc -p scripts/tsconfig.email-smoke.json",
     "email:smoke": "npm run email:smoke:build && node dist/email-smoke/scripts/email-smoke.js"
   },

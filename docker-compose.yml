@@ -174,6 +174,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      # Listening on the TCP port means TypeORM has synchronized this service's
+      # tables: Nest initializes the modules before `app.listen()` resolves. The
+      # seeder waits for this, so it never writes into a schema being created.
+      test:
+        - CMD
+        - node
+        - -e
+        - "const net=require('net');const s=net.connect(4002,'127.0.0.1');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),2000)"
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   # --------------------------------------------------
   # Employee service (internal TCP only)
@@ -199,6 +211,15 @@ services:
         condition: service_started
       storage:
         condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "const net=require('net');const s=net.connect(4003,'127.0.0.1');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),2000)"
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   # --------------------------------------------------
   # Attendance service (internal TCP only)
@@ -227,6 +248,44 @@ services:
         condition: service_started
       storage:
         condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "const net=require('net');const s=net.connect(4004,'127.0.0.1');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1));setTimeout(()=>process.exit(1),2000)"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # --------------------------------------------------
+  # One-shot seed (runs automatically on `docker compose up`)
+  #
+  # The three services above own the tables the seeder writes to, so it waits
+  # for their healthchecks before touching the database. It exits when done;
+  # the frontend waits for a successful exit, which means the UI is only served
+  # once accounts exist and a code can actually be issued. The run is an
+  # idempotent upsert, so a later `up` converges instead of duplicating.
+  # --------------------------------------------------
+  seed:
+    build: ./backend
+    command: node dist/seed/scripts/seed.js
+    restart: "no"
+    environment:
+      <<: [*backend-env, *storage-env]
+      COMPANY_TIMEZONE: ${COMPANY_TIMEZONE:-Asia/Jakarta}
+      REQUIRED_CHECK_IN: ${REQUIRED_CHECK_IN:-09:00}
+    depends_on:
+      db:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      employee:
+        condition: service_healthy
+      attendance:
+        condition: service_healthy
 
   # --------------------------------------------------
   # Gateway (the only public HTTP port)
@@ -290,6 +349,10 @@ services:
     depends_on:
       gateway:
         condition: service_started
+      # The demo accounts come from the seed, so the UI is only served once it
+      # has run. On a fresh stack the first page load waits for the seeder.
+      seed:
+        condition: service_completed_successfully
 
 volumes:
   db-data:

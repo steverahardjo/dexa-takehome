@@ -31,8 +31,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
-# Compose runs the seeder from /app, so the data file has to sit next to it:
-#   docker compose run --rm employee node dist/seed/scripts/seed.js
+# Compose runs the seeder from /app as the one-shot `seed` service, so the data
+# file has to sit next to it:
+#   docker compose run --rm seed
 COPY seed.json ./seed.json
 
 # The gateway is the only process that publishes a port; the others are started
