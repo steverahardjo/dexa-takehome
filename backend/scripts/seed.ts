@@ -15,6 +15,11 @@
  * history is an additive backfill: it fills the current year up to and
  * including today, and only where no row exists yet, so real check-ins and
  * absent sweeps are never overwritten.
+ *
+ * Check-ins get a sample proof photo: each URL in `proofs.samples` is
+ * downloaded once per run and rotated over the seeded rows, so the demo
+ * history shows real-looking pictures instead of an empty proof column.
+ * `--backfill-proofs` also fills rows that already exist without one.
  */
 import 'reflect-metadata';
 
@@ -27,6 +32,8 @@ import { Client } from 'minio';
 import {
   Between,
   DataSource,
+  In,
+  IsNull,
   type DataSourceOptions,
   type EntityManager,
   type Repository,
@@ -97,11 +104,34 @@ interface SeedAvatars {
   overwrite?: boolean;
 }
 
+/**
+ * Optional sample check-in proofs. Every check-in the runner writes gets a
+ * picture from `samples`, taken one by one in order and wrapped around, so
+ * neighbouring days and colleagues do not all show the same photo.
+ */
+interface SeedProofSample {
+  /** Absolute `http(s)` URL of the picture, fetched once per run. */
+  url: string;
+  /** Attribution for the downloaded picture; kept for readers, not used. */
+  credit?: string;
+}
+
+interface SeedProofs {
+  enabled?: boolean;
+  /** URL strings, or `{ url, credit }` objects; rotated in order. */
+  samples?: (string | SeedProofSample)[];
+  /** Per-download timeout in milliseconds. */
+  timeoutMs?: number;
+  /** Refuse a picture larger than this many bytes. */
+  maxBytes?: number;
+}
+
 interface Seed {
   divisions: SeedDivision[];
   employees: SeedEmployee[];
   history?: SeedHistory;
   avatars?: SeedAvatars;
+  proofs?: SeedProofs;
 }
 
 interface Options {
@@ -110,6 +140,10 @@ interface Options {
   /** `undefined` = use the seed file's `avatars.enabled`. */
   avatars?: boolean;
   avatarOverwrite?: boolean;
+  /** `undefined` = use the seed file's `proofs.enabled`. */
+  proofs?: boolean;
+  /** Also attach a picture to check-ins that already exist without one. */
+  backfillProofs: boolean;
 }
 
 interface Stats {
@@ -123,6 +157,7 @@ interface Stats {
   attendanceInserted: number;
   attendanceSkipped: number;
   avatarsUploaded: number;
+  proofsUploaded: number;
 }
 
 interface ResolvedHistory {
@@ -141,10 +176,92 @@ interface ResolvedAvatars {
   overwrite: boolean;
 }
 
+interface ResolvedProofs {
+  enabled: boolean;
+  samples: SeedProofSample[];
+  timeoutMs: number;
+  maxBytes: number;
+}
+
 const DEFAULT_AVATARS: ResolvedAvatars = {
   enabled: true,
   size: 512,
   overwrite: false,
+};
+
+/**
+ * Lorem Picsum (Unsplash), reproducible by id. Desks, laptops, coffee, a
+ * portrait and a few outdoor scenes: enough variety that a month of demo
+ * check-ins does not look like one picture copied over and over.
+ */
+const DEFAULT_PROOF_SAMPLES: SeedProofSample[] = [
+  {
+    url: 'https://picsum.photos/id/0/720/960.jpg',
+    credit: 'Alejandro Escamilla / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/2/720/960.jpg',
+    credit: 'Alejandro Escamilla / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/4/720/960.jpg',
+    credit: 'Alejandro Escamilla / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/5/720/960.jpg',
+    credit: 'Alejandro Escamilla / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/6/720/960.jpg',
+    credit: 'Alejandro Escamilla / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/8/720/960.jpg',
+    credit: 'Alejandro Escamilla / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/20/720/960.jpg',
+    credit: 'Aleks Dorohovich / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/26/720/960.jpg',
+    credit: 'Vadim Sherbakov / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/42/720/960.jpg',
+    credit: 'Luke Chesser / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/48/720/960.jpg',
+    credit: 'Luke Chesser / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/60/720/960.jpg',
+    credit: 'Vadim Sherbakov / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/63/720/960.jpg',
+    credit: 'Justin Leibow / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/64/720/960.jpg',
+    credit: 'Alexander Shustov / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/57/720/960.jpg',
+    credit: 'Nicholas Swanson / Unsplash',
+  },
+  {
+    url: 'https://picsum.photos/id/77/720/960.jpg',
+    credit: 'May Pamintuan / Unsplash',
+  },
+];
+
+const DEFAULT_PROOFS: ResolvedProofs = {
+  enabled: true,
+  samples: DEFAULT_PROOF_SAMPLES,
+  timeoutMs: 20_000,
+  maxBytes: 8 * 1024 * 1024,
 };
 
 const DEFAULT_HISTORY: ResolvedHistory = {
@@ -181,6 +298,19 @@ function resolveAvatars(seed: Seed, options: Options): ResolvedAvatars {
   };
 }
 
+function resolveProofs(seed: Seed, options: Options): ResolvedProofs {
+  const samples = (seed.proofs?.samples ?? []).map((sample) =>
+    typeof sample === 'string' ? { url: sample } : sample,
+  );
+
+  return {
+    enabled: options.proofs ?? seed.proofs?.enabled ?? DEFAULT_PROOFS.enabled,
+    samples: samples.length > 0 ? samples : DEFAULT_PROOFS.samples,
+    timeoutMs: seed.proofs?.timeoutMs ?? DEFAULT_PROOFS.timeoutMs,
+    maxBytes: seed.proofs?.maxBytes ?? DEFAULT_PROOFS.maxBytes,
+  };
+}
+
 const ROLE_VALUES = new Set<string>(Object.values(Role));
 const STATUS_VALUES = new Set<string>(Object.values(IdentityStatus));
 const EMPLOYMENT_VALUES = new Set<string>(Object.values(EmploymentStatus));
@@ -196,16 +326,20 @@ function usage(): void {
   --dry-run       Validate the file and print the plan without writing
   --no-avatars    Skip the generated sample avatars
   --force-avatars Regenerate every avatar, replacing existing ones
+  --no-proofs     Skip the sample check-in proof photos
+  --backfill-proofs  Give a picture to check-ins that already exist without one
   --help          Show this message
 
 Connection settings come from the same DB_* variables the services use:
   DB_HOST (127.0.0.1), DB_PORT (3306), DB_DATABASE (absences),
   DB_USERNAME (attendance), DB_PASSWORD (attend1234), DB_LOGGING (false).
 
-Avatars are written straight to object storage, so the seeder also needs the
-storage service's MINIO_* variables (MINIO_ACCESS_KEY and MINIO_SECRET_KEY are
-required; the rest default to 127.0.0.1:9000/absences/us-east-1). In compose,
-run the seeder through the storage container:
+Avatars and proof photos are written straight to object storage, so the seeder
+also needs the storage service's MINIO_* variables (MINIO_ACCESS_KEY and
+MINIO_SECRET_KEY are required; the rest default to
+127.0.0.1:9000/absences/us-east-1). Proof photos are downloaded with the
+network access the seeder itself has. In compose, run the seeder through the
+storage container:
   docker compose run --rm storage node dist/seed/scripts/seed.js
 
 Attendance history uses the company clock the attendance service uses:
@@ -213,7 +347,11 @@ Attendance history uses the company clock the attendance service uses:
 }
 
 function parseArgs(argv: string[]): Options {
-  const options: Options = { file: 'seed.json', dryRun: false };
+  const options: Options = {
+    file: 'seed.json',
+    dryRun: false,
+    backfillProofs: false,
+  };
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -232,6 +370,21 @@ function parseArgs(argv: string[]): Options {
     }
     if (arg === '--force-avatars') {
       options.avatarOverwrite = true;
+      continue;
+    }
+
+    if (arg === '--no-proofs') {
+      options.proofs = false;
+      continue;
+    }
+
+    if (arg === '--proofs') {
+      options.proofs = true;
+      continue;
+    }
+
+    if (arg === '--backfill-proofs') {
+      options.backfillProofs = true;
       continue;
     }
     if (arg === '--help' || arg === '-h') {
@@ -274,6 +427,23 @@ function validate(raw: unknown, file: string): Seed {
       return '';
     }
     return value.trim();
+  };
+
+  const imageUrl = (path: string, value: unknown): string => {
+    const url = nonEmpty(path, value);
+    if (!url) return url;
+
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return url;
+      }
+    } catch {
+      // reported below
+    }
+
+    at(path, 'must be an absolute http(s) URL');
+    return url;
   };
 
   const rawDivisions = source.divisions ?? [];
@@ -562,13 +732,89 @@ function validate(raw: unknown, file: string): Seed {
     }
   }
 
+  let proofs: SeedProofs | undefined;
+  if (source.proofs !== undefined) {
+    if (
+      typeof source.proofs !== 'object' ||
+      source.proofs === null ||
+      Array.isArray(source.proofs)
+    ) {
+      at('proofs', 'must be an object');
+    } else {
+      const item = source.proofs as Record<string, unknown>;
+      const enabled = item.enabled;
+      if (enabled !== undefined && typeof enabled !== 'boolean') {
+        at('proofs.enabled', 'must be a boolean');
+      }
+      const timeoutMs = item.timeoutMs;
+      if (
+        timeoutMs !== undefined &&
+        (typeof timeoutMs !== 'number' ||
+          !Number.isInteger(timeoutMs) ||
+          timeoutMs < 1_000 ||
+          timeoutMs > 120_000)
+      ) {
+        at('proofs.timeoutMs', 'must be an integer between 1000 and 120000');
+      }
+      const maxBytes = item.maxBytes;
+      if (
+        maxBytes !== undefined &&
+        (typeof maxBytes !== 'number' ||
+          !Number.isInteger(maxBytes) ||
+          maxBytes < 1_024 ||
+          maxBytes > 25 * 1024 * 1024)
+      ) {
+        at('proofs.maxBytes', 'must be an integer between 1024 and 26214400');
+      }
+
+      let samples: SeedProofSample[] | undefined;
+      if (item.samples !== undefined) {
+        if (!Array.isArray(item.samples) || item.samples.length === 0) {
+          at('proofs.samples', 'must be a non-empty array of image URLs');
+        } else {
+          samples = [];
+          for (const [index, entry] of item.samples.entries()) {
+            const path = `proofs.samples[${index}]`;
+
+            if (typeof entry === 'string') {
+              samples.push({ url: imageUrl(path, entry) });
+              continue;
+            }
+
+            if (typeof entry !== 'object' || entry === null) {
+              at(path, 'must be a URL or an object with a `url`');
+              continue;
+            }
+
+            const sample = entry as Record<string, unknown>;
+            const credit =
+              sample.credit === undefined
+                ? undefined
+                : nonEmpty(`${path}.credit`, sample.credit);
+            samples.push({
+              url: imageUrl(`${path}.url`, sample.url),
+              credit: credit || undefined,
+            });
+          }
+        }
+      }
+
+      proofs = {
+        enabled: typeof enabled === 'boolean' ? enabled : undefined,
+        samples,
+        timeoutMs: typeof timeoutMs === 'number' ? timeoutMs : undefined,
+        maxBytes: typeof maxBytes === 'number' ? maxBytes : undefined,
+      };
+    }
+  }
+
   if (problems.length > 0) {
     throw new Error(
       `${file} is not a valid seed file:\n  - ${problems.join('\n  - ')}`,
     );
   }
 
-  return { divisions, employees, history, avatars };
+  return { divisions, employees, history, avatars, proofs };
 }
 
 async function loadSeed(file: string): Promise<Seed> {
@@ -907,7 +1153,7 @@ function avatarKeyFor(now: Date): string {
   return `avatars/${year}/${month}/${randomUUID()}.png`;
 }
 
-interface AvatarStorage {
+interface ObjectStorage {
   client: Client;
   bucket: string;
   endpoint: string;
@@ -915,14 +1161,15 @@ interface AvatarStorage {
 }
 
 /** Same `MINIO_*` contract the storage service reads. */
-function openAvatarStorage(): AvatarStorage {
+function openStorage(): ObjectStorage {
   const accessKey = process.env.MINIO_ACCESS_KEY;
   const secretKey = process.env.MINIO_SECRET_KEY;
 
   if (!accessKey || !secretKey) {
     throw new Error(
       'MINIO_ACCESS_KEY and MINIO_SECRET_KEY are required to upload avatars ' +
-        '(use --no-avatars to seed without pictures)',
+        'and proof photos (use --no-avatars --no-proofs to seed without ' +
+        'pictures)',
     );
   }
 
@@ -948,7 +1195,7 @@ function openAvatarStorage(): AvatarStorage {
 }
 
 /** Creates the bucket if a fresh RustFS has not served the storage service yet. */
-async function ensureAvatarBucket(storage: AvatarStorage): Promise<void> {
+async function ensureBucket(storage: ObjectStorage): Promise<void> {
   try {
     const exists = await storage.client.bucketExists(storage.bucket);
     if (!exists) {
@@ -962,7 +1209,7 @@ async function ensureAvatarBucket(storage: AvatarStorage): Promise<void> {
     throw new Error(
       `Cannot reach object storage at ${storage.endpoint}:${storage.port} ` +
         `(${error instanceof Error ? error.message : String(error)}); ` +
-        'start rustfs or pass --no-avatars',
+        'start rustfs or pass --no-avatars --no-proofs',
     );
   }
 }
@@ -983,10 +1230,7 @@ interface HistoryWindow {
 }
 
 /** January 1st of the run's year (or a sliding window) through today. */
-function historyWindow(
-  history: ResolvedHistory,
-  today: string,
-): HistoryWindow {
+function historyWindow(history: ResolvedHistory, today: string): HistoryWindow {
   const start =
     history.days === null
       ? `${today.slice(0, 4)}-01-01`
@@ -1026,6 +1270,7 @@ function describePlan(
   seed: Seed,
   today: string,
   avatars: ResolvedAvatars,
+  proofs: ResolvedProofs,
 ): void {
   log(
     `Plan: ${seed.divisions.length} division(s), ${seed.employees.length} employee(s)`,
@@ -1056,6 +1301,14 @@ function describePlan(
         : 'disabled (--no-avatars)'
     }`,
   );
+  log(
+    `  proofs    ${
+      proofs.enabled
+        ? `${proofs.samples.length} sample photo(s) rotated over new check-ins, ` +
+          'downloaded at seed time'
+        : 'disabled (--no-proofs)'
+    }`,
+  );
 
   for (const employee of seed.employees) {
     const role = employee.identity?.role ?? Role.EMPLOYEE;
@@ -1081,7 +1334,9 @@ async function ingest(
   clock: AttendanceContext,
   avatars: ResolvedAvatars,
   avatarJobs: AvatarJob[],
-): Promise<void> {
+  proofs: ResolvedProofs,
+  proofJobs: ProofJob[],
+): Promise<Map<string, Employee>> {
   const divisionRepo = manager.getRepository(Division);
   const employeeRepo = manager.getRepository(Employee);
   const identityRepo = manager.getRepository(Identity);
@@ -1264,7 +1519,17 @@ async function ingest(
     }
   }
 
-  await seedAttendance(manager, seed, employeesByNumber, stats, clock);
+  await seedAttendance(
+    manager,
+    seed,
+    employeesByNumber,
+    stats,
+    clock,
+    proofs,
+    proofJobs,
+  );
+
+  return employeesByNumber;
 }
 
 interface AttendanceContext {
@@ -1289,6 +1554,8 @@ async function seedAttendance(
   employeesByNumber: Map<string, Employee>,
   stats: Stats,
   context: AttendanceContext,
+  proofs: ResolvedProofs,
+  proofJobs: ProofJob[],
 ): Promise<void> {
   const history = resolveHistory(seed.history);
   const records = manager.getRepository(AttendanceRecord);
@@ -1304,7 +1571,9 @@ async function seedAttendance(
     if (!employee) continue;
 
     const from =
-      seedEmployee.joinedAt > window.start ? seedEmployee.joinedAt : window.start;
+      seedEmployee.joinedAt > window.start
+        ? seedEmployee.joinedAt
+        : window.start;
     const until =
       seedEmployee.terminatedAt && seedEmployee.terminatedAt < window.end
         ? seedEmployee.terminatedAt
@@ -1369,9 +1638,11 @@ async function seedAttendance(
         ),
       );
       const lateMinutes = Math.max(0, minutes - requiredMinutes);
+      const id = randomUUID();
 
       pending.push(
         records.create({
+          id,
           employeeId: employee.id,
           attendanceDate: date,
           checkInTime: zonedToUtc(date, minutes, context.timezone),
@@ -1388,6 +1659,16 @@ async function seedAttendance(
           timezone: context.timezone,
         }),
       );
+
+      // The picture is uploaded after the transaction commits, so the job only
+      // carries the id and which sample it should get.
+      if (proofs.enabled) {
+        proofJobs.push({
+          recordId: id,
+          employeeNumber: employee.employeeNumber,
+          sampleIndex: proofJobs.length % proofs.samples.length,
+        });
+      }
     }
   }
 
@@ -1408,7 +1689,7 @@ async function seedAttendance(
  */
 async function uploadAvatars(
   employees: Repository<Employee>,
-  storage: AvatarStorage,
+  storage: ObjectStorage,
   avatars: ResolvedAvatars,
   jobs: AvatarJob[],
   stats: Stats,
@@ -1441,6 +1722,207 @@ async function uploadAvatars(
     stats.avatarsUploaded += 1;
     log(`+ avatar    ${job.employeeNumber}  ${key}`);
   }
+}
+
+interface ProofJob {
+  recordId: string;
+  employeeNumber: string;
+  /** Index into `proofs.samples`; rotated so neighbouring rows differ. */
+  sampleIndex: number;
+}
+
+interface ProofImage {
+  bytes: Buffer;
+  contentType: string;
+  extension: string;
+}
+
+/** The picture types the storage service hands keys out for. */
+const PROOF_TYPES: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+  'image/gif': '.gif',
+};
+
+/** Storing a year of proofs one row at a time is slow; this many at once is not. */
+const PROOF_UPLOAD_CONCURRENCY = 8;
+
+/** `proofs/<year>/<month>/<uuid>.<ext>`, matching the storage service's keys. */
+function proofKeyFor(now: Date, extension: string): string {
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+
+  return `proofs/${year}/${month}/${randomUUID()}${extension}`;
+}
+
+async function fetchProofImage(
+  sample: SeedProofSample,
+  proofs: ResolvedProofs,
+): Promise<ProofImage> {
+  const response = await fetch(sample.url, {
+    redirect: 'follow',
+    signal: AbortSignal.timeout(proofs.timeoutMs),
+    headers: { accept: 'image/*' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} ${response.statusText}`.trim());
+  }
+
+  const contentType = (response.headers.get('content-type') ?? '')
+    .split(';')[0]!
+    .trim()
+    .toLowerCase();
+  const extension = PROOF_TYPES[contentType];
+  if (!extension) {
+    throw new Error(`unsupported content-type "${contentType || 'unknown'}"`);
+  }
+
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (bytes.length === 0) throw new Error('empty response body');
+  if (bytes.length > proofs.maxBytes) {
+    throw new Error(
+      `picture is ${bytes.length} bytes, over the ${proofs.maxBytes}-byte limit`,
+    );
+  }
+
+  return { bytes, contentType, extension };
+}
+
+/**
+ * Downloads each sample once, then stores one picture per job under a key the
+ * storage service will sign. Object storage is not part of the transaction the
+ * rows were written in, so a failed download or upload is reported and
+ * skipped: the attendance history is already valid without it, and a rerun
+ * with --backfill-proofs picks up whatever is still missing.
+ */
+async function uploadProofs(
+  records: Repository<AttendanceRecord>,
+  storage: ObjectStorage,
+  proofs: ResolvedProofs,
+  jobs: ProofJob[],
+  stats: Stats,
+): Promise<void> {
+  if (jobs.length === 0) {
+    log('= proofs      every check-in already has a picture');
+    return;
+  }
+
+  const cache = new Map<string, Promise<ProofImage | null>>();
+  // The cache holds the promise, not the result: the first batch asks for the
+  // same few URLs at once and only the first request should hit the network.
+  const download = (sample: SeedProofSample): Promise<ProofImage | null> => {
+    const pending = cache.get(sample.url);
+    if (pending) return pending;
+
+    const request = fetchProofImage(sample, proofs)
+      .then((image) => {
+        log(`+ proof src ${sample.url}`);
+        return image;
+      })
+      .catch((error: unknown) => {
+        log(
+          `! proof src ${sample.url} skipped: ` +
+            (error instanceof Error ? error.message : String(error)),
+        );
+        return null;
+      });
+
+    cache.set(sample.url, request);
+    return request;
+  };
+
+  let skipped = 0;
+
+  const upload = async (job: ProofJob): Promise<void> => {
+    // Walk forward from this row's sample, so one dead URL does not cost the
+    // whole run its pictures.
+    let image: ProofImage | null = null;
+    for (let offset = 0; offset < proofs.samples.length; offset += 1) {
+      const sample =
+        proofs.samples[(job.sampleIndex + offset) % proofs.samples.length]!;
+      image = await download(sample);
+      if (image) break;
+    }
+
+    if (!image) {
+      skipped += 1;
+      return;
+    }
+
+    const key = proofKeyFor(new Date(), image.extension);
+
+    try {
+      await storage.client.putObject(
+        storage.bucket,
+        key,
+        image.bytes,
+        image.bytes.length,
+        { 'Content-Type': image.contentType },
+      );
+      await records.update(job.recordId, { proofKey: key });
+    } catch (error) {
+      skipped += 1;
+      log(
+        `! proof     ${job.employeeNumber}  ${key}: ` +
+          (error instanceof Error ? error.message : String(error)),
+      );
+      return;
+    }
+
+    stats.proofsUploaded += 1;
+    log(`+ proof     ${job.employeeNumber}  ${key}`);
+  };
+
+  // A year of history is thousands of rows; a handful of parallel uploads
+  // keeps that to a coffee break without flooding object storage.
+  for (let index = 0; index < jobs.length; index += PROOF_UPLOAD_CONCURRENCY) {
+    await Promise.all(
+      jobs
+        .slice(index, index + PROOF_UPLOAD_CONCURRENCY)
+        .map((job) => upload(job)),
+    );
+  }
+
+  if (skipped > 0) {
+    log(`! proofs    ${skipped} row(s) left without a picture`);
+  }
+}
+
+/**
+ * Rows written before this option existed (or by a run without it): a
+ * checked-in day that still has no proof. Only `proof_key IS NULL` is picked,
+ * so a photo someone uploaded is never replaced.
+ */
+async function collectBackfillJobs(
+  records: Repository<AttendanceRecord>,
+  employeesByNumber: Map<string, Employee>,
+  proofs: ResolvedProofs,
+): Promise<ProofJob[]> {
+  const employeeNumbers = new Map(
+    [...employeesByNumber.values()].map((employee) => [
+      employee.id,
+      employee.employeeNumber,
+    ]),
+  );
+
+  const rows = await records.find({
+    where: {
+      status: In([AttendanceStatus.ON_TIME, AttendanceStatus.LATE]),
+      proofKey: IsNull(),
+    },
+    select: { id: true, employeeId: true },
+    order: { attendanceDate: 'ASC' },
+  });
+
+  return rows
+    .filter((row) => employeeNumbers.has(row.employeeId))
+    .map((row, index) => ({
+      recordId: row.id,
+      employeeNumber: employeeNumbers.get(row.employeeId)!,
+      sampleIndex: index % proofs.samples.length,
+    }));
 }
 
 /** Same `DB_*` defaults as `shared/database/database-options.ts`. */
@@ -1518,16 +2000,21 @@ async function main(): Promise<void> {
   const seed = await loadSeed(options.file);
   const clock = localClock();
   const avatars = resolveAvatars(seed, options);
+  const proofs = resolveProofs(seed, options);
+
+  if (options.backfillProofs && !proofs.enabled) {
+    log('! --backfill-proofs ignored: proof photos are disabled (--no-proofs)');
+  }
 
   log(`Seed file: ${resolve(process.cwd(), options.file)}`);
   if (options.dryRun) {
-    describePlan(seed, clock.today, avatars);
+    describePlan(seed, clock.today, avatars, proofs);
     log('Dry run: nothing was written.');
     return;
   }
 
   // Fail on a missing/invalid storage configuration before the first write.
-  const storage = avatars.enabled ? openAvatarStorage() : null;
+  const storage = avatars.enabled || proofs.enabled ? openStorage() : null;
 
   const env = readDbEnv();
   const dataSource = new DataSource(connectionOptions(env));
@@ -1547,14 +2034,25 @@ async function main(): Promise<void> {
     attendanceInserted: 0,
     attendanceSkipped: 0,
     avatarsUploaded: 0,
+    proofsUploaded: 0,
   };
 
   const avatarJobs: AvatarJob[] = [];
+  const proofJobs: ProofJob[] = [];
 
   try {
-    if (storage) await ensureAvatarBucket(storage);
-    await dataSource.transaction((manager) =>
-      ingest(manager, seed, stats, clock, avatars, avatarJobs),
+    if (storage) await ensureBucket(storage);
+    const employeesByNumber = await dataSource.transaction((manager) =>
+      ingest(
+        manager,
+        seed,
+        stats,
+        clock,
+        avatars,
+        avatarJobs,
+        proofs,
+        proofJobs,
+      ),
     );
     if (storage) {
       await uploadAvatars(
@@ -1564,6 +2062,28 @@ async function main(): Promise<void> {
         avatarJobs,
         stats,
       );
+
+      if (proofs.enabled) {
+        if (options.backfillProofs) {
+          const backfill = await collectBackfillJobs(
+            dataSource.getRepository(AttendanceRecord),
+            employeesByNumber,
+            proofs,
+          );
+          log(
+            `Backfill: ${backfill.length} existing check-in(s) without a picture`,
+          );
+          proofJobs.push(...backfill);
+        }
+
+        await uploadProofs(
+          dataSource.getRepository(AttendanceRecord),
+          storage,
+          proofs,
+          proofJobs,
+          stats,
+        );
+      }
     }
   } catch (error) {
     await dataSource.destroy();
@@ -1576,6 +2096,7 @@ async function main(): Promise<void> {
       `employees +${stats.employeesCreated}/~${stats.employeesUpdated}, ` +
       `identities +${stats.identitiesCreated}/~${stats.identitiesUpdated}, ` +
       `avatars +${stats.avatarsUploaded}, ` +
+      `proofs +${stats.proofsUploaded}, ` +
       `attendance +${stats.attendanceInserted} (${stats.attendanceSkipped} day(s) already present), ` +
       `unchanged ${stats.unchanged}`,
   );

@@ -162,10 +162,14 @@ The seed is an upsert
 keyed by employee number, email and division name, so re-running it converges
 instead of duplicating; it also prints what it created (`+`), updated (`~`) or
 left alone (`=`). The same run backfills weekday attendance history for the
-demo roster, from January 1st through today, and uploads a generated sample
-avatar for every employee without one; both parts are additive, so real
-check-ins, absent sweeps and uploaded pictures survive a re-seed
-(`backend/README.md` documents the `avatars` and `history` blocks).
+demo roster, from January 1st through today, uploads a generated sample avatar
+for every employee without one, and downloads a handful of open-source photos
+to use as check-in proofs; all three parts are additive, so real check-ins,
+absent sweeps and uploaded pictures survive a re-seed (`backend/README.md`
+documents the `avatars`, `history` and `proofs` blocks). The proof pictures are
+fetched over the network at seed time, one sample per listed URL. A later
+`node dist/seed/scripts/seed.js --backfill-proofs` also gives a picture to
+check-ins that were written before this option existed.
 
 You should see:
 
@@ -174,6 +178,7 @@ Plan: 12 division(s), 50 employee(s)
   history   2026-01-01 → 2026-11-06 (this year, today included): 22% late, 5% absent, ~10459 row(s)
   holidays  01-01, 08-17, 12-25
   avatars   512px initials PNGs for every employee without a picture
+  proofs    15 sample photo(s) rotated over new check-ins, downloaded at seed time
 + division  Engineering
 ...
 + employee  EMP-0001  you@example.com  MASTER_ADMIN  [Engineering]

@@ -45,14 +45,16 @@ $ npm run seed -- --dry-run         # validate the file, print the plan, no writ
 $ npm run seed -- --file other.json # ingest another file
 $ npm run seed -- --no-avatars      # skip the generated sample avatars
 $ npm run seed -- --force-avatars   # regenerate every avatar
+$ npm run seed -- --no-proofs       # skip the sample check-in proof photos
+$ npm run seed -- --backfill-proofs # photograph check-ins that have none
 $ npm run seed:docker               # same, inside the compose network (DB_HOST=db)
 ```
 
 Connection settings come from the usual `DB_*` variables (defaults match
 docker-compose: `127.0.0.1:3306`, `attendance`/`attend1234`, database
-`absences`). Avatars go straight to object storage, so the runner also needs
-the storage service's `MINIO_*` variables (`MINIO_ACCESS_KEY` and
-`MINIO_SECRET_KEY` are required; the rest default to
+`absences`). Avatars and proof photos go straight to object storage, so the
+runner also needs the storage service's `MINIO_*` variables
+(`MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` are required; the rest default to
 `127.0.0.1:9000`/`absences`/`us-east-1`). In compose that means running it in
 the storage container, which is what `seed:docker` does. Every write is an
 upsert keyed by `employee_number`, `email` and the division `name`, so
@@ -154,6 +156,48 @@ demo a live check-in after seeding.
 History is an additive backfill: a rerun only inserts days that have no row, so
 real check-ins and absent sweeps are never overwritten. `INACTIVE` employees get
 no history, and days outside `joinedAt`..`terminatedAt` are skipped.
+
+### Sample check-in proofs
+
+A real check-in carries a photo. The optional `proofs` block gives the seeded
+history one too, so the attendance table and the admin detail page have
+something to show:
+
+```json
+"proofs": {
+  "enabled": true,
+  "samples": [
+    { "url": "https://picsum.photos/id/0/720/960.jpg", "credit": "Alejandro Escamilla / Unsplash" },
+    { "url": "https://picsum.photos/id/42/720/960.jpg", "credit": "Luke Chesser / Unsplash" },
+    { "url": "https://picsum.photos/id/64/720/960.jpg", "credit": "Alexander Shustov / Unsplash" }
+  ]
+}
+```
+
+| field | default | meaning |
+| --- | --- | --- |
+| `enabled` | `true` | download and attach photos; `--no-proofs` overrides it |
+| `samples` | 15 Lorem Picsum photos | URLs (or `{ url, credit }`), each fetched once per run |
+| `timeoutMs` | `20000` | per-download timeout |
+| `maxBytes` | `8388608` | refuse a picture bigger than this (8 MiB) |
+
+The shipped file lists the pictures one by one, so the rotation is explicit and
+editable: desks, laptops, coffee cups, a portrait and a few outdoor scenes —
+different subjects rather than one photo repeated. Each entry is fetched once
+per run (the seeder needs network access for this, including inside the compose
+container) and then rotated over the check-ins it is about to write, so
+consecutive days and colleagues get different pictures. Pictures are stored as
+`proofs/<year>/<month>/<uuid>.<ext>` — the key shape the storage service hands
+out, so presigned downloads accept them — and the row is updated after the
+upload lands. The content type comes from the response, so a sample can be
+`.jpg`, `.png`, `.webp` or `.gif`. A URL that fails to download is logged and
+skipped, and the next sample in the rotation is tried instead.
+
+This is additive like the rest of the seed: new check-ins get a picture, and
+rows that already exist keep theirs. `--backfill-proofs` closes the gap left by
+older runs — it picks every `ON_TIME`/`LATE` row of a seeded employee whose
+`proof_key` is still `NULL` and attaches a picture. A row that already has a
+proof is never replaced, so photos someone really uploaded survive a re-seed.
 
 ## Compile and run the project
 
